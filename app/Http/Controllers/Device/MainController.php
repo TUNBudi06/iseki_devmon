@@ -16,14 +16,13 @@ class MainController extends Controller
             'device_id' => 'required|string|max:255|unique:device_managements,device_id'
         ]);
         debugbar()->info($data);
-return;
-        // Check if the device is already registered
-        $existingDevice = \App\Models\DeviceManagement::where('device_id', $deviceId)->first();
-        if ($existingDevice) {
-            return response()->json(['error' => 'Device is already registered.'], 400);
-        }
-
-        $jwt = new JwtManager($deviceName, $deviceId);
+//        // Check if the device is already registered
+//        $existingDevice = \App\Models\DeviceManagement::where('device_id', $deviceId)->first();
+//        if ($existingDevice) {
+//            return response()->json(['error' => 'Device is already registered.'], 400);
+//        }
+//
+//        $jwt = new JwtManager($deviceName, $deviceId);
 
 //        // Create a new device record
 //        $device = \App\Models\DeviceManagement::create([
@@ -33,6 +32,7 @@ return;
 //            'token' => $jwt->hashJwt(), // Generate a token (hashed)
 //        ]);
 
-        return response()->json(['message' => 'Device registered successfully. Awaiting approval.','jwt'=>$jwt->encode()], 201);
+//        return response()->json(['message' => 'Device registered successfully. Awaiting approval.','jwt'=>$jwt->encode()], 201);
+        return response()->json(['message' => 'Device registered successfully. Awaiting approval.','jwt'=>null], 201);
     }
 }
