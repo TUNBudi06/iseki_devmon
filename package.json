@@ -7,11 +7,34 @@
         "dev": "vite"
     },
     "devDependencies": {
-        "@tailwindcss/vite": "^4.0.0",
-        "axios": "^1.11.0",
-        "concurrently": "^9.0.1",
-        "laravel-vite-plugin": "^2.0.0",
-        "tailwindcss": "^4.0.0",
-        "vite": "^7.0.7"
+        "@fontsource-variable/inter": "^5.2.8",
+        "@fontsource-variable/roboto": "^5.2.10",
+        "@internationalized/date": "^3.12.0",
+        "@laravel/vite-plugin-wayfinder": "^0.1.7",
+        "@lucide/svelte": "^0.577.0",
+        "@tailwindcss/vite": "^4.3.0",
+        "axios": "^1.16.0",
+        "bits-ui": "^2.16.3",
+        "clsx": "^2.1.1",
+        "concurrently": "^9.2.1",
+        "laravel-vite-plugin": "^3.1.0",
+        "shadcn-svelte": "^1.2.7",
+        "tailwind-merge": "^3.5.0",
+        "tailwind-variants": "^3.2.2",
+        "tailwindcss": "^4.3.0",
+        "tw-animate-css": "^1.4.0",
+        "vite": "^8.0.12"
+    },
+    "dependencies": {
+        "@inertiajs/svelte": "^3.1.1",
+        "@inertiajs/vite": "^3.1.1",
+        "@sveltejs/vite-plugin-svelte": "^7.1.2",
+        "@tailwindcss/language-server": "^0.14.29",
+        "@tsconfig/svelte": "^5.0.8",
+        "@tunbudi06/inertia-route-helper": "^2.0.2",
+        "@types/node": "^25.7.0",
+        "svelte": "^5.55.5",
+        "svelte-language-server": "^0.18.0",
+        "typescript-svelte-plugin": "^0.3.52"
     }
 }

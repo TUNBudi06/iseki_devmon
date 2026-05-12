@@ -6,14 +6,18 @@ import { defineConfig } from 'vite';
 import path from 'path';
 
 export default defineConfig({
-    base: '/iseki_kyarcom/public/build',
+    base: '/iseki_devmon/public/build',
     build: {
-        rollupOptions: {
+        rolldownOptions: {
             output: {
-                manualChunks:{
-                    'vendor-svelte': ['svelte', 'svelte/animate', 'svelte/easing', 'svelte/motion', 'svelte/store', 'svelte/transition'],
-                    'vendor-icons': ['@lucide/svelte'],
-                    'vendor-shadcn': ['bits-ui'],
+                // manualChunks:{
+                //     'vendor-icons': ['@lucide/svelte'],
+                //     'vendor-shadcn': ['bits-ui'],
+                // },
+                manualChunks: (moduleId,meta) => {
+                    if (moduleId.includes('svelte')) {
+                        return 'vendor-svelte';
+                    }
                 },
                 chunkFileNames: (chunkInfo) => {
                     if (chunkInfo.name.startsWith('vendor')) {
@@ -40,6 +44,7 @@ export default defineConfig({
         }),
         wayfinder({
             formVariants: true,
+            actions:false
         }),
     ],
     resolve: {
