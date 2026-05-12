@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    // just incase for jwt secret
+    'jwt_secret' => "YAHH_Malasnya_Harus_Naik_Lagi"
 ];
