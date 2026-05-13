@@ -12,18 +12,6 @@
         <header class="flex h-16 shrink-0 items-center gap-2 border-b">
             <div class="flex items-center gap-2 px-3">
                 <SidebarTrigger />
-                <Separator orientation="vertical" class="me-2 h-4" />
-                <Breadcrumb.Root>
-                    <Breadcrumb.List>
-                        <Breadcrumb.Item class="hidden md:block">
-                            <Breadcrumb.Link href="##">Build Your Application</Breadcrumb.Link>
-                        </Breadcrumb.Item>
-                        <Breadcrumb.Separator class="hidden md:block" />
-                        <Breadcrumb.Item>
-                            <Breadcrumb.Page>Data Fetching</Breadcrumb.Page>
-                        </Breadcrumb.Item>
-                    </Breadcrumb.List>
-                </Breadcrumb.Root>
             </div>
         </header>
         <div class="p-2">

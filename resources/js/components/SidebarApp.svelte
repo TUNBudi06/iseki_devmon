@@ -1,48 +1,74 @@
 <script lang="ts">
-    import CalendarIcon from "@lucide/svelte/icons/calendar";
-    import HouseIcon from "@lucide/svelte/icons/house";
-    import InboxIcon from "@lucide/svelte/icons/inbox";
-    import SearchIcon from "@lucide/svelte/icons/search";
-    import SettingsIcon from "@lucide/svelte/icons/settings";
+    import {CalendarIcon,MonitorSmartphone,HouseIcon,ShieldAlert,UserStar,Settings,Logs} from "@lucide/svelte";
+
     import * as Sidebar from "$shadcn/components/ui/sidebar/index.js";
+    import {routeUrl} from "@tunbudi06/inertia-route-helper";
+    import {dashboard} from "$routes/admin";
 
     // Menu items.
     const items = [
         {
             title: "Home",
-            url: "#",
+            url: routeUrl(dashboard()),
             icon: HouseIcon,
         },
         {
-            title: "Inbox",
+            title: "List Devices",
             url: "#",
-            icon: InboxIcon,
+            icon: MonitorSmartphone,
         },
         {
-            title: "Calendar",
+            title: "Verify Device",
             url: "#",
-            icon: CalendarIcon,
+            icon: ShieldAlert,
         },
         {
-            title: "Search",
+            title: "List Logs",
             url: "#",
-            icon: SearchIcon,
-        },
-        {
-            title: "Settings",
-            url: "#",
-            icon: SettingsIcon,
-        },
+            icon: Logs,
+        }
     ];
+
+    const admins = [
+        {
+            title: "List Admins",
+            url: "#",
+            icon: UserStar,
+        },
+        {
+            title: "Pengaturan",
+            url: "#",
+            icon: Settings,
+        }
+    ]
 </script>
 
 <Sidebar.Root>
     <Sidebar.Content>
         <Sidebar.Group>
-            <Sidebar.GroupLabel>Application</Sidebar.GroupLabel>
+            <Sidebar.GroupLabel>Management Device</Sidebar.GroupLabel>
             <Sidebar.GroupContent>
                 <Sidebar.Menu>
                     {#each items as item (item.title)}
+                        <Sidebar.MenuItem>
+                            <Sidebar.MenuButton>
+                                {#snippet child({ props })}
+                                    <a href={item.url} {...props}>
+                                        <item.icon />
+                                        <span>{item.title}</span>
+                                    </a>
+                                {/snippet}
+                            </Sidebar.MenuButton>
+                        </Sidebar.MenuItem>
+                    {/each}
+                </Sidebar.Menu>
+            </Sidebar.GroupContent>
+        </Sidebar.Group>
+        <Sidebar.Group>
+            <Sidebar.GroupLabel>Management Admins</Sidebar.GroupLabel>
+            <Sidebar.GroupContent>
+                <Sidebar.Menu>
+                    {#each admins as item (item.title)}
                         <Sidebar.MenuItem>
                             <Sidebar.MenuButton>
                                 {#snippet child({ props })}
