@@ -7,29 +7,37 @@
     import { Input } from '$shadcn/components/ui/input/index.js';
     import {router} from "@inertiajs/svelte";
     import {routeUrl} from "@tunbudi06/inertia-route-helper";
-    import {deviceNotRegister, deviceRegisterAdd} from "$routes";
-    import {useForm} from "@inertiajs/svelte";
+    import {home, deviceRegisterAdd} from "$routes";
+    import {useHttp} from "@inertiajs/svelte";
+    import {FieldError} from "$shadcn/components/ui/field/index.ts";
+    import {saveDeviceAuth} from "$lib/indexedDB.ts";
 
-    const form = useForm({
+    const form = useHttp({
         deviceName: null,
         deviceId: null,
     })
     let isLoading = $state(false);
 
     function handleBack() {
-        router.visit(routeUrl(deviceNotRegister()));
+        router.visit(routeUrl(home()));
     }
 
-    function handleRegister(e: SubmitEvent) {
+    async function handleRegister(e: SubmitEvent) {
         e.preventDefault();
         isLoading = true;
-        console.log('Device registration:', { deviceName: form.deviceName, deviceId: form.deviceId });
-        form.post(routeUrl(deviceRegisterAdd()), {
+        // console.log('Device registration:', { deviceName: form.deviceName, deviceId: form.deviceId });
+        await form.post(routeUrl(deviceRegisterAdd()), {
             onFinish: () => {
                 isLoading = false;
             },
-            onSuccess: (params) => {
-                console.log(params);
+            onError: (errors) => {
+                console.error('Registration error:', errors);
+                isLoading = false;
+            },
+            onSuccess: async (params) => {
+                console.log('Registration successful:', params);
+                await saveDeviceAuth(form.deviceId, params.jwt);
+
             }
         });
     }
@@ -133,6 +141,7 @@
                         <FieldDescription class="text-xs">
                             ID unik perangkat (otomatis dihasilkan atau input manual)
                         </FieldDescription>
+                        <FieldError class="text-xs text-red-600 mt-1" >{form.errors.deviceId}</FieldError>
                     </Field>
 
                     <Button

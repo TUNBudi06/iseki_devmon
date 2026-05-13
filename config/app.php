@@ -124,5 +124,5 @@ return [
     ],
 
     // just incase for jwt secret
-    'jwt_secret' => "YAHH_Malasnya_Harus_Naik_Lagi"
+    'jwt_secret' => 'IEdrIbwjXqMxK+w4cBzbROoxekY4wH4jPpnfhEnGPoyoQSVnfQIwoELt4jwWnVc0PZCR6AlMQNOiIBRWBKn0gDQ==sekiDevMon_2026_Attendance_#9xQ2LmP8AaK1ZvR4TnW7',
 ];

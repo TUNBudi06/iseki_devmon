@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('device_management', function (Blueprint $table) {
             $table->id();
             $table->string('device_name');
-            $table->string('device_id');
+            $table->string('device_id')->unique();
             $table->boolean('approved')->default(false);
             $table->string('token')->comment('token hashed');
             $table->timestamp('last_seen_at')->nullable();

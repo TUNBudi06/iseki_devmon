@@ -6,33 +6,50 @@ use App\Http\Controllers\Controller;
 use App\Http\Helper\JwtManager;
 use App\Models\DeviceManagement;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MainController extends Controller
 {
     public function RegisterDevice(Request $request)
     {
-        $data = $request->validate([
-            'device_name' => 'required|string|max:255',
-            'device_id' => 'required|string|max:255|unique:device_managements,device_id'
+        $device_name = $request->input('deviceName');
+        $device_id = $request->input('deviceId');
+
+        // Check if the device is already registered
+        $existingDevice = DeviceManagement::where('device_id', $device_id)->first();
+        if ($existingDevice) {
+            return response()->json([
+                'errors' => [
+                    'deviceId' => ['Device is already registered.'],
+                ],
+            ], 422);
+        }
+        //
+        $jwt = new JwtManager($device_name, $device_id);
+
+        // Create a new device record
+        $device = DeviceManagement::create([
+            'device_name' => $device_name,
+            'device_id' => $device_id,
+            'approved' => false, // Set to false until approved by admin
+            'token' => $jwt->hashJwt(), // Generate a token (hashed)
         ]);
-        debugbar()->info($data);
-//        // Check if the device is already registered
-//        $existingDevice = \App\Models\DeviceManagement::where('device_id', $deviceId)->first();
-//        if ($existingDevice) {
-//            return response()->json(['error' => 'Device is already registered.'], 400);
-//        }
-//
-//        $jwt = new JwtManager($deviceName, $deviceId);
 
-//        // Create a new device record
-//        $device = \App\Models\DeviceManagement::create([
-//            'device_name' => $deviceName,
-//            'device_id' => $deviceId,
-//            'approved' => false, // Set to false until approved by admin
-//            'token' => $jwt->hashJwt(), // Generate a token (hashed)
-//        ]);
+        return response()->json(['message' => 'Device registered successfully. Awaiting approval.', 'jwt' => $jwt->encode()], 201);
+        //        return response()->json(['message' => 'Device registered successfully. Awaiting approval.','jwt'=>null], 201);
+    }
 
-//        return response()->json(['message' => 'Device registered successfully. Awaiting approval.','jwt'=>$jwt->encode()], 201);
-        return response()->json(['message' => 'Device registered successfully. Awaiting approval.','jwt'=>null], 201);
+    public function LoginDevice(string $deviceId)
+    {
+        $device = DeviceManagement::where('device_id', $deviceId)->first();
+
+        // Update last seen timestamp
+        $device->last_seen_at = now();
+        $device->save();
+
+        return Inertia::render('Account/LoginPage', [
+            'deviceName' => $device->device_name,
+            'deviceId' => $device->device_id,
+        ]);
     }
 }

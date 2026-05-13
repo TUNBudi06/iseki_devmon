@@ -5,7 +5,21 @@
     import { FieldDescription } from '$shadcn/components/ui/field/index.js';
     import {router} from "@inertiajs/svelte";
     import {routeUrl} from "@tunbudi06/inertia-route-helper";
-    import {deviceRegister} from "$routes";
+    import {deviceLogin, deviceRegister} from "$routes";
+    import {onMount} from "svelte";
+    import {getDeviceAuth} from "$lib/indexedDB.ts";
+
+    onMount(async () => {
+        // Cek apakah perangkat sudah terdaftar
+        // Jika sudah, redirect ke halaman utama atau dashboard
+        // Contoh: router.visit(routeUrl(dashboard()));
+
+        const auth = await getDeviceAuth()
+        // console.log('Device auth found:', auth);
+        if (auth) {
+            router.get(routeUrl(deviceLogin({deviceId:auth.device_id})))
+        }
+    });
 
     function handleRegister() {
         router.get(routeUrl(deviceRegister()))
