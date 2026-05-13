@@ -54,6 +54,7 @@ class MainController extends Controller
         return Inertia::render('Account/LoginPage', [
             'deviceName' => $device->device_name,
             'deviceId' => $device->device_id,
+            'status'=> $device->approved,
         ]);
     }
 
