@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {CalendarIcon,MonitorSmartphone,HouseIcon,ShieldAlert,UserStar,Settings,Logs} from "@lucide/svelte";
+    import {LogOut,MonitorSmartphone,HouseIcon,ShieldAlert,UserStar,Settings,Logs} from "@lucide/svelte";
 
     import * as Sidebar from "$shadcn/components/ui/sidebar/index.js";
     import {routeUrl} from "@tunbudi06/inertia-route-helper";
@@ -84,4 +84,18 @@
             </Sidebar.GroupContent>
         </Sidebar.Group>
     </Sidebar.Content>
+    <Sidebar.Footer>
+        <Sidebar.Menu>
+            <Sidebar.MenuItem>
+                <Sidebar.MenuButton>
+                    {#snippet child({ props })}
+                        <a href="#" {...props}>
+                            <h2 class="text-xl">Logout</h2>
+                            <LogOut />
+                        </a>
+                    {/snippet}
+                </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
+        </Sidebar.Menu>
+    </Sidebar.Footer>
 </Sidebar.Root>
