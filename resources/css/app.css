@@ -9,56 +9,47 @@
 :root {
     --radius: 0.625rem;
 
-    /* Base colors - Pink/White */
-    --background: oklch(0.98 0.02 350); /* Soft pink white */
-    --foreground: oklch(0.25 0.05 350); /* Dark pink text */
+    --background: oklch(0.98 0.02 350);
+    --foreground: oklch(0.25 0.05 350);
 
-    /* Cards - Slightly lighter pink */
-    --card: oklch(1 0 0); /* Pure white */
+    --card: oklch(1 0 0);
     --card-foreground: oklch(0.25 0.05 350);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.25 0.05 350);
 
-    /* Primary - Vibrant Pink */
-    --primary: oklch(0.65 0.22 350); /* Hot pink */
-    --primary-foreground: oklch(1 0 0); /* White text */
+    --primary: oklch(0.65 0.22 350);
+    --primary-foreground: oklch(1 0 0);
 
-    /* Secondary - Light Pink */
-    --secondary: oklch(0.92 0.05 350); /* Soft pink */
+    --secondary: oklch(0.92 0.05 350);
     --secondary-foreground: oklch(0.35 0.08 350);
 
-    /* Muted - Pale Pink */
     --muted: oklch(0.95 0.03 350);
     --muted-foreground: oklch(0.5 0.1 350);
 
-    /* Accent - Rose Pink */
-    --accent: oklch(0.75 0.18 350);
-    --accent-foreground: oklch(1 0 0);
+    --accent: oklch(0.92 0.05 350);
+    --accent-foreground: oklch(0.35 0.08 350);
 
-    /* Destructive - Rose Red */
     --destructive: oklch(0.6 0.2 25);
     --destructive-foreground: oklch(1 0 0);
 
-    /* Borders - Pink tint */
     --border: oklch(0.85 0.05 350);
     --input: oklch(0.85 0.05 350);
-    --ring: oklch(0.65 0.22 350); /* Primary pink ring */
+    --ring: oklch(0.65 0.22 350);
 
-    /* Charts - Pink variations */
-    --chart-1: oklch(0.65 0.22 350); /* Hot pink */
-    --chart-2: oklch(0.75 0.18 10); /* Coral */
-    --chart-3: oklch(0.55 0.15 320); /* Deep pink */
-    --chart-4: oklch(0.85 0.12 80); /* Peach */
-    --chart-5: oklch(0.7 0.2 340); /* Rose */
+    --chart-1: oklch(0.65 0.22 350);
+    --chart-2: oklch(0.75 0.18 10);
+    --chart-3: oklch(0.55 0.15 320);
+    --chart-4: oklch(0.85 0.12 80);
+    --chart-5: oklch(0.7 0.2 340);
 
-    /* Sidebar - Pink theme */
-    --sidebar: oklch(0.98 0.02 350);
+    /* Sidebar — lebih gelap dari background agar jelas berbeda */
+    --sidebar: oklch(0.93 0.04 350);              /* pink-100 ish */
     --sidebar-foreground: oklch(0.25 0.05 350);
-    --sidebar-primary: oklch(0.65 0.22 350);
+    --sidebar-primary: oklch(0.65 0.22 350);       /* pink aktif */
     --sidebar-primary-foreground: oklch(1 0 0);
-    --sidebar-accent: oklch(0.92 0.05 350);
-    --sidebar-accent-foreground: oklch(0.35 0.08 350);
-    --sidebar-border: oklch(0.85 0.05 350);
+    --sidebar-accent: oklch(0.88 0.07 350);        /* hover item */
+    --sidebar-accent-foreground: oklch(0.30 0.08 350);
+    --sidebar-border: oklch(0.82 0.07 350);        /* border lebih tegas */
     --sidebar-ring: oklch(0.65 0.22 350);
 }
 
@@ -66,49 +57,48 @@
    PINK THEME - DARK MODE
    ============================================ */
 .dark {
-    --background: oklch(0.2 0.05 350); /* Dark pink/black */
-    --foreground: oklch(0.95 0.02 350); /* Light pink text */
+    --background: oklch(0.18 0.04 350);
+    --foreground: oklch(0.95 0.02 350);
 
-    --card: oklch(0.25 0.06 350);
+    --card: oklch(0.23 0.05 350);
     --card-foreground: oklch(0.95 0.02 350);
-    --popover: oklch(0.25 0.06 350);
+    --popover: oklch(0.23 0.05 350);
     --popover-foreground: oklch(0.95 0.02 350);
 
-    /* Primary - Bright Pink in dark */
-    --primary: oklch(0.75 0.2 350);
+    --primary: oklch(0.72 0.2 350);
     --primary-foreground: oklch(0.15 0.05 350);
 
-    --secondary: oklch(0.35 0.08 350);
+    --secondary: oklch(0.32 0.07 350);
     --secondary-foreground: oklch(0.95 0.02 350);
 
-    --muted: oklch(0.3 0.06 350);
-    --muted-foreground: oklch(0.7 0.1 350);
+    --muted: oklch(0.28 0.05 350);
+    --muted-foreground: oklch(0.65 0.1 350);
 
-    --accent: oklch(0.4 0.1 350);
+    --accent: oklch(0.32 0.07 350);
     --accent-foreground: oklch(0.95 0.02 350);
 
     --destructive: oklch(0.55 0.2 25);
     --destructive-foreground: oklch(0.95 0.02 350);
 
-    --border: oklch(0.3 0.08 350 / 50%);
-    --input: oklch(0.3 0.08 350 / 30%);
-    --ring: oklch(0.75 0.2 350);
+    --border: oklch(0.30 0.07 350 / 60%);
+    --input: oklch(0.30 0.07 350 / 40%);
+    --ring: oklch(0.72 0.2 350);
 
-    /* Charts in dark */
     --chart-1: oklch(0.7 0.2 350);
     --chart-2: oklch(0.8 0.15 10);
     --chart-3: oklch(0.6 0.12 320);
     --chart-4: oklch(0.75 0.1 80);
     --chart-5: oklch(0.65 0.18 340);
 
-    --sidebar: oklch(0.2 0.05 350);
-    --sidebar-foreground: oklch(0.95 0.02 350);
-    --sidebar-primary: oklch(0.75 0.2 350);
+    /* Sidebar dark — lebih terang dari background agar kontras */
+    --sidebar: oklch(0.23 0.06 350);              /* sedikit lebih terang dari bg */
+    --sidebar-foreground: oklch(0.90 0.02 350);
+    --sidebar-primary: oklch(0.72 0.2 350);        /* pink aktif */
     --sidebar-primary-foreground: oklch(0.15 0.05 350);
-    --sidebar-accent: oklch(0.35 0.08 350);
-    --sidebar-accent-foreground: oklch(0.95 0.02 350);
-    --sidebar-border: oklch(0.3 0.08 350 / 50%);
-    --sidebar-ring: oklch(0.75 0.2 350);
+    --sidebar-accent: oklch(0.30 0.08 350);        /* hover item */
+    --sidebar-accent-foreground: oklch(0.92 0.02 350);
+    --sidebar-border: oklch(0.32 0.09 350 / 70%);
+    --sidebar-ring: oklch(0.72 0.2 350);
 }
 
 /* ============================================
