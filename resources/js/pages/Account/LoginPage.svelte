@@ -6,7 +6,7 @@
     import { Button } from '$shadcn/components/ui/button/index.js';
     import {router} from "@inertiajs/svelte";
     import {routeUrl} from "@tunbudi06/inertia-route-helper";
-    // import {deviceVerify} from "$routes";
+    import {deviceVerify} from "$routes";
     let {deviceId,deviceName} = $props();
 
     let nik = $state('');
@@ -26,7 +26,7 @@
     }
 
     function handleVerifyDevice() {
-        // router.get(routeUrl(deviceVerify()));
+        router.get(routeUrl(deviceVerify()));
     }
 </script>
 
@@ -47,13 +47,8 @@
                  {#if deviceName}
                      <div class="mt-2 p-2 sm:p-3 bg-pink-100 dark:bg-pink-900/30 rounded-lg border border-pink-300 dark:border-pink-700 w-full">
                          <FieldDescription class="text-xs sm:text-sm font-semibold text-pink-900 dark:text-pink-100">
-                             Device: <span class="font-bold">{deviceName}</span>
+                             Device: <span class="font-bold">{deviceName}</span> <span class="font-light">({deviceId})</span>
                          </FieldDescription>
-                         {#if deviceId}
-                             <FieldDescription class="text-xs text-pink-700 dark:text-pink-300 mt-1">
-                                 ID: {deviceId}
-                             </FieldDescription>
-                         {/if}
                      </div>
                  {/if}
              </div>
@@ -98,13 +93,26 @@
 
             <!-- Verify Device Button -->
             <div class="px-2">
-                <Button
-                    onclick={handleVerifyDevice}
-                    variant="outline"
-                    class="w-full border-pink-600 text-pink-600 hover:bg-pink-600 hover:text-white font-medium py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 h-10 text-sm"
-                >
-                    Verifikasi Device
-                </Button>
+                <div class="flex w-full justify-between gap-2">
+
+                    <!-- Verify Device -->
+                    <Button
+                        onclick={handleVerifyDevice}
+                        variant="outline"
+                        class="border-pink-600 w-40 text-pink-600 hover:bg-pink-600 hover:text-white font-medium py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 h-10 text-sm"
+                    >
+                        Verifikasi Device
+                    </Button>
+
+                    <!-- Login Admin -->
+                    <Button
+                        class="border-pink-600 w-40 text-pink-600 hover:bg-pink-600 hover:text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 h-10 text-sm"
+                        variant="outline"
+                    >
+                        Login Admin
+                    </Button>
+
+                </div>
             </div>
 
             <!-- Footer -->

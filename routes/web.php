@@ -12,6 +12,9 @@ Route::prefix('device')->group(function () {
     Route::get('register', function () {
         return Inertia::render('device/Register');
     })->name('deviceRegister');
+    Route::get('getverify', function () {
+        return Inertia::render('device/VerifyDevice');
+    })->name('deviceVerify');
 
     Route::post('add',[\App\Http\Controllers\Device\MainController::class,'RegisterDevice'])->name('deviceRegisterAdd');
 

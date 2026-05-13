@@ -43,6 +43,10 @@ class MainController extends Controller
     {
         $device = DeviceManagement::where('device_id', $deviceId)->first();
 
+        if (!$device) {
+            return redirect()->route('home')->with('error', 'Device not found.');
+        }
+
         // Update last seen timestamp
         $device->last_seen_at = now();
         $device->save();
@@ -50,6 +54,22 @@ class MainController extends Controller
         return Inertia::render('Account/LoginPage', [
             'deviceName' => $device->device_name,
             'deviceId' => $device->device_id,
+        ]);
+    }
+
+    public function GetDeviceInfo(Request $request)
+    {
+        $deviceId = $request->input('deviceId');
+        $device = DeviceManagement::where('device_id', $deviceId)->first();
+
+        if (!$device) {
+            return response()->json(['error' => 'Device not found.'], 404);
+        }
+
+        return response()->json([
+            'deviceName' => $device->device_name,
+            'approved' => $device->approved,
+            'lastSeenAt' => $device->last_seen_at,
         ]);
     }
 }

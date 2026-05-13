@@ -58,6 +58,17 @@
                 </Button>
             </div>
 
+            <!-- Register Button -->
+            <div class="w-full pt-2 sm:pt-4">
+                <Button
+                    onclick={handleRegister}
+                    class="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 h-12 sm:h-14 text-base sm:text-lg"
+                    size="lg"
+                >
+                    Admin Login
+                </Button>
+            </div>
+
             <!-- Additional Info -->
             <div class="mt-2 sm:mt-4">
                 <FieldDescription class="text-xs sm:text-sm text-pink-600 dark:text-pink-400">
