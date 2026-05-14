@@ -17,5 +17,9 @@ class DeviceManagement extends Model
         'approved',
         'token',
         'last_seen_at',
+        'comment',
+        'foto',
+        'battery',
+        'status',
     ];
 }
