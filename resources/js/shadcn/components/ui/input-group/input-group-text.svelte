@@ -1,23 +1,22 @@
 <script lang="ts">
     import { cn, type WithElementRef } from '$shadcn/utils.js';
-    import type { HTMLTdAttributes } from 'svelte/elements';
+    import type { HTMLAttributes } from 'svelte/elements';
 
     let {
         ref = $bindable(null),
         class: className,
         children,
         ...restProps
-    }: WithElementRef<HTMLTdAttributes> = $props();
+    }: WithElementRef<HTMLAttributes<HTMLSpanElement>> = $props();
 </script>
 
-<td
+<span
     bind:this={ref}
-    data-slot="table-cell"
     class={cn(
-        'p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0',
+        "text-muted-foreground gap-2 text-sm [&_svg:not([class*='size-'])]:size-4 flex items-center [&_svg]:pointer-events-none",
         className,
     )}
     {...restProps}
 >
     {@render children?.()}
-</td>
+</span>

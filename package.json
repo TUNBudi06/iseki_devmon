@@ -43,6 +43,7 @@
         "@tunbudi06/inertia-route-helper": "^2.0.2",
         "@types/node": "^25.7.0",
         "motion": "^12.38.0",
+        "qr-scanner": "^1.4.2",
         "qrcode": "^1.5.4",
         "runed": "^0.37.1",
         "svelte": "^5.55.5",

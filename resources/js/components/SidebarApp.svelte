@@ -3,7 +3,7 @@
         LogOut,
         MonitorSmartphone,
         HouseIcon,
-        ShieldAlert,
+        ShieldPlus,
         UserStar,
         Settings,
         Logs,
@@ -11,8 +11,8 @@
 
     import * as Sidebar from '$shadcn/components/ui/sidebar/index.js';
     import { isCurrentRoute, routeUrl } from '@tunbudi06/inertia-route-helper';
-    import { dashboard,logoutGet } from '$routes/admin';
-    import {router} from "@inertiajs/svelte";
+    import { dashboard, logoutGet, verifyDevice } from '$routes/admin';
+    import { router } from '@inertiajs/svelte';
 
     // Menu items.
     const items = [
@@ -27,9 +27,9 @@
             icon: MonitorSmartphone,
         },
         {
-            title: 'Verify Device',
-            url: '#',
-            icon: ShieldAlert,
+            title: 'Activation Device',
+            url: routeUrl(verifyDevice()),
+            icon: ShieldPlus,
         },
         {
             title: 'List Logs',
