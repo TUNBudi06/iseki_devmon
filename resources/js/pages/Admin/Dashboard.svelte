@@ -1,15 +1,17 @@
 <script lang="ts">
     import SidebarProvider from '$/components/SidebarProvider.svelte';
+    import { router } from '@inertiajs/svelte';
     import * as Card from '$shadcn/components/ui/card/index.js';
     import CardDashboard from '$/components/CardDashboard.svelte';
-    import {getIcon,getListOfIcons} from "$lib/IconImporter.ts";
+    import { getIcon } from '$lib/IconImporter.ts';
+    import { onMount } from 'svelte';
+    import { useInterval } from 'runed';
 
-    getListOfIcons().then((icons) => {
-        console.log(icons)
-    })
-
-    const icon = getIcon('activity')
-    console.log(icon)
+    // const interval = useInterval(10000,{
+    //     callback:()=> {
+    //         router.reload({only:['devices']})
+    //     }
+    // });
 </script>
 
 <SidebarProvider>
@@ -30,10 +32,4 @@
             comment="jumlah device yang tidak aktif digunakan"
         />
     </div>
-    {#await icon}
-        <span>loading...</span>
-    {:then Icon}
-        <svelte:component this={Icon} />
-    {/await}
-
 </SidebarProvider>
