@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Snippet } from 'svelte';
-    import {Toaster} from "$shadcn/components/ui/sonner/index.ts";
+    import { Toaster } from '$shadcn/components/ui/sonner/index.ts';
 
     let {
         title = '',

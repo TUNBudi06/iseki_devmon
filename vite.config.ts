@@ -7,28 +7,58 @@ import path from 'path';
 
 export default defineConfig({
     base: '/iseki_devmon/public/build',
-    build: {
-        rolldownOptions: {
-            output: {
-                // manualChunks:{
-                //     'vendor-icons': ['@lucide/svelte'],
-                //     'vendor-shadcn': ['bits-ui'],
-                // },
-                manualChunks: (moduleId,meta) => {
-                    if (moduleId.includes('svelte')) {
-                        return 'vendor-svelte';
-                    }
-                },
-                chunkFileNames: (chunkInfo) => {
-                    if (chunkInfo.name.startsWith('vendor')) {
-                        const name = chunkInfo.name.split('-')[1];
+    //i disable this make heayv load chunk since the bundling really big
+    // build: {
+    //     rolldownOptions: {
+    //         output: {
+    //             // manualChunks:{
+    //             //     'vendor-icons': ['@lucide/svelte'],
+    //             //     'vendor-shadcn': ['bits-ui'],
+    //             // },
+    //             manualChunks: (moduleId,meta) => {
+    //                 if (moduleId.includes('node_modules/svelte/')) {
+    //                     // console.log(moduleId)
+    //                     return 'vendor-svelte';
+    //                 }
+    //                 if (moduleId.includes('node_modules/@lucide/svelte/')) {
+    //                     // console.log(moduleId)
+    //                     return 'vendor-icons';
+    //                 }
+    //                 if (moduleId.includes('node_modules/bits-ui/')) {
+    //                     // console.log(moduleId)
+    //                     console.log(meta.getModuleInfo(moduleId))
+    //                     return 'vendor-UI';
+    //                 }
+    //                 console.log('module:' + moduleId)
+    //             },
+    //             chunkFileNames: (chunkInfo) => {
+    //                 if (chunkInfo.name.startsWith('vendor')) {
+    //                     const name = chunkInfo.name.split('-')[1];
+    //
+    //                     return 'vendor/'+name+'.[hash].js';
+    //                 }
+    //                 return 'assets/[name].[hash].js';
+    //             }
+    //         }
+    //     }
+    // },
+    build:{
+      rolldownOptions:{
+          output:{
+              manualChunks: (id,meta) => {
+                  if (id.includes('node_modules/@lucide/svelte/')) {
+                      const match = id.match(/icons\/([^/]+)/)
 
-                        return 'vendor/'+name+'.[hash].js';
-                    }
-                    return 'assets/[name].[hash].js';
-                }
-            }
-        }
+                      if (match) {
+                          return `icons/${match[1]}`
+                      }
+                  }
+                  if(id.includes('IconImporter')){
+                      return 'icons/default'
+                  }
+              }
+          }
+      }
     },
     plugins: [
         laravel({

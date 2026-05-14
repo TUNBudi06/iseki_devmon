@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "format": "prettier --write 'resources/js/**/*.{svelte,js,ts}'"
     },
     "devDependencies": {
         "@fontsource-variable/inter": "^5.2.8",
@@ -20,6 +21,10 @@
         "concurrently": "^9.2.1",
         "laravel-vite-plugin": "^3.1.0",
         "mode-watcher": "^1.1.0",
+        "prettier": "^3.8.3",
+        "prettier-plugin-organize-imports": "^4.3.0",
+        "prettier-plugin-svelte": "^3.5.2",
+        "prettier-plugin-tailwindcss": "^0.8.0",
         "shadcn-svelte": "^1.2.7",
         "svelte-sonner": "^1.1.1",
         "tailwind-merge": "^3.6.0",

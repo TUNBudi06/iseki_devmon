@@ -4,16 +4,26 @@
     import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
     import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
     import { Button } from '$shadcn/components/ui/button/index.js';
-    import { FieldGroup, Field, FieldLabel, FieldDescription, FieldError } from '$shadcn/components/ui/field/index.js';
+    import {
+        FieldGroup,
+        Field,
+        FieldLabel,
+        FieldDescription,
+        FieldError,
+    } from '$shadcn/components/ui/field/index.js';
     import { Input } from '$shadcn/components/ui/input/index.js';
-    import { router } from "@inertiajs/svelte";
-    import { routeUrl } from "@tunbudi06/inertia-route-helper";
-    import { home, deviceRegisterAdd } from "$routes";
-    import { useHttp } from "@inertiajs/svelte";
-    import { saveDeviceAuth, getDeviceAuth, clearDeviceAuth } from "$lib/indexedDB.ts";
+    import { router } from '@inertiajs/svelte';
+    import { routeUrl } from '@tunbudi06/inertia-route-helper';
+    import { home, deviceRegisterAdd } from '$routes';
+    import { useHttp } from '@inertiajs/svelte';
+    import {
+        saveDeviceAuth,
+        getDeviceAuth,
+        clearDeviceAuth,
+    } from '$lib/indexedDB.ts';
     import { onMount } from 'svelte';
-    import {toast} from "svelte-sonner";
-    import LayoutTop from "$/components/LayoutTop.svelte";
+    import { toast } from 'svelte-sonner';
+    import LayoutTop from '$/components/LayoutTop.svelte';
 
     const form = useHttp({
         deviceName: null,
@@ -23,7 +33,9 @@
     let isLoading = $state(false);
 
     // Data device yang sudah terdaftar (jika ada)
-    let registeredDevice = $state<{ device_id: string; jwt: string } | null>(null);
+    let registeredDevice = $state<{ device_id: string; jwt: string } | null>(
+        null,
+    );
 
     onMount(async () => {
         const auth = await getDeviceAuth();
@@ -44,10 +56,14 @@
         e.preventDefault();
         isLoading = true;
         await form.post(routeUrl(deviceRegisterAdd()), {
-            onFinish: () => { isLoading = false; },
+            onFinish: () => {
+                isLoading = false;
+            },
             onError: (errors) => {
                 console.error('Registration error:', errors);
-                toast.error('Gagal mendaftarkan device. Pastikan informasi sudah benar dan coba lagi.');
+                toast.error(
+                    'Gagal mendaftarkan device. Pastikan informasi sudah benar dan coba lagi.',
+                );
                 isLoading = false;
             },
             onSuccess: async (params) => {
@@ -55,33 +71,37 @@
                 registeredDevice = await getDeviceAuth();
                 toast.success('Device berhasil didaftarkan!');
                 router.visit(routeUrl(home()));
-            }
+            },
         });
     }
 
     async function handleUnregister() {
         if (!confirm('Hapus registrasi device ini?')) return;
         await clearDeviceAuth();
-        toast.success('Registrasi device dihapus. Anda dapat mendaftarkan ulang jika ingin menggunakan perangkat ini.');
+        toast.success(
+            'Registrasi device dihapus. Anda dapat mendaftarkan ulang jika ingin menggunakan perangkat ini.',
+        );
         registeredDevice = null;
         generateDeviceId();
     }
 
     function generateDeviceId() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        form.deviceId = Array.from({ length: 8 }, () =>
-            chars[Math.floor(Math.random() * chars.length)]
+        form.deviceId = Array.from(
+            { length: 8 },
+            () => chars[Math.floor(Math.random() * chars.length)],
         ).join('');
     }
 </script>
-<LayoutTop>
 
+<LayoutTop>
     <AppHead title="Daftarkan Device - iseki Devmon" />
-    <div class="bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900
-            flex min-h-svh flex-col items-center justify-center gap-4 sm:gap-6 p-4 sm:p-6 md:p-10">
+    <div
+        class="bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900
+            flex min-h-svh flex-col items-center justify-center gap-4 sm:gap-6 p-4 sm:p-6 md:p-10"
+    >
         <div class="w-full max-w-md mx-auto">
             <div class="flex flex-col gap-4 sm:gap-6">
-
                 <!-- Header -->
                 <div class="flex items-center gap-3 sm:gap-4 px-2">
                     <Button
@@ -93,12 +113,18 @@
                         <ArrowLeftIcon class="size-4 sm:size-5" />
                     </Button>
                     <div class="flex flex-col items-center flex-1">
-                        <div class="flex size-10 sm:size-12 items-center justify-center rounded-full
-                                bg-pink-500/10 border-2 border-pink-500/20">
+                        <div
+                            class="flex size-10 sm:size-12 items-center justify-center rounded-full
+                                bg-pink-500/10 border-2 border-pink-500/20"
+                        >
                             {#if registeredDevice}
-                                <ShieldCheckIcon class="size-5 sm:size-6 text-green-600 dark:text-green-400" />
+                                <ShieldCheckIcon
+                                    class="size-5 sm:size-6 text-green-600 dark:text-green-400"
+                                />
                             {:else}
-                                <SmartphoneIcon class="size-5 sm:size-6 text-pink-600 dark:text-pink-400" />
+                                <SmartphoneIcon
+                                    class="size-5 sm:size-6 text-pink-600 dark:text-pink-400"
+                                />
                             {/if}
                         </div>
                     </div>
@@ -106,39 +132,56 @@
 
                 <!-- Title -->
                 <div class="text-center space-y-2 px-2">
-                    <h1 class="text-xl sm:text-2xl font-bold text-pink-900 dark:text-pink-100">
-                        {registeredDevice ? 'Device Terdaftar' : 'Daftarkan Device'}
+                    <h1
+                        class="text-xl sm:text-2xl font-bold text-pink-900 dark:text-pink-100"
+                    >
+                        {registeredDevice
+                            ? 'Device Terdaftar'
+                            : 'Daftarkan Device'}
                     </h1>
-                    <FieldDescription class="text-sm sm:text-base text-pink-700 dark:text-pink-300 leading-relaxed">
+                    <FieldDescription
+                        class="text-sm sm:text-base text-pink-700 dark:text-pink-300 leading-relaxed"
+                    >
                         {#if registeredDevice}
                             Perangkat ini sudah terdaftar di sistem iseki Devmon
                         {:else}
-                            Masukkan informasi perangkat untuk mendaftarkannya ke sistem iseki Devmon
+                            Masukkan informasi perangkat untuk mendaftarkannya
+                            ke sistem iseki Devmon
                         {/if}
                     </FieldDescription>
                 </div>
 
                 {#if registeredDevice}
                     <!-- Already Registered State -->
-                    <div class="mx-2 rounded-2xl bg-white dark:bg-pink-950/60 border border-green-200
-                            dark:border-green-800 shadow-sm overflow-hidden">
+                    <div
+                        class="mx-2 rounded-2xl bg-white dark:bg-pink-950/60 border border-green-200
+                            dark:border-green-800 shadow-sm overflow-hidden"
+                    >
                         <div class="p-5 flex flex-col gap-4">
                             <!-- Status badge -->
                             <div class="flex items-center gap-2">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
                                          bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400
-                                         text-xs font-medium">
-                                <span class="size-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                                Terdaftar
-                            </span>
+                                         text-xs font-medium"
+                                >
+                                    <span
+                                        class="size-1.5 rounded-full bg-green-500 animate-pulse"
+                                    ></span>
+                                    Terdaftar
+                                </span>
                             </div>
 
                             <!-- Device ID -->
                             <div class="space-y-1">
-                                <p class="text-xs text-pink-500 dark:text-pink-400 uppercase tracking-widest font-medium">
+                                <p
+                                    class="text-xs text-pink-500 dark:text-pink-400 uppercase tracking-widest font-medium"
+                                >
                                     Device ID
                                 </p>
-                                <p class="font-mono text-base font-semibold text-pink-900 dark:text-pink-100 tracking-wider">
+                                <p
+                                    class="font-mono text-base font-semibold text-pink-900 dark:text-pink-100 tracking-wider"
+                                >
                                     {registeredDevice.device_id}
                                 </p>
                             </div>
@@ -163,13 +206,16 @@
                             Hapus Registrasi Device Ini
                         </Button>
                     </div>
-
                 {:else}
                     <!-- Registration Form -->
                     <form onsubmit={handleRegister} class="px-2">
                         <FieldGroup>
                             <Field>
-                                <FieldLabel for="deviceName" class="text-sm font-medium">Nama Device</FieldLabel>
+                                <FieldLabel
+                                    for="deviceName"
+                                    class="text-sm font-medium"
+                                    >Nama Device</FieldLabel
+                                >
                                 <Input
                                     id="deviceName"
                                     type="text"
@@ -180,12 +226,17 @@
                                     class="text-base h-11"
                                 />
                                 <FieldDescription class="text-xs">
-                                    Masukkan nama yang mudah diingat untuk perangkat ini
+                                    Masukkan nama yang mudah diingat untuk
+                                    perangkat ini
                                 </FieldDescription>
                             </Field>
 
                             <Field>
-                                <FieldLabel for="deviceId" class="text-sm font-medium">Device ID</FieldLabel>
+                                <FieldLabel
+                                    for="deviceId"
+                                    class="text-sm font-medium"
+                                    >Device ID</FieldLabel
+                                >
                                 <div class="flex gap-2">
                                     <Input
                                         id="deviceId"
@@ -194,8 +245,10 @@
                                         bind:value={form.deviceId}
                                         disabled={isLoading}
                                         oninput={() => {
-                                        form.deviceId = form.deviceId.toUpperCase().replace(/\s/g, '');
-                                    }}
+                                            form.deviceId = form.deviceId
+                                                .toUpperCase()
+                                                .replace(/\s/g, '');
+                                        }}
                                         class="flex-1 text-base h-11"
                                         maxlength="20"
                                     />
@@ -211,9 +264,12 @@
                                     </Button>
                                 </div>
                                 <FieldDescription class="text-xs">
-                                    ID unik perangkat (otomatis dihasilkan atau input manual)
+                                    ID unik perangkat (otomatis dihasilkan atau
+                                    input manual)
                                 </FieldDescription>
-                                <FieldError class="text-xs text-red-600 mt-1">{form.errors.deviceId}</FieldError>
+                                <FieldError class="text-xs text-red-600 mt-1"
+                                    >{form.errors.deviceId}</FieldError
+                                >
                             </Field>
 
                             <Button
@@ -223,20 +279,24 @@
                                    duration-200 h-12 sm:h-14 text-base sm:text-lg"
                                 disabled={isLoading || !form.deviceName?.trim()}
                             >
-                                {isLoading ? 'Mendaftarkan...' : 'Daftarkan Device'}
+                                {isLoading
+                                    ? 'Mendaftarkan...'
+                                    : 'Daftarkan Device'}
                             </Button>
                         </FieldGroup>
                     </form>
                 {/if}
 
-                <FieldDescription class="text-center text-xs sm:text-sm text-pink-600 dark:text-pink-400 px-2">
+                <FieldDescription
+                    class="text-center text-xs sm:text-sm text-pink-600 dark:text-pink-400 px-2"
+                >
                     {#if registeredDevice}
                         Device ini aktif dan siap digunakan untuk presensi
                     {:else}
-                        Pastikan informasi device sudah benar sebelum mendaftarkan
+                        Pastikan informasi device sudah benar sebelum
+                        mendaftarkan
                     {/if}
                 </FieldDescription>
-
             </div>
         </div>
     </div>

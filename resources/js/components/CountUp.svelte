@@ -24,7 +24,7 @@
         startWhen = true,
         separator = '',
         onStart,
-        onEnd
+        onEnd,
     }: Props = $props();
 
     let spanEl: HTMLSpanElement | undefined = $state();
@@ -39,14 +39,20 @@
         return 0;
     }
 
-    const maxDecimals = $derived(Math.max(getDecimalPlaces(from), getDecimalPlaces(to)));
+    const maxDecimals = $derived(
+        Math.max(getDecimalPlaces(from), getDecimalPlaces(to)),
+    );
 
-    function formatValue(latest: number, decimals: number, sep: string): string {
+    function formatValue(
+        latest: number,
+        decimals: number,
+        sep: string,
+    ): string {
         const hasDecimals = decimals > 0;
         const options: Intl.NumberFormatOptions = {
             useGrouping: !!sep,
             minimumFractionDigits: hasDecimals ? decimals : 0,
-            maximumFractionDigits: hasDecimals ? decimals : 0
+            maximumFractionDigits: hasDecimals ? decimals : 0,
         };
         const formatted = Intl.NumberFormat('en-US', options).format(latest);
         return sep ? formatted.replace(/,/g, sep) : formatted;
@@ -54,7 +60,11 @@
 
     $effect(() => {
         if (spanEl) {
-            spanEl.textContent = formatValue(direction === 'down' ? to : from, maxDecimals, separator);
+            spanEl.textContent = formatValue(
+                direction === 'down' ? to : from,
+                maxDecimals,
+                separator,
+            );
         }
     });
 
@@ -68,7 +78,7 @@
                     observer.unobserve(el);
                 }
             },
-            { threshold: 0 }
+            { threshold: 0 },
         );
         observer.observe(el);
         return () => observer.disconnect();
@@ -96,14 +106,17 @@
                 stiffness,
                 onUpdate: (latest: number) => {
                     if (el) el.textContent = formatValue(latest, decimals, sep);
-                }
+                },
             });
             stopFn = () => controls.stop();
         }, delay * 1000);
 
-        const endTimeout = setTimeout(() => {
-            onEnd?.();
-        }, (delay + duration) * 1000);
+        const endTimeout = setTimeout(
+            () => {
+                onEnd?.();
+            },
+            (delay + duration) * 1000,
+        );
 
         return () => {
             clearTimeout(startTimeout);

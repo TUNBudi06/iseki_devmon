@@ -1,6 +1,6 @@
-const DB_NAME = "attendance-db"
-const STORE_NAME = "auth"
-const KEY = "device"
+const DB_NAME = 'attendance-db';
+const STORE_NAME = 'auth';
+const KEY = 'device';
 
 interface DeviceAuth {
     device_id: string | number;
@@ -32,7 +32,7 @@ function openDB(): Promise<IDBDatabase> {
             reject(request.error);
         };
         request.onblocked = () => {
-            console.warn("IndexedDB upgrade blocked - close other tabs");
+            console.warn('IndexedDB upgrade blocked - close other tabs');
         };
     });
 
@@ -56,7 +56,7 @@ function promisifyTransaction(tx: IDBTransaction): Promise<void> {
     return new Promise((resolve, reject) => {
         tx.oncomplete = () => resolve();
         tx.onerror = () => reject(tx.error);
-        tx.onabort = () => reject(new Error("Transaction aborted"));
+        tx.onabort = () => reject(new Error('Transaction aborted'));
     });
 }
 
@@ -65,10 +65,10 @@ function promisifyTransaction(tx: IDBTransaction): Promise<void> {
  */
 export async function saveDeviceAuth(
     device_id: string | number,
-    jwt: string
+    jwt: string,
 ): Promise<void> {
     const db = await openDB();
-    const tx = db.transaction(STORE_NAME, "readwrite");
+    const tx = db.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
 
     const data: DeviceAuth = { device_id, jwt };
@@ -84,10 +84,12 @@ export async function saveDeviceAuth(
  */
 export async function getDeviceAuth(): Promise<DeviceAuth | null> {
     const db = await openDB();
-    const tx = db.transaction(STORE_NAME, "readonly");
+    const tx = db.transaction(STORE_NAME, 'readonly');
     const store = tx.objectStore(STORE_NAME);
 
-    const result = await promisifyRequest<DeviceAuth | undefined>(store.get(KEY));
+    const result = await promisifyRequest<DeviceAuth | undefined>(
+        store.get(KEY),
+    );
     return result ?? null;
 }
 
@@ -96,7 +98,7 @@ export async function getDeviceAuth(): Promise<DeviceAuth | null> {
  */
 export async function clearDeviceAuth(): Promise<void> {
     const db = await openDB();
-    const tx = db.transaction(STORE_NAME, "readwrite");
+    const tx = db.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
 
     store.delete(KEY);
@@ -109,7 +111,7 @@ export async function clearDeviceAuth(): Promise<void> {
  */
 export function closeDB(): void {
     if (dbPromise) {
-        dbPromise.then(db => db.close()).catch(() => {});
+        dbPromise.then((db) => db.close()).catch(() => {});
         dbPromise = null;
     }
 }

@@ -1,46 +1,54 @@
 <script lang="ts">
-    import {LogOut,MonitorSmartphone,HouseIcon,ShieldAlert,UserStar,Settings,Logs} from "@lucide/svelte";
+    import {
+        LogOut,
+        MonitorSmartphone,
+        HouseIcon,
+        ShieldAlert,
+        UserStar,
+        Settings,
+        Logs,
+    } from '@lucide/svelte';
 
-    import * as Sidebar from "$shadcn/components/ui/sidebar/index.js";
-    import {routeUrl} from "@tunbudi06/inertia-route-helper";
-    import {dashboard} from "$routes/admin";
+    import * as Sidebar from '$shadcn/components/ui/sidebar/index.js';
+    import { isCurrentRoute, routeUrl } from '@tunbudi06/inertia-route-helper';
+    import { dashboard } from '$routes/admin';
 
     // Menu items.
     const items = [
         {
-            title: "Home",
+            title: 'Home',
             url: routeUrl(dashboard()),
             icon: HouseIcon,
         },
         {
-            title: "List Devices",
-            url: "#",
+            title: 'List Devices',
+            url: '#',
             icon: MonitorSmartphone,
         },
         {
-            title: "Verify Device",
-            url: "#",
+            title: 'Verify Device',
+            url: '#',
             icon: ShieldAlert,
         },
         {
-            title: "List Logs",
-            url: "#",
+            title: 'List Logs',
+            url: '#',
             icon: Logs,
-        }
+        },
     ];
 
     const admins = [
         {
-            title: "List Admins",
-            url: "#",
+            title: 'List Admins',
+            url: '#',
             icon: UserStar,
         },
         {
-            title: "Pengaturan",
-            url: "#",
+            title: 'Pengaturan',
+            url: '#',
             icon: Settings,
-        }
-    ]
+        },
+    ];
 </script>
 
 <Sidebar.Root>
@@ -51,7 +59,9 @@
                 <Sidebar.Menu>
                     {#each items as item (item.title)}
                         <Sidebar.MenuItem>
-                            <Sidebar.MenuButton>
+                            <Sidebar.MenuButton
+                                isActive={isCurrentRoute(item.url)}
+                            >
                                 {#snippet child({ props })}
                                     <a href={item.url} {...props}>
                                         <item.icon />
@@ -90,7 +100,7 @@
                 <Sidebar.MenuButton>
                     {#snippet child({ props })}
                         <a href="#" {...props}>
-                            <h2 class="text-xl">Logout</h2>
+                            <h2 class="text-xl ps-2 me-auto">Logout</h2>
                             <LogOut />
                         </a>
                     {/snippet}

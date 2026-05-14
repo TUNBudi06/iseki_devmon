@@ -2,7 +2,7 @@ import type { ResolvedComponent } from '@inertiajs/svelte';
 import { createInertiaApp } from '@inertiajs/svelte';
 import { initRouteHelper } from '@tunbudi06/inertia-route-helper/init';
 import { hydrate, mount } from 'svelte';
-import '../css/app.css'
+import '../css/app.css';
 import './bootstrap';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
