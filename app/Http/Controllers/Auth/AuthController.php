@@ -32,4 +32,10 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Login berhasil']);
     }
+
+    public function logoutAdmin()
+    {
+        session()->invalidate();
+        return redirect()->route('home');
+    }
 }

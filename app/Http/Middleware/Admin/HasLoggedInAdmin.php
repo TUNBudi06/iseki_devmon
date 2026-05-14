@@ -16,7 +16,7 @@ class HasLoggedInAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (! session()->has('name') || ! session()->has('role')) {
-            return redirect()->route('deviceLogin');
+            return redirect()->route('home');
         }
 
         return $next($request);

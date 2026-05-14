@@ -30,5 +30,6 @@ Route::prefix('admin')->group(function () {
         Route::get('/dashboard', function () {
             return Inertia::render('Admin/Dashboard');
         })->name('admin.dashboard');
+        Route::get('/logout', [AuthController::class, 'logoutAdmin'])->name('admin.logoutGet');
     });
 });

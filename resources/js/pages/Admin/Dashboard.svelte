@@ -32,4 +32,10 @@
             comment="jumlah device yang tidak aktif digunakan"
         />
     </div>
+    <Card.Root class="w-full mt-5">
+        <Card.Header>
+            <Card.Title>All Device Log</Card.Title>
+            <Card.Description>Ini adalah semua log terbaru terkait device yang ada</Card.Description>
+        </Card.Header>
+    </Card.Root>
 </SidebarProvider>
