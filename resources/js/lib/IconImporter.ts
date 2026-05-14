@@ -1,13 +1,26 @@
+import type { ComponentType } from 'svelte';
+
 const pathIcons = "../../../node_modules/@lucide/svelte/dist/icons/"
 
-const icons = import.meta.glob(
+interface IconModule {
+    default: ComponentType;
+}
+
+type IconLoader = () => Promise<IconModule>;
+
+const icons = import.meta.glob<IconModule>(
     '../../../node_modules/@lucide/svelte/dist/icons/*.svelte'
 )
 
-export async function getIcon(name: string) {
+/**
+ * Dynamically load an icon component by name
+ * @param name - The name of the icon (without .svelte extension)
+ * @returns The icon component or null if not found
+ */
+export async function getIcon(name: string): Promise<ComponentType | null> {
     const path = `${pathIcons}${name}.svelte`;
 
-    const loader = icons[path];
+    const loader = icons[path] as IconLoader | undefined;
 
     if (!loader) return null;
 
@@ -15,9 +28,13 @@ export async function getIcon(name: string) {
     return mod.default;
 }
 
-export async function getListOfIcons() {
+/**
+ * Get a list of all available icon names
+ * @returns Array of icon names
+ */
+export async function getListOfIcons(): Promise<string[]> {
     return Object.keys(icons).map((path) => {
-        const tmp =  path.replace(pathIcons, '')
+        const tmp = path.replace(pathIcons, '')
         return tmp.replace('.svelte', '')
     });
 }
