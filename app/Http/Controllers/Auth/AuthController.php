@@ -36,6 +36,7 @@ class AuthController extends Controller
     public function logoutAdmin()
     {
         session()->invalidate();
+
         return redirect()->route('home');
     }
 }

@@ -28,6 +28,7 @@
         "prettier-plugin-tailwindcss": "^0.8.0",
         "shadcn-svelte": "^1.2.7",
         "svelte-sonner": "^1.1.1",
+        "svelte-toolbelt": "^0.10.6",
         "tailwind-merge": "^3.6.0",
         "tailwind-variants": "^3.2.2",
         "tailwindcss": "^4.3.0",

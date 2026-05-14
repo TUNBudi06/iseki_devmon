@@ -43,7 +43,7 @@ class MainController extends Controller
     {
         $device = DeviceManagement::where('device_id', $deviceId)->first();
 
-        if (!$device) {
+        if (! $device) {
             return redirect()->route('home')->with('error', 'Device not found.');
         }
 
@@ -54,7 +54,7 @@ class MainController extends Controller
         return Inertia::render('Account/LoginPage', [
             'deviceName' => $device->device_name,
             'deviceId' => $device->device_id,
-            'status'=> $device->approved,
+            'status' => $device->approved,
         ]);
     }
 
@@ -63,7 +63,7 @@ class MainController extends Controller
         $deviceId = $request->input('deviceId');
         $device = DeviceManagement::where('device_id', $deviceId)->first();
 
-        if (!$device) {
+        if (! $device) {
             return response()->json(['error' => 'Device not found.'], 404);
         }
 
@@ -72,5 +72,17 @@ class MainController extends Controller
             'approved' => $device->approved,
             'lastSeenAt' => $device->last_seen_at,
         ]);
+    }
+
+    public function GetDeviceId(Request $request)
+    {
+        $deviceId = $request->input('deviceId');
+        $device = DeviceManagement::where('device_id', $deviceId)->first();
+
+        if (! $device) {
+            return response()->json(['error' => 'Device not found.']);
+        }
+
+        return response()->json(['deviceId' => $device->device_id, 'deviceName' => $device->device_name, 'id' => $device->id,'approved'=>$device->approved]);
     }
 }
