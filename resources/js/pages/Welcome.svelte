@@ -27,7 +27,7 @@
     </div>
 
     <!-- Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-3xl relative z-10">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-7xl relative z-10">
 
         <!-- Device List -->
         <button
