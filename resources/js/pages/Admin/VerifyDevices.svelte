@@ -14,7 +14,7 @@
     } from '@lucide/svelte';
     import { Label } from '$shadcn/components/ui/label';
     import * as Field from '$shadcn/components/ui/field';
-    import { useForm } from '@inertiajs/svelte';
+    import {page, useForm} from '@inertiajs/svelte';
     import { Textarea } from '$shadcn/components/ui/textarea';
     import { Button } from '$shadcn/components/ui/button';
     import { Input } from '$shadcn/components/ui/input';
@@ -40,7 +40,8 @@
         },
     );
 
-    let qrValue = $state('');
+    // let qrValue = $state('');
+    let qrValue = $state('NEMESIS4563122'); // for testing purposes
     let video = $state<HTMLVideoElement>();
     let scanner = $state<QrScanner>();
     let openScanner = $state(false);
@@ -155,7 +156,8 @@
             return;
         }
         form.post(routeUrl(verifyDevicePost()), {
-            onSuccess: () => {
+            forceFormData: true,
+            onSuccess: (params) => {
                 toast.success('Device berhasil diaktivasi!');
                 handleCancel();
             },
@@ -182,7 +184,7 @@
         <Card.Root>
             <Card.Header>
                 <Card.Title class="text-base"
-                    >Scan atau Input QR Token</Card.Title
+                    >Scan atau Input QR Device ID</Card.Title
                 >
                 <Card.Description>
                     Arahkan kamera ke QR code device, atau ketik token secara
@@ -197,7 +199,7 @@
                         />
                         <Input
                             bind:value={qrValue}
-                            placeholder="QR Token..."
+                            placeholder="QR Device ID..."
                             class="pl-9"
                         />
                     </div>
