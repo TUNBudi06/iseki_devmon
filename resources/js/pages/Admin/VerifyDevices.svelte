@@ -1,28 +1,35 @@
 <script lang="ts">
     import SidebarProvider from '$/components/SidebarProvider.svelte';
     import AppHead from '$/components/AppHead.svelte';
-    import { resource, watch } from 'runed';
+    import { resource } from 'runed';
     import { tick } from 'svelte';
-    import { XIcon } from '@lucide/svelte';
+    import {
+        XIcon,
+        ScanQrCode,
+        ShieldCheck,
+        ShieldX,
+        RefreshCw,
+        CheckCircle2,
+        Camera,
+    } from '@lucide/svelte';
     import { Label } from '$shadcn/components/ui/label';
-    import * as Item from '$shadcn/components/ui/item';
     import * as Field from '$shadcn/components/ui/field';
     import { useForm } from '@inertiajs/svelte';
     import { Textarea } from '$shadcn/components/ui/textarea';
-    import { Progress } from '$shadcn/components/ui/progress';
     import { Button } from '$shadcn/components/ui/button';
+    import { Input } from '$shadcn/components/ui/input';
     import { SvelteDate } from 'svelte/reactivity';
     import { onDestroy } from 'svelte';
     import { deviceInfoId } from '$routes/api';
     import * as FileDropZone from '$shadcn/components/ui/file-drop-zone';
-
+    import * as Separator from '$shadcn/components/ui/separator';
+    import * as Alert from '$shadcn/components/ui/alert';
+    import * as Card from '$shadcn/components/ui/card';
+    import * as Badge from '$shadcn/components/ui/badge';
+    import { Spinner } from '$shadcn/components/ui/spinner';
     import QrScanner from 'qr-scanner';
     import { routeUrl } from '@tunbudi06/inertia-route-helper';
     import { verifyDevicePost } from '$routes/admin';
-    import { page } from '@inertiajs/svelte';
-    import * as Card from '$shadcn/components/ui/card';
-    import * as InputGroup from '$shadcn/components/ui/input-group';
-    import { Spinner } from '$shadcn/components/ui/spinner';
     import { toast } from 'svelte-sonner';
 
     const form = useForm<{ comment: string; image: File[]; id: number | null }>(
@@ -33,55 +40,51 @@
         },
     );
 
-    let qrValue = $state('NEMESIS4563122');
+    let qrValue = $state('');
     let video = $state<HTMLVideoElement>();
     let scanner = $state<QrScanner>();
     let openScanner = $state(false);
 
     const valueResult = resource(
         () => qrValue,
-        async (id, previousValue, { data, signal, refetching, onCleanup }) => {
+        async (id, _prev, { signal }) => {
+            if (!id) return null;
             const response = await fetch(routeUrl(deviceInfoId()), {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ deviceId: id }),
                 signal,
             });
-            const result = await response.json();
-            if (result.hasOwnProperty('error')) {
-                console.error(result.error);
-            } else {
-                console.log('Device Info:', result);
-            }
-            return result;
+            return await response.json();
         },
-        {
-            debounce: 500,
-        },
+        { debounce: 500 },
+    );
+
+    let deviceStatus = $derived(
+        valueResult.current
+            ? valueResult.current.error
+                ? 'error'
+                : valueResult.current.approved
+                  ? 'approved'
+                  : 'pending'
+            : 'idle',
     );
 
     async function startScanner() {
         openScanner = true;
-
         await tick();
-
         scanner = new QrScanner(
-            video,
-
+            video!,
             async (result) => {
                 qrValue = JSON.parse(result.data).deviceId;
                 await stopScanner();
             },
-
             {
                 preferredCamera: 'environment',
                 highlightScanRegion: true,
                 highlightCodeOutline: true,
             },
         );
-
         await scanner.start();
     }
 
@@ -90,289 +93,379 @@
             await scanner.stop();
             scanner.destroy();
         }
-
         openScanner = false;
     }
 
-    // Cleanup effect
-    $effect(() => {
-        return () => {
-            stopScanner();
-        };
-    });
+    $effect(() => () => stopScanner());
 
     const onUpload: FileDropZone.FileDropZoneRootProps['onUpload'] = async (
-        files,
+        fs,
     ) => {
-        await Promise.allSettled(files.map((file) => uploadFile(file)));
+        await Promise.allSettled(fs.map(uploadFile));
     };
+
     const onFileRejected: FileDropZone.FileDropZoneRootProps['onFileRejected'] =
         async ({ reason, file }) => {
-            toast.error(`${file.name} failed to upload!`, {
-                description: reason,
-            });
+            toast.error(`${file.name} gagal diupload`, { description: reason });
         };
-    const uploadFile = async (file: File) => {
-        // don't upload duplicate files
-        if (files.find((f) => f.name === file.name)) return;
-        const urlPromise = URL.createObjectURL(file);
-        files.push({
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            uploadedAt: Date.now(),
-            file: file,
-            url: urlPromise,
-        });
-        // we await since we don't want the onUpload to be complete until the files are actually uploaded
-        await urlPromise;
-    };
+
     type UploadedFile = {
         name: string;
         type: string;
         size: number;
         file: File;
         uploadedAt: number;
-        url: Promise<string>;
+        url: string;
     };
+
     let files = $state<UploadedFile[]>([]);
-    let date = new SvelteDate();
+
+    const uploadFile = async (file: File) => {
+        if (files.find((f) => f.name === file.name)) return;
+        files.push({
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            uploadedAt: Date.now(),
+            file,
+            url: URL.createObjectURL(file),
+        });
+    };
+
     $effect(() => {
-        form.image = files.map((file) => file.file);
-        form.id = valueResult.current?.id;
+        form.image = files.map((f) => f.file);
+        form.id = valueResult.current?.id ?? null;
     });
-    onDestroy(async () => {
-        for (const file of files) {
-            URL.revokeObjectURL(await file.url);
-        }
-    });
-    $effect(() => {
-        const interval = setInterval(() => {
-            date.setTime(Date.now());
-        }, 10);
-        return () => {
-            clearInterval(interval);
-        };
+
+    onDestroy(() => {
+        for (const file of files) URL.revokeObjectURL(file.url);
     });
 
     async function handleCancel() {
         form.reset();
-        qrValue = null;
-        await valueResult.refetch();
-        for (const file of files) {
-            URL.revokeObjectURL(await file.url);
-        }
+        qrValue = '';
+        for (const file of files) URL.revokeObjectURL(file.url);
         files = [];
     }
 
     function handleSubmit(e: Event) {
         e.preventDefault();
         if (form.image.length === 0) {
-            toast.error('Please upload at least one image', {
-                description: 'You must upload at least one image',
-            });
+            toast.error('Upload minimal 1 foto device');
             return;
         }
         form.post(routeUrl(verifyDevicePost()), {
-            onSuccess: (params) => {
-                console.log('Device approved successfully:', params);
-                toast.success('Device approved successfully!');
+            onSuccess: () => {
+                toast.success('Device berhasil diaktivasi!');
                 handleCancel();
             },
         });
     }
-
-    // $inspect(valueResult);
 </script>
 
-<AppHead title="Verify Devices" />
+<AppHead title="Aktivasi Device" />
 <SidebarProvider>
-    <Card.Root>
-        <Card.Header>
-            <div class="w-full text-2xl text-center font-bold">
-                Activation Device
-            </div>
+    <div class="container max-w-7xl mx-auto py-8 px-4 space-y-6">
+        <!-- Page Header -->
+        <div>
+            <h1 class="text-2xl font-semibold tracking-tight">
+                Aktivasi Device
+            </h1>
+            <p class="text-muted-foreground text-sm mt-1">
+                Verifikasi dan aktifkan perangkat lapangan menggunakan QR token
+            </p>
+        </div>
 
-            <div class="w-full text-md text-center font-light">
-                digunakan untuk memverifikasi device
-            </div>
-        </Card.Header>
+        <Separator.Root />
 
-        <Card.Content>
-            <InputGroup.Root class="h-10">
-                <InputGroup.Addon align="inline-start">
-                    <InputGroup.Button
-                        class="bg-green-200"
-                        onclick={startScanner}
-                    >
-                        Scan QR Here
-                    </InputGroup.Button>
-                </InputGroup.Addon>
-
-                <InputGroup.Input bind:value={qrValue} placeholder="QR Token" />
-
-                <InputGroup.Addon
-                    align="inline-end"
-                    class="bg-blend-luminosity"
+        <!-- QR Input Card -->
+        <Card.Root>
+            <Card.Header>
+                <Card.Title class="text-base"
+                    >Scan atau Input QR Token</Card.Title
                 >
-                    <InputGroup.Button onclick={valueResult.refetch}
-                        >Verify</InputGroup.Button
-                    >
-                </InputGroup.Addon>
-            </InputGroup.Root>
-            {#if valueResult.loading}
-                <Item.Root>
-                    <Item.Media>
-                        <Spinner />
-                    </Item.Media>
-                    <Item.Description>Fetching list Device....</Item.Description
-                    >
-                </Item.Root>
-            {/if}
-            {#if valueResult?.current?.approved}
-                <div class="mt-4 p-4 bg-green-100 rounded-lg">
-                    <h3 class="text-lg font-bold">Device is Approved</h3>
-                    <p>Device ID: {valueResult.current.deviceId}</p>
-                    <p>Device Name: {valueResult.current.deviceName}</p>
-                </div>
-            {/if}
-            {#if valueResult?.current?.error}
-                <div class="mt-4 p-4 bg-red-100 rounded-lg">
-                    <h3 class="text-lg font-bold">Error</h3>
-                    <p>{valueResult.current.error}</p>
-                </div>
-            {/if}
-            <form onsubmit={handleSubmit}>
-                {#if valueResult && !valueResult?.current?.approved && !valueResult.current?.error}
-                    <div class="w-full p-4 mt-4 rounded-lg mb-4 bg-yellow-100">
-                        <h3 class="text-lg font-bold text-center w-full">
-                            Device is not Approved
-                        </h3>
-                        <h3 class="text-sm font-light text-center w-full">
-                            tolong isi form dibawah ini untuk aktivasi device
-                        </h3>
+                <Card.Description>
+                    Arahkan kamera ke QR code device, atau ketik token secara
+                    manual
+                </Card.Description>
+            </Card.Header>
+            <Card.Content>
+                <div class="flex gap-2">
+                    <div class="relative flex-1">
+                        <ScanQrCode
+                            class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+                        />
+                        <Input
+                            bind:value={qrValue}
+                            placeholder="QR Token..."
+                            class="pl-9"
+                        />
                     </div>
-                    <Label for="DropZoneImage" class="mb-2"
-                        >Upload Foto Image</Label
+                    <Button
+                        variant="outline"
+                        onclick={startScanner}
+                        class="gap-2 shrink-0"
                     >
-                    <Field.Separator class="mb-1" />
-                    <FileDropZone.Root
-                        id="DropZoneImage"
-                        {onUpload}
-                        {onFileRejected}
-                        maxFileSize={5 * FileDropZone.MEGABYTE}
-                        accept="image/*"
-                        maxFiles={4}
-                        fileCount={files.length}
+                        <Camera class="size-4" />
+                        Scan
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onclick={valueResult.refetch}
+                        class="gap-2 shrink-0"
                     >
-                        <FileDropZone.Trigger title="Upload Device Image" />
-                    </FileDropZone.Root>
-                    <div class="flex flex-col gap-2">
-                        {#each files as file, i (file.name)}
-                            <div
-                                class="flex place-items-center justify-between gap-2"
-                            >
-                                <div class="flex place-items-center gap-2">
-                                    {#await file.url then src}
-                                        <div
-                                            class="relative size-9 overflow-clip"
-                                        >
-                                            <img
-                                                {src}
-                                                alt={file.name}
-                                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-clip"
-                                            />
-                                        </div>
-                                    {/await}
-                                    <div class="flex flex-col">
-                                        <span class="text-nowrap"
-                                            >{file.name}</span
-                                        >
-                                        <span
-                                            class="text-muted-foreground text-xs"
-                                            >{FileDropZone.displaySize(
-                                                file.size,
-                                            )}</span
-                                        >
-                                    </div>
-                                </div>
-                                {#await file.url}
-                                    <Progress
-                                        class="h-2 w-full grow"
-                                        value={((date.getTime() -
-                                            file.uploadedAt) /
-                                            1000) *
-                                            100}
-                                        max={100}
-                                    />
-                                {:then url}
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onclick={() => {
-                                            URL.revokeObjectURL(url);
-                                            files = [
-                                                ...files.slice(0, i),
-                                                ...files.slice(i + 1),
-                                            ];
-                                        }}
-                                    >
-                                        <XIcon />
-                                    </Button>
-                                {/await}
-                            </div>
-                        {/each}
-                    </div>
-                    <Field.Set>
-                        <Field.Group>
-                            <Field.Field>
-                                <Field.Label for="comment">Komentar</Field.Label
-                                >
-                                <Textarea
-                                    id="comment"
-                                    bind:value={form.comment}
-                                    placeholder="Tambahkan komentar untuk device ini"
-                                    rows={4}
-                                />
-                                <Field.Description>
-                                    Ini adalah tambahan komentar semisal "HP
-                                    untuk DST"
-                                </Field.Description>
-                            </Field.Field>
-                            <Field.Separator />
-                            <Field.Field
-                                orientation="responsive"
-                                class="justify-between flex"
-                            >
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onclick={handleCancel}>Cancel</Button
-                                >
-                                <Button type="submit">Approved</Button>
-                            </Field.Field>
-                        </Field.Group>
-                    </Field.Set>
-                {/if}
-            </form>
-        </Card.Content>
-    </Card.Root>
+                        <RefreshCw
+                            class="size-4 {valueResult.loading
+                                ? 'animate-spin'
+                                : ''}"
+                        />
+                        Cek
+                    </Button>
+                </div>
+            </Card.Content>
+        </Card.Root>
 
+        <!-- Status Result -->
+        {#if valueResult.loading}
+            <Card.Root>
+                <Card.Content class="py-8">
+                    <div
+                        class="flex items-center justify-center gap-3 text-muted-foreground"
+                    >
+                        <Spinner class="size-5" />
+                        <span class="text-sm">Mengecek device...</span>
+                    </div>
+                </Card.Content>
+            </Card.Root>
+        {:else if deviceStatus === 'approved'}
+            <Alert.Root
+                class="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/30"
+            >
+                <ShieldCheck
+                    class="size-4 text-green-600 dark:text-green-400"
+                />
+                <Alert.Title class="text-green-800 dark:text-green-300"
+                    >Device Sudah Aktif</Alert.Title
+                >
+                <Alert.Description>
+                    <div
+                        class="mt-2 space-y-1 text-green-700 dark:text-green-400"
+                    >
+                        <p class="text-sm">
+                            <span class="font-medium">ID:</span>
+                            {valueResult.current.deviceId}
+                        </p>
+                        <p class="text-sm">
+                            <span class="font-medium">Nama:</span>
+                            {valueResult.current.deviceName}
+                        </p>
+                    </div>
+                </Alert.Description>
+            </Alert.Root>
+        {:else if deviceStatus === 'error'}
+            <Alert.Root variant="destructive">
+                <ShieldX class="size-4" />
+                <Alert.Title>Device Tidak Ditemukan</Alert.Title>
+                <Alert.Description
+                    >{valueResult.current.error}</Alert.Description
+                >
+            </Alert.Root>
+        {:else if deviceStatus === 'pending'}
+            <!-- Activation Form -->
+            <Card.Root>
+                <Card.Header>
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <Card.Title class="text-base"
+                                >Form Aktivasi</Card.Title
+                            >
+                            <Card.Description>
+                                Device ditemukan tapi belum aktif. Lengkapi form
+                                berikut.
+                            </Card.Description>
+                        </div>
+                        <Badge.Root
+                            variant="outline"
+                            class="text-amber-600 border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-400 gap-1.5"
+                        >
+                            <ShieldX class="size-3" />
+                            Belum Aktif
+                        </Badge.Root>
+                    </div>
+                </Card.Header>
+
+                <Separator.Root />
+
+                <Card.Content class="pt-6">
+                    <form onsubmit={handleSubmit} class="space-y-6">
+                        <!-- Upload -->
+                        <Field.Set>
+                            <Field.Group>
+                                <Field.Field>
+                                    <Field.Label>
+                                        Foto Device
+                                        <span class="text-destructive ml-0.5"
+                                            >*</span
+                                        >
+                                    </Field.Label>
+                                    <FileDropZone.Root
+                                        id="DropZoneImage"
+                                        {onUpload}
+                                        {onFileRejected}
+                                        maxFileSize={5 * FileDropZone.MEGABYTE}
+                                        accept="image/*"
+                                        maxFiles={4}
+                                        fileCount={files.length}
+                                    >
+                                        <FileDropZone.Trigger
+                                            title="Upload foto device (maks. 4 foto)"
+                                        />
+                                    </FileDropZone.Root>
+                                    <Field.Description>
+                                        Upload foto fisik device sebagai bukti
+                                        verifikasi. Maks. 4 foto, 5MB per foto.
+                                    </Field.Description>
+                                </Field.Field>
+                            </Field.Group>
+                        </Field.Set>
+
+                        <!-- File Previews -->
+                        {#if files.length > 0}
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                {#each files as file, i (file.name)}
+                                    <div
+                                        class="relative group rounded-lg overflow-hidden border bg-muted aspect-square"
+                                    >
+                                        <img
+                                            src={file.url}
+                                            alt={file.name}
+                                            class="w-full h-full object-cover"
+                                        />
+                                        <!-- Overlay on hover -->
+                                        <div
+                                            class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center"
+                                        >
+                                            <Button
+                                                variant="destructive"
+                                                size="icon"
+                                                class="size-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                onclick={() => {
+                                                    URL.revokeObjectURL(
+                                                        file.url,
+                                                    );
+                                                    files = [
+                                                        ...files.slice(0, i),
+                                                        ...files.slice(i + 1),
+                                                    ];
+                                                }}
+                                            >
+                                                <XIcon class="size-3.5" />
+                                            </Button>
+                                        </div>
+                                        <!-- File name tooltip at bottom -->
+                                        <div
+                                            class="absolute bottom-0 inset-x-0 bg-black/60 px-2 py-1 translate-y-full group-hover:translate-y-0 transition-transform"
+                                        >
+                                            <p
+                                                class="text-white text-xs truncate"
+                                            >
+                                                {file.name}
+                                            </p>
+                                            <p class="text-white/60 text-xs">
+                                                {FileDropZone.displaySize(
+                                                    file.size,
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                {/each}
+                            </div>
+                        {/if}
+
+                        <Separator.Root />
+
+                        <!-- Comment -->
+                        <Field.Set>
+                            <Field.Group>
+                                <Field.Field>
+                                    <Field.Label for="comment"
+                                        >Komentar</Field.Label
+                                    >
+                                    <Textarea
+                                        id="comment"
+                                        bind:value={form.comment}
+                                        placeholder="Contoh: 'HP untuk DST Transmisi'"
+                                        rows={3}
+                                        class="resize-none"
+                                    />
+                                    <Field.Description>
+                                        Keterangan tambahan tentang device ini
+                                        (opsional)
+                                    </Field.Description>
+                                </Field.Field>
+                            </Field.Group>
+                        </Field.Set>
+
+                        <!-- Actions -->
+                        <div class="flex justify-between pt-2">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onclick={handleCancel}
+                            >
+                                Batal
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={form.processing}
+                                class="gap-2"
+                            >
+                                {#if form.processing}
+                                    <Spinner class="size-4" />
+                                    Memproses...
+                                {:else}
+                                    <CheckCircle2 class="size-4" />
+                                    Aktifkan Device
+                                {/if}
+                            </Button>
+                        </div>
+                    </form>
+                </Card.Content>
+            </Card.Root>
+        {/if}
+    </div>
+
+    <!-- QR Scanner Modal -->
     {#if openScanner}
         <div
-            class="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+            class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm"
         >
-            <div class="bg-white p-4 rounded-xl w-full max-w-xl">
-                <video bind:this={video} class="w-full rounded-lg" playsinline
-                ></video>
-
-                <button
-                    class="w-full mt-4 border rounded-lg p-2"
-                    onclick={stopScanner}
-                >
-                    Close Scanner
-                </button>
-            </div>
+            <Card.Root class="w-full max-w-sm mx-4">
+                <Card.Header>
+                    <Card.Title class="text-base">Scan QR Code</Card.Title>
+                    <Card.Description
+                        >Arahkan kamera ke QR code pada device</Card.Description
+                    >
+                </Card.Header>
+                <Card.Content class="space-y-4">
+                    <div
+                        class="rounded-lg overflow-hidden bg-black aspect-square"
+                    >
+                        <video
+                            bind:this={video}
+                            class="w-full h-full object-cover"
+                            playsinline
+                        ></video>
+                    </div>
+                    <Button
+                        variant="outline"
+                        class="w-full"
+                        onclick={stopScanner}
+                    >
+                        Tutup Scanner
+                    </Button>
+                </Card.Content>
+            </Card.Root>
         </div>
     {/if}
 </SidebarProvider>
