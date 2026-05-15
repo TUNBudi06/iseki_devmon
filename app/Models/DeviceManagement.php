@@ -22,4 +22,8 @@ class DeviceManagement extends Model
         'battery',
         'status',
     ];
+
+    protected $casts = [
+        'foto' => 'array',
+    ];
 }

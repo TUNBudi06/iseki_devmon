@@ -40,8 +40,8 @@
         },
     );
 
-    // let qrValue = $state('');
-    let qrValue = $state('NEMESIS4563122'); // for testing purposes
+    let qrValue = $state('');
+    // let qrValue = $state('NEMESIS4563122'); // for testing purposes
     let video = $state<HTMLVideoElement>();
     let scanner = $state<QrScanner>();
     let openScanner = $state(false);

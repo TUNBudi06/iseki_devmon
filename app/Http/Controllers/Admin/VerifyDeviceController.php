@@ -107,9 +107,15 @@ class VerifyDeviceController extends Controller
             'image.*' => 'required|image|mimes:jpeg,png,jpg,svg|max:5120',
         ]);
         $uploadedPhotos = $this->fotoAddHandlers($request, $data);
-        debugbar()->log($uploadedPhotos);
-        debugbar()->log($data);
+//        debugbar()->log($uploadedPhotos);
+//        debugbar()->log($data);
 
-        return response()->json("success", 200);
+        DeviceManagement::where('id', $data['id'])->update([
+            'approved' => true,
+            'comment' => $data['comment'],
+            'foto' => $uploadedPhotos,
+        ]);
+
+        return back()->with('success', 'Device verified successfully.');
     }
 }
