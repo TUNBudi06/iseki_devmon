@@ -14,6 +14,8 @@
     const fullTitle = $derived(title ? `${title} - ${appName}` : appName);
 </script>
 
+<Toaster richColors position="top-right" duration={3000} />
+
 <svelte:head>
     <title>{fullTitle}</title>
     {@render children?.()}

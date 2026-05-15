@@ -11,7 +11,7 @@
 
     import * as Sidebar from '$shadcn/components/ui/sidebar/index.js';
     import { isCurrentRoute, routeUrl } from '@tunbudi06/inertia-route-helper';
-    import { dashboard, logoutGet, verifyDevice } from '$routes/admin';
+    import { dashboard, logoutAdmin, verifyDevice } from '$routes/admin';
     import { router } from '@inertiajs/svelte';
 
     // Menu items.
@@ -100,7 +100,7 @@
             <Sidebar.MenuItem>
                 <Sidebar.MenuButton>
                     {#snippet child({ props })}
-                        <a href={routeUrl(logoutGet())} {...props}>
+                        <a href={routeUrl(logoutAdmin())} {...props}>
                             <h2 class="text-xl ps-2 me-auto">Logout</h2>
                             <LogOut />
                         </a>

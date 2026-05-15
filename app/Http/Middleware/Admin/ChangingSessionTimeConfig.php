@@ -15,9 +15,10 @@ class ChangingSessionTimeConfig
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(config('session.lifetime') == 720){
+        if (config('session.lifetime') == 720) {
             config(['session.lifetime' => 120]);
         }
+
         return $next($request);
     }
 }

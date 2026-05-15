@@ -83,6 +83,6 @@ class MainController extends Controller
             return response()->json(['error' => 'Device not found.']);
         }
 
-        return response()->json(['deviceId' => $device->device_id, 'deviceName' => $device->device_name, 'id' => $device->id,'approved'=>$device->approved]);
+        return response()->json(['deviceId' => $device->device_id, 'deviceName' => $device->device_name, 'id' => $device->id, 'approved' => $device->approved]);
     }
 }

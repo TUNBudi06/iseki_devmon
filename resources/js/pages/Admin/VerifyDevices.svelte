@@ -1,31 +1,37 @@
 <script lang="ts">
     import SidebarProvider from '$/components/SidebarProvider.svelte';
     import AppHead from '$/components/AppHead.svelte';
-    import { resource,watch } from 'runed';
+    import { resource, watch } from 'runed';
     import { tick } from 'svelte';
     import { XIcon } from '@lucide/svelte';
     import { Label } from '$shadcn/components/ui/label';
     import * as Item from '$shadcn/components/ui/item';
     import * as Field from '$shadcn/components/ui/field';
-    import {useForm} from '@inertiajs/svelte';
+    import { useForm } from '@inertiajs/svelte';
     import { Textarea } from '$shadcn/components/ui/textarea';
     import { Progress } from '$shadcn/components/ui/progress';
     import { Button } from '$shadcn/components/ui/button';
     import { SvelteDate } from 'svelte/reactivity';
     import { onDestroy } from 'svelte';
+    import { deviceInfoId } from '$routes/api';
     import * as FileDropZone from '$shadcn/components/ui/file-drop-zone';
 
     import QrScanner from 'qr-scanner';
     import { routeUrl } from '@tunbudi06/inertia-route-helper';
-    import { deviceInfoId } from '$routes/api';
+    import { verifyDevicePost } from '$routes/admin';
+    import { page } from '@inertiajs/svelte';
     import * as Card from '$shadcn/components/ui/card';
     import * as InputGroup from '$shadcn/components/ui/input-group';
     import { Spinner } from '$shadcn/components/ui/spinner';
+    import { toast } from 'svelte-sonner';
 
-    const form = useForm<{comment: string, image: File[]}>({
-        comment: '',
-        image: [],
-    })
+    const form = useForm<{ comment: string; image: File[]; id: number | null }>(
+        {
+            id: null,
+            comment: '',
+            image: [],
+        },
+    );
 
     let qrValue = $state('NEMESIS4563122');
     let video = $state<HTMLVideoElement>();
@@ -66,7 +72,6 @@
 
             async (result) => {
                 qrValue = JSON.parse(result.data).deviceId;
-
                 await stopScanner();
             },
 
@@ -133,7 +138,8 @@
     let files = $state<UploadedFile[]>([]);
     let date = new SvelteDate();
     $effect(() => {
-        form.image = files.map(file => file.file);
+        form.image = files.map((file) => file.file);
+        form.id = valueResult.current?.id;
     });
     onDestroy(async () => {
         for (const file of files) {
@@ -151,7 +157,8 @@
 
     async function handleCancel() {
         form.reset();
-        qrValue = '';
+        qrValue = null;
+        await valueResult.refetch();
         for (const file of files) {
             URL.revokeObjectURL(await file.url);
         }
@@ -160,13 +167,25 @@
 
     function handleSubmit(e: Event) {
         e.preventDefault();
+        if (form.image.length === 0) {
+            toast.error('Please upload at least one image', {
+                description: 'You must upload at least one image',
+            });
+            return;
+        }
+        form.post(routeUrl(verifyDevicePost()), {
+            onSuccess: (params) => {
+                console.log('Device approved successfully:', params);
+                toast.success('Device approved successfully!');
+                handleCancel();
+            },
+        });
     }
 
-    $inspect(form.image);
+    // $inspect(valueResult);
 </script>
 
 <AppHead title="Verify Devices" />
-
 <SidebarProvider>
     <Card.Root>
         <Card.Header>
@@ -224,7 +243,7 @@
                 </div>
             {/if}
             <form onsubmit={handleSubmit}>
-                {#if !valueResult?.current?.approved && !valueResult.current?.error}
+                {#if valueResult && !valueResult?.current?.approved && !valueResult.current?.error}
                     <div class="w-full p-4 mt-4 rounded-lg mb-4 bg-yellow-100">
                         <h3 class="text-lg font-bold text-center w-full">
                             Device is not Approved
@@ -236,6 +255,7 @@
                     <Label for="DropZoneImage" class="mb-2"
                         >Upload Foto Image</Label
                     >
+                    <Field.Separator class="mb-1" />
                     <FileDropZone.Root
                         id="DropZoneImage"
                         {onUpload}
@@ -306,8 +326,7 @@
                     <Field.Set>
                         <Field.Group>
                             <Field.Field>
-                                <Field.Label for="comment"
-                                    >Komentar</Field.Label
+                                <Field.Label for="comment">Komentar</Field.Label
                                 >
                                 <Textarea
                                     id="comment"

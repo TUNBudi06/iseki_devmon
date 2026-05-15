@@ -15,9 +15,10 @@ class redirectIfHadLoggedIn
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(session()->has('name') && session()->has('role') && session()->get('role') == 'admin'){
+        if (session()->has('name') && session()->has('role') && session()->get('role') == 'admin') {
             return redirect()->route('admin.dashboard');
         }
+
         return $next($request);
     }
 }
