@@ -9,7 +9,7 @@
     import { onMount } from 'svelte';
     import { getDeviceAuth } from '$lib/indexedDB.ts';
     import LayoutTop from '$/components/LayoutTop.svelte';
-    import {loginAdmin} from "$routes/admin";
+    import { loginAdmin } from '$routes/admin';
 
     onMount(async () => {
         // Cek apakah perangkat sudah terdaftar
