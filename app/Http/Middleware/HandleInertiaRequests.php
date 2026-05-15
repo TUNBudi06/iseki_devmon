@@ -38,10 +38,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
-            'auth' => [
-                'user' => $request->session()->get('name'),
-                'role' => $request->session()->get('role'),
-            ],
+            'auth' => [],
             'baseUrl' => rtrim(config('app.url'), '/'),
             'importSummary' => fn () => $request->session()->get('importSummary'),
         ];
