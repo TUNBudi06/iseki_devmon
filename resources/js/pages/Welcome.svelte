@@ -2,13 +2,15 @@
     import { router } from '@inertiajs/svelte';
     import { Monitor, UserCircle, ShieldCheck, ArrowRight } from '@lucide/svelte';
     import Particles from "$shadcn/components/Particles.svelte";
+    import {routeUrl} from "@tunbudi06/inertia-route-helper";
+    import {listPhone} from "$routes/phone";
 </script>
 
 <div class="min-h-screen bg-background flex flex-col items-center justify-center p-8 gap-10 relative overflow-hidden">
     <Particles particleCount={350} particleBaseSize={130} speed={0.1} class="absolute inset-0 z-0" />
     <!-- Blob dekorasi -->
-    <div class="absolute -top-52 -left-40 w-[600px] h-[600px] rounded-full bg-gradient-pink opacity-10 blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-52 -right-32 w-[500px] h-[500px] rounded-full bg-gradient-pink opacity-8 blur-3xl pointer-events-none"></div>
+    <div class="absolute -top-52 -left-40 w-150 h-150 rounded-full bg-gradient-pink opacity-10 blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-52 -right-32 w-125 h-125 rounded-full bg-gradient-pink opacity-8 blur-3xl pointer-events-none"></div>
 
     <!-- Hero text -->
     <div class="text-center relative z-10 space-y-3">
@@ -17,7 +19,7 @@
             Device Management System
         </div>
         <h1 class="text-4xl font-semibold tracking-tight">
-            Selamat datang di <span class="text-gradient-pink">DevControl</span>
+            Selamat datang di <span class="bg-linear-to-br bg-clip-text text-transparent from-blue-700 to-violet-900">ISEKI-</span><span class="text-gradient-pink">DevControl</span>
         </h1>
         <p class="text-muted-foreground text-sm max-w-md mx-auto">
             Platform terpadu untuk memantau, mengelola, dan mengaktivasi perangkat lapangan secara realtime.
@@ -29,7 +31,7 @@
 
         <!-- Device List -->
         <button
-            onclick={() => router.visit('/devices')}
+            onclick={() => router.visit(routeUrl(listPhone()))}
             class="group bg-card border border-border rounded-xl p-6 flex flex-col items-center gap-3 text-center cursor-pointer hover:-translate-y-1 hover:border-primary/40 hover:shadow-sm transition-all duration-200"
         >
             <div class="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary/15 transition-colors">
