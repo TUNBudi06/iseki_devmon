@@ -11,4 +11,4 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Home route
-Route::get('/', fn () => Inertia::render('device/NotRegister'))->name('home');
+Route::get('/', fn () => Inertia::render('Welcome'))->name('home');
