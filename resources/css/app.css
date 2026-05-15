@@ -4,101 +4,96 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================
-   PINK THEME - LIGHT MODE
+   PINK × BLACK PREMIUM THEME
    ============================================ */
 :root {
     --radius: 0.625rem;
 
-    --background: oklch(0.98 0.02 350);
-    --foreground: oklch(0.25 0.05 350);
+    --background: oklch(0.99 0.005 350);
+    --foreground: oklch(0.12 0.04 350);
 
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.25 0.05 350);
+    --card-foreground: oklch(0.12 0.04 350);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.25 0.05 350);
+    --popover-foreground: oklch(0.12 0.04 350);
 
-    --primary: oklch(0.65 0.22 350);
+    --primary: oklch(0.62 0.24 350);
     --primary-foreground: oklch(1 0 0);
 
-    --secondary: oklch(0.92 0.05 350);
-    --secondary-foreground: oklch(0.35 0.08 350);
+    --secondary: oklch(0.94 0.04 350);
+    --secondary-foreground: oklch(0.25 0.06 350);
 
-    --muted: oklch(0.95 0.03 350);
-    --muted-foreground: oklch(0.5 0.1 350);
+    --muted: oklch(0.96 0.02 350);
+    --muted-foreground: oklch(0.52 0.08 350);
 
-    --accent: oklch(0.92 0.05 350);
-    --accent-foreground: oklch(0.35 0.08 350);
+    --accent: oklch(0.93 0.06 350);
+    --accent-foreground: oklch(0.25 0.08 350);
 
-    --destructive: oklch(0.6 0.2 25);
+    --destructive: oklch(0.58 0.22 25);
     --destructive-foreground: oklch(1 0 0);
 
-    --border: oklch(0.85 0.05 350);
-    --input: oklch(0.85 0.05 350);
-    --ring: oklch(0.65 0.22 350);
+    --border: oklch(0.88 0.04 350);
+    --input: oklch(0.88 0.04 350);
+    --ring: oklch(0.62 0.24 350);
 
-    --chart-1: oklch(0.65 0.22 350);
-    --chart-2: oklch(0.75 0.18 10);
-    --chart-3: oklch(0.55 0.15 320);
-    --chart-4: oklch(0.85 0.12 80);
-    --chart-5: oklch(0.7 0.2 340);
+    --chart-1: oklch(0.62 0.24 350);
+    --chart-2: oklch(0.72 0.18 10);
+    --chart-3: oklch(0.52 0.16 320);
+    --chart-4: oklch(0.82 0.12 80);
+    --chart-5: oklch(0.68 0.2 340);
 
-    /* Sidebar — lebih gelap dari background agar jelas berbeda */
-    --sidebar: oklch(0.93 0.04 350);              /* pink-100 ish */
-    --sidebar-foreground: oklch(0.25 0.05 350);
-    --sidebar-primary: oklch(0.65 0.22 350);       /* pink aktif */
+    --sidebar: oklch(0.97 0.015 350);
+    --sidebar-foreground: oklch(0.18 0.05 350);
+    --sidebar-primary: oklch(0.62 0.24 350);
     --sidebar-primary-foreground: oklch(1 0 0);
-    --sidebar-accent: oklch(0.88 0.07 350);        /* hover item */
-    --sidebar-accent-foreground: oklch(0.30 0.08 350);
-    --sidebar-border: oklch(0.82 0.07 350);        /* border lebih tegas */
-    --sidebar-ring: oklch(0.65 0.22 350);
+    --sidebar-accent: oklch(0.92 0.06 350);
+    --sidebar-accent-foreground: oklch(0.22 0.07 350);
+    --sidebar-border: oklch(0.87 0.05 350);
+    --sidebar-ring: oklch(0.62 0.24 350);
 }
 
-/* ============================================
-   PINK THEME - DARK MODE
-   ============================================ */
 .dark {
-    --background: oklch(0.18 0.04 350);
-    --foreground: oklch(0.95 0.02 350);
+    --background: oklch(0.10 0.02 350);
+    --foreground: oklch(0.96 0.015 350);
 
-    --card: oklch(0.23 0.05 350);
-    --card-foreground: oklch(0.95 0.02 350);
-    --popover: oklch(0.23 0.05 350);
-    --popover-foreground: oklch(0.95 0.02 350);
+    --card: oklch(0.14 0.03 350);
+    --card-foreground: oklch(0.96 0.015 350);
+    --popover: oklch(0.14 0.03 350);
+    --popover-foreground: oklch(0.96 0.015 350);
 
-    --primary: oklch(0.72 0.2 350);
-    --primary-foreground: oklch(0.15 0.05 350);
+    --primary: oklch(0.72 0.22 350);
+    --primary-foreground: oklch(0.10 0.03 350);
 
-    --secondary: oklch(0.32 0.07 350);
-    --secondary-foreground: oklch(0.95 0.02 350);
+    --secondary: oklch(0.20 0.05 350);
+    --secondary-foreground: oklch(0.92 0.02 350);
 
-    --muted: oklch(0.28 0.05 350);
-    --muted-foreground: oklch(0.65 0.1 350);
+    --muted: oklch(0.18 0.04 350);
+    --muted-foreground: oklch(0.62 0.10 350);
 
-    --accent: oklch(0.32 0.07 350);
-    --accent-foreground: oklch(0.95 0.02 350);
+    --accent: oklch(0.22 0.06 350);
+    --accent-foreground: oklch(0.92 0.02 350);
 
-    --destructive: oklch(0.55 0.2 25);
-    --destructive-foreground: oklch(0.95 0.02 350);
+    --destructive: oklch(0.55 0.22 25);
+    --destructive-foreground: oklch(0.96 0.015 350);
 
-    --border: oklch(0.30 0.07 350 / 60%);
-    --input: oklch(0.30 0.07 350 / 40%);
-    --ring: oklch(0.72 0.2 350);
+    --border: oklch(0.24 0.06 350 / 50%);
+    --input: oklch(0.24 0.06 350 / 35%);
+    --ring: oklch(0.72 0.22 350);
 
-    --chart-1: oklch(0.7 0.2 350);
-    --chart-2: oklch(0.8 0.15 10);
-    --chart-3: oklch(0.6 0.12 320);
-    --chart-4: oklch(0.75 0.1 80);
-    --chart-5: oklch(0.65 0.18 340);
+    --chart-1: oklch(0.72 0.22 350);
+    --chart-2: oklch(0.80 0.16 10);
+    --chart-3: oklch(0.60 0.14 320);
+    --chart-4: oklch(0.76 0.10 80);
+    --chart-5: oklch(0.68 0.18 340);
 
-    /* Sidebar dark — lebih terang dari background agar kontras */
-    --sidebar: oklch(0.23 0.06 350);              /* sedikit lebih terang dari bg */
-    --sidebar-foreground: oklch(0.90 0.02 350);
-    --sidebar-primary: oklch(0.72 0.2 350);        /* pink aktif */
-    --sidebar-primary-foreground: oklch(0.15 0.05 350);
-    --sidebar-accent: oklch(0.30 0.08 350);        /* hover item */
-    --sidebar-accent-foreground: oklch(0.92 0.02 350);
-    --sidebar-border: oklch(0.32 0.09 350 / 70%);
-    --sidebar-ring: oklch(0.72 0.2 350);
+    --sidebar: oklch(0.13 0.04 350);
+    --sidebar-foreground: oklch(0.92 0.02 350);
+    --sidebar-primary: oklch(0.72 0.22 350);
+    --sidebar-primary-foreground: oklch(0.10 0.03 350);
+    --sidebar-accent: oklch(0.20 0.07 350);
+    --sidebar-accent-foreground: oklch(0.94 0.02 350);
+    --sidebar-border: oklch(0.26 0.08 350 / 60%);
+    --sidebar-ring: oklch(0.72 0.22 350);
 }
 
 /* ============================================
@@ -110,7 +105,6 @@
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
 
-    /* Map to Tailwind colors */
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-card: var(--card);
@@ -144,18 +138,18 @@
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
 
-    /* Additional pink shades */
-    --color-pink-50: oklch(0.97 0.01 350);
-    --color-pink-100: oklch(0.94 0.03 350);
-    --color-pink-200: oklch(0.89 0.06 350);
-    --color-pink-300: oklch(0.8 0.12 350);
-    --color-pink-400: oklch(0.71 0.18 350);
-    --color-pink-500: oklch(0.65 0.22 350);
-    --color-pink-600: oklch(0.57 0.2 350);
-    --color-pink-700: oklch(0.5 0.17 350);
-    --color-pink-800: oklch(0.42 0.14 350);
-    --color-pink-900: oklch(0.35 0.11 350);
-    --color-pink-950: oklch(0.25 0.08 350);
+    /* Pink scale lengkap */
+    --color-pink-50:  oklch(0.98 0.008 350);
+    --color-pink-100: oklch(0.95 0.025 350);
+    --color-pink-200: oklch(0.90 0.055 350);
+    --color-pink-300: oklch(0.82 0.11  350);
+    --color-pink-400: oklch(0.72 0.18  350);
+    --color-pink-500: oklch(0.62 0.24  350);
+    --color-pink-600: oklch(0.54 0.22  350);
+    --color-pink-700: oklch(0.46 0.18  350);
+    --color-pink-800: oklch(0.36 0.14  350);
+    --color-pink-900: oklch(0.26 0.10  350);
+    --color-pink-950: oklch(0.16 0.06  350);
 }
 
 /* ============================================
@@ -168,13 +162,203 @@
 
     body {
         @apply bg-background text-foreground;
-        font-feature-settings:
-            'rlig' 1,
-            'calt' 1;
+        font-feature-settings: 'rlig' 1, 'calt' 1;
     }
 
-    /* Selection - Pink highlight */
     ::selection {
-        background: oklch(0.85 0.15 350 / 30%);
+        background: oklch(0.72 0.22 350 / 25%);
     }
+}
+
+/* ============================================
+   GRADIENT UTILITIES — siap pakai di template
+   ============================================ */
+@layer utilities {
+
+    /* Background gradients */
+    .bg-gradient-pink {
+        background: linear-gradient(135deg,
+        oklch(0.62 0.24 350) 0%,
+        oklch(0.50 0.20 330) 100%
+        );
+    }
+
+    .bg-gradient-pink-soft {
+        background: linear-gradient(135deg,
+        oklch(0.97 0.025 350) 0%,
+        oklch(0.93 0.055 345) 100%
+        );
+    }
+
+    /* Dark: pink → near-black */
+    .dark .bg-gradient-pink {
+        background: linear-gradient(135deg,
+        oklch(0.72 0.22 350) 0%,
+        oklch(0.55 0.18 335) 100%
+        );
+    }
+
+    .bg-gradient-dark-pink {
+        background: linear-gradient(135deg,
+        oklch(0.10 0.02 350) 0%,
+        oklch(0.18 0.08 350) 50%,
+        oklch(0.12 0.05 335) 100%
+        );
+    }
+
+    /* Mesh / radial blob — pakai sebagai ::before atau langsung */
+    .bg-mesh-pink {
+        background:
+            radial-gradient(ellipse 60% 50% at 20% 30%,
+            oklch(0.82 0.14 350 / 35%) 0%,
+            transparent 70%
+            ),
+            radial-gradient(ellipse 50% 60% at 80% 70%,
+            oklch(0.68 0.18 335 / 25%) 0%,
+            transparent 70%
+            ),
+            var(--background);
+    }
+
+    .dark .bg-mesh-pink {
+        background:
+            radial-gradient(ellipse 60% 50% at 20% 30%,
+            oklch(0.62 0.22 350 / 15%) 0%,
+            transparent 70%
+            ),
+            radial-gradient(ellipse 50% 60% at 80% 70%,
+            oklch(0.50 0.18 335 / 12%) 0%,
+            transparent 70%
+            ),
+            var(--background);
+    }
+
+    /* Text gradients */
+    .text-gradient-pink {
+        background: linear-gradient(135deg,
+        oklch(0.62 0.24 350),
+        oklch(0.50 0.20 325)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .dark .text-gradient-pink {
+        background: linear-gradient(135deg,
+        oklch(0.82 0.20 350),
+        oklch(0.68 0.18 330)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Border gradient — pakai sebagai wrapper */
+    .border-gradient-pink {
+        border: 1px solid transparent;
+        background-clip: padding-box;
+        position: relative;
+    }
+
+    .border-gradient-pink::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: inherit;
+        background: linear-gradient(135deg,
+        oklch(0.72 0.22 350),
+        oklch(0.55 0.16 330)
+        );
+        z-index: -1;
+    }
+
+    /* Glow effects */
+    .glow-pink {
+        box-shadow:
+            0 0 20px oklch(0.72 0.22 350 / 30%),
+            0 0 60px oklch(0.62 0.24 350 / 15%);
+    }
+
+    .glow-pink-sm {
+        box-shadow: 0 0 12px oklch(0.72 0.22 350 / 25%);
+    }
+
+    .dark .glow-pink {
+        box-shadow:
+            0 0 25px oklch(0.72 0.22 350 / 40%),
+            0 0 80px oklch(0.62 0.24 350 / 20%);
+    }
+
+    /* Shimmer animation — untuk skeleton / loading */
+    .shimmer-pink {
+        background: linear-gradient(
+            90deg,
+            oklch(0.92 0.04 350) 0%,
+            oklch(0.85 0.10 350) 50%,
+            oklch(0.92 0.04 350) 100%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.8s ease-in-out infinite;
+    }
+
+    .dark .shimmer-pink {
+        background: linear-gradient(
+            90deg,
+            oklch(0.20 0.04 350) 0%,
+            oklch(0.28 0.10 350) 50%,
+            oklch(0.20 0.04 350) 100%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.8s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+        0%   { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* Pulse ring — untuk status indicator */
+    .pulse-pink {
+        animation: pulse-ring 2s ease-out infinite;
+    }
+
+    @keyframes pulse-ring {
+        0%   { box-shadow: 0 0 0 0 oklch(0.72 0.22 350 / 50%); }
+        70%  { box-shadow: 0 0 0 10px oklch(0.72 0.22 350 / 0%); }
+        100% { box-shadow: 0 0 0 0 oklch(0.72 0.22 350 / 0%); }
+    }
+
+    /* Float animation — untuk decorative elements */
+    .animate-float {
+        animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50%       { transform: translateY(-8px); }
+    }
+
+    /* Fade-in-up — untuk page load */
+    .animate-fade-up {
+        animation: fade-up 0.5s ease-out both;
+    }
+
+    @keyframes fade-up {
+        from {
+            opacity: 0;
+            transform: translateY(16px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Stagger delay helpers */
+    .delay-75  { animation-delay: 75ms; }
+    .delay-150 { animation-delay: 150ms; }
+    .delay-225 { animation-delay: 225ms; }
+    .delay-300 { animation-delay: 300ms; }
+    .delay-375 { animation-delay: 375ms; }
 }
