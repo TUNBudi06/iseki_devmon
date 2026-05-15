@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Device\MainController;
 use App\Http\Middleware\Admin\HasLoggedInAdmin;
+use App\Http\Middleware\Admin\redirectIfHadLoggedIn;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -19,12 +20,13 @@ Route::prefix('device')->group(function () {
     })->name('deviceVerify');
 
     Route::post('add', [MainController::class, 'RegisterDevice'])->name('deviceRegisterAdd');
-
-    Route::get('login/{deviceId}', [MainController::class, 'LoginDevice'])->name('deviceLogin');
+    Route::middleware([\App\Http\Middleware\User\ChangingSessionTimeConfigUser::class])->group(function () {
+        Route::get('login/{deviceId}', [MainController::class, 'LoginDevice'])->name('deviceLogin');
+    });
 });
 
-Route::prefix('admin')->group(function () {
-    Route::get('/login', [AuthController::class, 'loginAdminPanel'])->name('admin.login');
+Route::prefix('admin')->middleware([\App\Http\Middleware\Admin\ChangingSessionTimeConfig::class])->group(function () {
+    Route::get('/login', [AuthController::class, 'loginAdminPanel'])->name('admin.loginAdmin')->middleware([redirectIfHadLoggedIn::class]);
     Route::post('/login', [AuthController::class, 'loginAdmin'])->name('admin.loginPost');
     Route::middleware([HasLoggedInAdmin::class])->group(function () {
         Route::get('/dashboard', function () {

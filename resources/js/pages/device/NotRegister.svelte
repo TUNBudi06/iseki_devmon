@@ -9,6 +9,7 @@
     import { onMount } from 'svelte';
     import { getDeviceAuth } from '$lib/indexedDB.ts';
     import LayoutTop from '$/components/LayoutTop.svelte';
+    import {loginAdmin} from "$routes/admin";
 
     onMount(async () => {
         // Cek apakah perangkat sudah terdaftar
@@ -24,6 +25,10 @@
 
     function handleRegister() {
         router.get(routeUrl(deviceRegister()));
+    }
+
+    function handleLoginAdmin() {
+        router.get(routeUrl(loginAdmin()));
     }
 </script>
 
@@ -75,7 +80,7 @@
                 <!-- Register Button -->
                 <div class="w-full pt-2 sm:pt-4">
                     <Button
-                        onclick={handleRegister}
+                        onclick={handleLoginAdmin}
                         class="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 h-12 sm:h-14 text-base sm:text-lg"
                         size="lg"
                     >

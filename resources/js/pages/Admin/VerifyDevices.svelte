@@ -3,6 +3,7 @@
     import AppHead from '$/components/AppHead.svelte';
     import { resource } from 'runed';
     import { tick } from 'svelte';
+    import {XIcon} from '@lucide/svelte';
     import * as Item from '$shadcn/components/ui/item';
     import { Progress } from '$shadcn/components/ui/progress';
     import { Button } from '$shadcn/components/ui/button';

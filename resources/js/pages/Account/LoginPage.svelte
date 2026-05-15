@@ -13,7 +13,7 @@
     import { router } from '@inertiajs/svelte';
     import { routeUrl } from '@tunbudi06/inertia-route-helper';
     import { deviceVerify } from '$routes';
-    import { login as adminLogin } from '$/routes/admin';
+    import { loginAdmin } from '$/routes/admin';
     import LayoutTop from '$/components/LayoutTop.svelte';
 
     let { deviceId, deviceName, status } = $props();
@@ -41,7 +41,7 @@
     }
 
     function handleAdminLogin() {
-        router.get(routeUrl(adminLogin()));
+        router.get(routeUrl(loginAdmin()));
     }
 </script>
 
