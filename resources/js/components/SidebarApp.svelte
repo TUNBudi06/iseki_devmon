@@ -11,7 +11,12 @@
 
     import * as Sidebar from '$shadcn/components/ui/sidebar/index.js';
     import { isCurrentRoute, routeUrl } from '@tunbudi06/inertia-route-helper';
-    import { dashboard, logoutAdmin, verifyDevice } from '$routes/admin';
+    import {
+        dashboard,
+        logoutAdmin,
+        verifyDevice,
+        deviceList,
+    } from '$routes/admin';
     import { router } from '@inertiajs/svelte';
 
     // Menu items.
@@ -23,7 +28,7 @@
         },
         {
             title: 'List Devices',
-            url: '#',
+            url: routeUrl(deviceList()),
             icon: MonitorSmartphone,
         },
         {

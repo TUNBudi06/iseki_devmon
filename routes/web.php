@@ -35,6 +35,7 @@ Route::prefix('admin')->middleware([ChangingSessionTimeConfig::class])->group(fu
         Route::get('dashboard', fn () => Inertia::render('Admin/Dashboard'))->name('admin.dashboard');
         Route::get('verify', fn () => Inertia::render('Admin/VerifyDevices'))->name('admin.verifyDevice');
         Route::post('verify', [VerifyDeviceController::class, 'verifyDevice'])->name('admin.verifyDevicePost');
+        Route::get('DeviceList',fn() => Inertia::render('Admin/DeviceList'))->name('admin.deviceList');
         Route::get('logout', [AuthController::class, 'logoutAdmin'])->name('admin.logoutAdmin');
     });
 });

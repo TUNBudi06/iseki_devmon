@@ -14,7 +14,7 @@
     } from '@lucide/svelte';
     import { Label } from '$shadcn/components/ui/label';
     import * as Field from '$shadcn/components/ui/field';
-    import {page, useForm} from '@inertiajs/svelte';
+    import { page, useForm } from '@inertiajs/svelte';
     import { Textarea } from '$shadcn/components/ui/textarea';
     import { Button } from '$shadcn/components/ui/button';
     import { Input } from '$shadcn/components/ui/input';
