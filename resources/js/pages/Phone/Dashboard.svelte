@@ -14,6 +14,7 @@
     } from '@lucide/svelte';
     import {routeUrl} from "@tunbudi06/inertia-route-helper";
     import {home} from "$routes";
+    import {detailPhone} from "$routes/phone";
 
     type Device = {
         id: string;
@@ -178,7 +179,7 @@
 
     function handleCardClick(device: Device) {
         if (!device.registered) return;
-        router.visit(`/device/${device.id}`);
+        router.visit(routeUrl(detailPhone({id:device.id})));
     }
 
     const filters: { label: string; value: Filter }[] = [
@@ -191,9 +192,7 @@
 </script>
 
 <LayoutBG class="bg-mesh-pink min-h-screen">
-    <Navbar
-        class="sticky top-0 z-50 border-b border-white/10 bg-background/70 backdrop-blur-2xl justify-between px-6"
-    >
+    <Navbar>
         <div>
             <div
                 class="text-lg font-semibold tracking-tight text-gradient-pink"
@@ -288,7 +287,7 @@
             </Card.Root>
         {:else}
             <div
-                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-5"
+                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 lg:gap-8"
             >
                 {#each filtered as device (device.id)}
                     {@const isRegistered = device.registered}

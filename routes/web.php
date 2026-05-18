@@ -16,4 +16,5 @@ Route::get('/', fn () => Inertia::render('Welcome'))->name('home');
 
 Route::prefix('phone')->group(function () {
    Route::get('list',[MainPhone::class,'index'])->name('phone.listPhone');
+   Route::get('detail/{id}',[\App\Http\Controllers\Phone\DetailPhone::class,'index'])->name('phone.detailPhone');
 });
