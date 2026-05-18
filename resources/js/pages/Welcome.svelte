@@ -1,112 +1,91 @@
 <script lang="ts">
     import { router } from '@inertiajs/svelte';
-    import {
-        Monitor,
-        UserCircle,
-        ShieldCheck,
-        ArrowRight,
-    } from '@lucide/svelte';
-    import * as Card from '$shadcn/components/ui/card';
-    import Particles from '$shadcn/components/Particles.svelte';
-    import { routeUrl } from '@tunbudi06/inertia-route-helper';
-    import { listPhone } from '$routes/phone';
-    import { MagicCard } from '$shadcn/components/magic/magic-card';
-    import LayoutBG from '$/components/LayoutBG.svelte';
+    import { Monitor, UserCircle, ShieldCheck, ArrowRight } from '@lucide/svelte';
+    import Particles from "$shadcn/components/Particles.svelte";
+    import {routeUrl} from "@tunbudi06/inertia-route-helper";
+    import {listPhone} from "$routes/phone";
+    import LayoutBG from "$/components/LayoutBG.svelte";
+    import SpotlightCard from "$shadcn/components/svelte-bits/SpotlightCard.svelte";
 </script>
 
-<LayoutBG class="flex flex-col items-center justify-center p-8 gap-10">
-    <Particles particleCount={350} particleBaseSize={200} speed={0.1} class="absolute inset-0 z-0" />
+<LayoutBG class="min-h-screen bg-background flex flex-col items-center justify-center p-8 gap-10 relative overflow-hidden">
+    <Particles particleCount={350} particleColors={['#000000','#ff00ae','#ffffff']} particleBaseSize={130} speed={0.1} class="absolute inset-0 z-0" />
+
+    <!-- Hero text -->
     <div class="text-center relative z-10 space-y-3">
-        <div
-            class="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-xs font-medium px-4 py-1.5 rounded-full"
-        >
+        <div class="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-xs font-medium px-4 py-1.5 rounded-full">
             <span class="size-1.5 rounded-full bg-primary animate-pulse"></span>
             Device Management System
         </div>
         <h1 class="text-4xl font-semibold tracking-tight">
-            Selamat datang di <span
-                class="bg-linear-to-br bg-clip-text text-transparent from-blue-700 to-violet-900"
-                >ISEKI-</span
-            ><span class="text-gradient-pink">DevControl</span>
+            Selamat datang di
+            <span class="bg-linear-to-br bg-clip-text text-transparent from-blue-700 to-violet-900">ISEKI-</span><span class="text-gradient-pink">DevControl</span>
         </h1>
     </div>
 
-    <div
-        class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-7xl relative z-10"
-    >
-        <!-- Card 1: Semua Perangkat -->
-        <MagicCard
-            class="bg-card borderborder-border rounded-xl p-6 flex flex-col items-center justify-center gap-3 text-center cursor-pointer group"
-        >
-            <Card.Content
-                onclick={() => router.visit(routeUrl(listPhone()))}
-                class="flex flex-col items-center justify-center gap-3 p-0"
-            >
-                <div
-                    class="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary/15 transition-colors"
-                >
-                    <Monitor class="size-10" />
-                </div>
-                <div class="font-medium text-md">Semua Perangkat</div>
-                <span
-                    class="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full"
-                    >Publik</span
-                >
-                <ArrowRight
-                    class="size-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all mt-auto"
-                />
-            </Card.Content>
-        </MagicCard>
+    <!-- Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-7xl relative z-10">
 
-        <!-- Card 2: Device List -->
-        <MagicCard
-            class="bg-linear-to-br from-pink-500/10 to-rose-500/10 border-pink-300/20 backdrop-blur-xl border rounded-xl p-6 flex flex-col items-center justify-center gap-3 text-center cursor-pointer group"
+        <!-- Semua Perangkat -->
+        <SpotlightCard
+            onclick={() => router.visit(routeUrl(listPhone()))}
+            class="group bg-pink-300/30 backdrop-blur-sm border-2 border-border rounded-2xl p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300"
         >
-            <Card.Content
-                class="flex flex-col items-center justify-center gap-3 p-0"
-            >
-                <div
-                    class="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary/15 transition-colors"
-                >
-                    <Monitor class="size-10" />
+            <div class="size-16 rounded-2xl bg-primary/10  border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
+                <Monitor class="size-7" />
+            </div>
+            <div class="space-y-1">
+                <div class="font-semibold text-lg text-foreground">Semua Perangkat</div>
+            </div>
+            <span class="text-xs font-medium bg-primary/10 text-primary border border-primary/20 px-4 py-1 rounded-full">Publik</span>
+            <div class="mt-auto pt-4 w-full flex justify-center">
+                <div class="p-2 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors">
+                    <ArrowRight class="size-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                 </div>
-                <div class="font-medium text-md">Device List</div>
-                <span
-                    class="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full"
-                    >Lihat Semua</span
-                >
-                <ArrowRight
-                    class="size-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all mt-auto"
-                />
-            </Card.Content>
-        </MagicCard>
+            </div>
+        </SpotlightCard>
 
-        <!-- Card 3: Login Pengguna -->
-        <MagicCard
+        <!-- User Login -->
+        <SpotlightCard
             onclick={() => router.visit('/login')}
-            class="bg-card border border-border rounded-xl p-6 flex flex-col items-center justify-center gap-3 text-center cursor-pointer group"
+            class="group bg-pink-300/30 backdrop-blur-sm border-2 border-border rounded-2xl p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300"
         >
-            <Card.Content
-                class="flex flex-col items-center justify-center gap-3 p-0"
-            >
-                <div
-                    class="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary/15 transition-colors"
-                >
-                    <UserCircle class="size-10" />
+            <div class="size-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
+                <UserCircle class="size-7" />
+            </div>
+            <div class="space-y-1">
+                <div class="font-semibold text-lg text-foreground">Login Pengguna</div>
+            </div>
+            <span class="text-xs font-medium bg-primary/10 text-primary border border-primary/20 px-4 py-1 rounded-full">Pengguna</span>
+            <div class="mt-auto pt-4 w-full flex justify-center">
+                <div class="p-2 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors">
+                    <ArrowRight class="size-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                 </div>
-                <div class="font-medium text-md">Login Pengguna</div>
-                <span
-                    class="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full"
-                    >Pengguna</span
-                >
-                <ArrowRight
-                    class="size-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all mt-auto"
-                />
-            </Card.Content>
-        </MagicCard>
+            </div>
+        </SpotlightCard>
+
+        <!-- Admin Login -->
+        <SpotlightCard
+            onclick={() => router.visit('/admin/login')}
+            class="group bg-pink-300/30 backdrop-blur-sm border-2 border-border rounded-2xl p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300"
+        >
+            <div class="size-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:bg-pink-500/40 group-hover:scale-110 transition-all duration-300">
+                <ShieldCheck class="size-7" />
+            </div>
+            <div class="space-y-1">
+                <div class="font-semibold text-lg text-foreground">Login Admin</div>
+            </div>
+            <span class="text-xs font-medium bg-primary/10 text-primary border border-primary/20 px-4 py-1 rounded-full">Admin</span>
+            <div class="mt-auto pt-4 w-full flex justify-center">
+                <div class="p-2 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors">
+                    <ArrowRight class="size-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                </div>
+            </div>
+        </SpotlightCard>
+
     </div>
 
     <p class="text-xs text-muted-foreground relative z-10">
-        &copy; 2026 DevControl &mdash; Sistem Manajemen Perangkat Lapangan
+        &copy; 2025 DevControl &mdash; Sistem Manajemen Perangkat Lapangan
     </p>
 </LayoutBG>

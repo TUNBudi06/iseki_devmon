@@ -8,6 +8,8 @@
         children?: Snippet;
         /** Additional CSS classes */
         class?: string;
+        /** Additional CSS classes for background */
+        class1?: string;
         /** Size of the gradient circle */
         gradientSize?: number;
         /** Color of the gradient overlay */
@@ -23,6 +25,7 @@
     let {
         children,
         class: className,
+        class2: className2,
         gradientSize = 200,
         gradientColor = '#ff60d1',
         gradientOpacity = 0.8,
@@ -94,7 +97,7 @@
         class="bg-border pointer-events-none absolute inset-0 rounded-[inherit] duration-300 group-hover:opacity-100"
         style={{ background: borderGradient }}
     />
-    <div class="bg-background absolute inset-px rounded-[inherit]"></div>
+    <div class={cn("bg-background absolute inset-px rounded-[inherit]",className2)}></div>
     <motion.div
         class="pointer-events-none absolute inset-px rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{ background: overlayGradient, opacity: gradientOpacity }}
