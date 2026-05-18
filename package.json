@@ -46,6 +46,7 @@
         "@types/node": "^25.8.0",
         "embla-carousel-autoplay": "^8.6.0",
         "motion": "^12.38.0",
+        "motion-sv": "^0.1.12",
         "ogl": "^1.0.11",
         "qr-scanner": "^1.4.2",
         "qrcode": "^1.5.4",
