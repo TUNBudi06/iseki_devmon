@@ -97,7 +97,12 @@
         class="bg-border pointer-events-none absolute inset-0 rounded-[inherit] duration-300 group-hover:opacity-100"
         style={{ background: borderGradient }}
     />
-    <div class={cn("bg-background absolute inset-px rounded-[inherit]",className2)}></div>
+    <div
+        class={cn(
+            'bg-background absolute inset-px rounded-[inherit]',
+            className2,
+        )}
+    ></div>
     <motion.div
         class="pointer-events-none absolute inset-px rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{ background: overlayGradient, opacity: gradientOpacity }}
