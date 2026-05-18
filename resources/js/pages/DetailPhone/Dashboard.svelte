@@ -12,6 +12,8 @@
         BatteryMedium,
         BatteryFull,
     } from '@lucide/svelte';
+    import {routeUrl} from "@tunbudi06/inertia-route-helper";
+    import {home} from "$routes";
 
     type Device = {
         id: string;
@@ -84,7 +86,7 @@
         {
             id: 'DEV-006',
             name: 'Vivo Y35',
-            photo: 'https://placehold.co/600x900/111827/f472b6?text=Vivo',
+            photo: 'https://th.bing.com/th/id/OIP.YB_Cdkv7DMdXBrnoBjJTCgAAAA?w=198&h=141&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
             battery: 47,
             user: null,
             ram: '8GB',
@@ -95,7 +97,7 @@
         {
             id: 'DEV-007',
             name: 'Samsung Galaxy S23',
-            photo: 'https://placehold.co/600x900/18181b/e879f9?text=S23',
+            photo: 'https://tse4.mm.bing.net/th/id/OIP.5jT6INY2KTIjIuZbR2M_EwHaNY?rs=1&pid=ImgDetMain&o=7&rm=3',
             battery: 71,
             user: 'Dewi Kartika',
             ram: '8GB',
@@ -106,7 +108,7 @@
         {
             id: 'DEV-008',
             name: 'Poco X5 Pro',
-            photo: 'https://placehold.co/600x900/0f172a/f9a8d4?text=Poco',
+            photo: 'https://i02.appmifile.com/mi-com-product/fly-birds/poco-x5-pro-5g/pc/img10-1.jpg',
             battery: 33,
             user: null,
             ram: '8GB',
@@ -206,6 +208,7 @@
             size="sm"
             variant="ghost"
             class="border border-border/60 bg-card/40 backdrop-blur-xl hover:bg-primary/10 gap-2"
+            onclick={() => router.visit(routeUrl(home()))}
         >
             Kembali
             <ArrowRightCircle class="size-4" />
