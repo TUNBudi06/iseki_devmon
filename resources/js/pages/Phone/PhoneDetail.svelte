@@ -11,8 +11,45 @@
     import Particles from '$shadcn/components/Particles.svelte';
     import * as Carousel from '$shadcn/components/ui/carousel';
     import { onMount, onDestroy } from 'svelte';
+    import gsap from 'gsap';
+    import Lenis from 'lenis'
+    import ScrollTrigger from 'gsap/ScrollTrigger';
+    import Autoplay from "embla-carousel-autoplay";
 
-    onMount(() => {});
+    let lenis: Lenis = $state();
+    let progress = $state(0);
+    let containerRef = $state();
+    gsap.registerPlugin(ScrollTrigger);
+
+    onMount(() => {
+        lenis = new Lenis({
+            duration: 0.6,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -4 * t)),
+            smoothWheel: true,
+            smoothTouch: false,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+
+        ScrollTrigger.create({
+            trigger: containerRef,   // outer wrapper
+            start: 'top top',        // mulai saat top wrapper = top viewport
+            end: `+=${window.innerHeight}px`, // end setelah N×100vh
+            onUpdate: (self) => {
+                progress = self.progress; // 0 sampai 1
+                console.log('Progress:', progress); // cek di console dulu
+            }
+        });
+    });
+
+    onDestroy(() => {
+        lenis?.destroy();
+    });
 </script>
 
 <LayoutBG>
@@ -46,10 +83,12 @@
             <ArrowRightCircle class="size-4" />
         </Button>
     </Navbar>
-    <div class="relative" style="height: 400vh">
+    <div class="relative" style="height: 400vh" bind:this={containerRef}>
         <div class="sticky top-15 h-screen bg-primary/5 flex">
             <div class="w-2/3 justify-center items-center flex bg-black">
-                <Carousel.Root class="w-full max-w-2xl">
+                <Carousel.Root class="w-full max-w-2xl" plugins={[
+                    Autoplay({ delay: 2000, stopOnInteraction: false })
+                ]}>
                     <Carousel.Content>
                         {#each Array(5) as _, i (i)}
                             <Carousel.Item>
