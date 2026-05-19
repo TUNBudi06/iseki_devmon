@@ -11,15 +11,16 @@
         BatteryLow,
         BatteryMedium,
         BatteryFull,
+        ImageOff,
     } from '@lucide/svelte';
-    import {routeUrl} from "@tunbudi06/inertia-route-helper";
-    import {home} from "$routes";
-    import {detailPhone} from "$routes/phone";
+    import { routeUrl } from '@tunbudi06/inertia-route-helper';
+    import { home } from '$routes';
+    import { detailPhone } from '$routes/phone';
 
     type Device = {
         id: string;
         name: string;
-        photo: string;
+        photo?: string;
         battery: number;
         user: string | null;
         ram: string;
@@ -65,7 +66,6 @@
         {
             id: 'DEV-004',
             name: 'Realme C55',
-            photo: 'https://www.bing.com/th/id/OIP.CeOotHMOVLAx9_ZMUVZQAQHaHa?w=193&h=193&c=8&rs=1&qlt=90&o=6&dpr=1.1&pid=3.1&rm=2',
             battery: 12,
             user: null,
             ram: '4GB',
@@ -123,6 +123,7 @@
     let activeFilter = $state<Filter>('all');
     let search = $state('');
     let loading = $state(false);
+    let failedImages = $state<Set<string>>(new Set());
 
     const filtered = $derived(
         devices.filter((d) => {
@@ -179,7 +180,12 @@
 
     function handleCardClick(device: Device) {
         if (!device.registered) return;
-        router.visit(routeUrl(detailPhone({id:device.id})));
+        router.visit(routeUrl(detailPhone({ id: device.id })));
+    }
+
+    function handleImageError(deviceId: string) {
+        failedImages.add(deviceId);
+        failedImages = failedImages;
     }
 
     const filters: { label: string; value: Filter }[] = [
@@ -317,14 +323,30 @@
                                 class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-background/40 z-10"
                             />
 
-                            <img
-                                src={device.photo}
-                                alt={device.name}
-                                class="h-full w-full object-cover transition-transform duration-700
-                                    {isRegistered
-                                    ? 'group-hover:scale-105'
-                                    : ''}"
-                            />
+                            {#if !device.photo || failedImages.has(device.id)}
+                                <div
+                                    class="h-full w-full flex items-center justify-center bg-muted/50 backdrop-blur-sm"
+                                >
+                                    <div class="text-center space-y-2">
+                                        <ImageOff
+                                            class="size-8 mx-auto text-muted-foreground/70"
+                                        />
+                                        <div
+                                            class="text-xs text-muted-foreground"
+                                        >
+                                            No image
+                                        </div>
+                                    </div>
+                                </div>
+                            {:else}
+                                <img
+                                    src={device.photo}
+                                    alt={device.name}
+                                    onerror={() => handleImageError(device.id)}
+                                    class="h-full w-full object-cover transition-transform duration-700
+                {isRegistered ? 'group-hover:scale-105' : ''}"
+                                />
+                            {/if}
 
                             <!-- Bottom gradient overlay -->
                             <div
@@ -337,7 +359,9 @@
                                     device.battery,
                                 )}"
                             >
-                                <BattIcon class="size-3" />
+                                {#await batteryIcon(device.battery) then Icon}
+                                    <Icon class="size-3" />
+                                {/await}
                                 <span>{device.battery}%</span>
                             </div>
 
@@ -353,8 +377,8 @@
                                 </div>
                             {:else}
                                 <div
-                                    class="absolute bottom-3 left-3 z-30 flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur-lg
-                                    {device.status === 'active'
+                                    class="absolute bottom-3 left-3 z-30 flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur-lg {device.status ===
+                                    'active'
                                         ? 'bg-primary/90 text-primary-foreground border-primary/30'
                                         : 'bg-muted/80 text-muted-foreground border-border'}"
                                 >
