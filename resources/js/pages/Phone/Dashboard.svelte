@@ -17,6 +17,9 @@
     import { home } from '$routes';
     import { detailPhone } from '$routes/phone';
 
+    // ─── Types ──────────────────────────────────────────────────
+    type DeviceType = 'phone' | 'tablet';
+
     type Device = {
         id: string;
         name: string;
@@ -27,109 +30,154 @@
         storage: string;
         status: 'active' | 'inactive';
         registered: boolean;
+        type: DeviceType; // ← Added for filter support
     };
-
+    // ─── Data ───────────────────────────────────────────────────
     const devices: Device[] = [
         {
             id: 'DEV-001',
             name: 'Samsung Galaxy A54',
-            photo: 'https://th.bing.com/th/id/OIP.uCDsEosK52ltHkDVDNch3wHaE8?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3',
+            photo: 'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+A54&font=roboto',
             battery: 85,
             user: 'Budi Santoso',
             ram: '8GB',
             storage: '256GB',
             status: 'active',
             registered: true,
+            type: 'phone',
         },
         {
             id: 'DEV-002',
             name: 'Xiaomi Redmi Note 12',
-            photo: 'https://tse1.mm.bing.net/th/id/OIP.Ba58RDy2zxZhX-B06l8begHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
+            photo: 'https://placehold.co/400x600/16213e/eee?text=Redmi+Note+12&font=roboto',
             battery: 23,
             user: 'Siti Rahayu',
             ram: '6GB',
             storage: '128GB',
             status: 'active',
             registered: true,
+            type: 'phone',
         },
         {
             id: 'DEV-003',
             name: 'OPPO A78',
-            photo: 'https://m.media-amazon.com/images/I/41WG5p9a9bL.jpg',
+            photo: 'https://placehold.co/400x600/0f3460/eee?text=OPPO+A78&font=roboto',
             battery: 60,
             user: null,
             ram: '8GB',
             storage: '128GB',
             status: 'inactive',
             registered: true,
+            type: 'phone',
         },
         {
             id: 'DEV-004',
             name: 'Realme C55',
+            photo: 'https://placehold.co/400x600/1a1a2e/eee?text=Realme+C55&font=roboto',
             battery: 12,
             user: null,
-            ram: '4GB',
-            storage: '64GB',
+            ram: '6GB',
+            storage: '128GB',
             status: 'inactive',
             registered: false,
+            type: 'phone',
         },
         {
             id: 'DEV-005',
             name: 'iPhone 13',
-            photo: 'https://th.bing.com/th/id/OIP.V1_EKiKp6DBulYdKIdHOewAAAA?w=254&h=203&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+            photo: 'https://placehold.co/400x600/16213e/eee?text=iPhone+13&font=roboto',
             battery: 95,
             user: 'Ahmad Fauzi',
             ram: '4GB',
             storage: '128GB',
             status: 'active',
             registered: true,
+            type: 'phone',
         },
         {
             id: 'DEV-006',
             name: 'Vivo Y35',
-            photo: 'https://th.bing.com/th/id/OIP.YB_Cdkv7DMdXBrnoBjJTCgAAAA?w=198&h=141&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+            photo: 'https://placehold.co/400x600/0f3460/eee?text=Vivo+Y35&font=roboto',
             battery: 47,
             user: null,
             ram: '8GB',
             storage: '128GB',
             status: 'inactive',
             registered: false,
+            type: 'phone',
         },
         {
             id: 'DEV-007',
             name: 'Samsung Galaxy S23',
-            photo: 'https://tse4.mm.bing.net/th/id/OIP.5jT6INY2KTIjIuZbR2M_EwHaNY?rs=1&pid=ImgDetMain&o=7&rm=3',
+            photo: 'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+S23&font=roboto',
             battery: 71,
             user: 'Dewi Kartika',
             ram: '8GB',
             storage: '256GB',
             status: 'active',
             registered: true,
+            type: 'phone',
         },
         {
             id: 'DEV-008',
             name: 'Poco X5 Pro',
-            photo: 'https://i02.appmifile.com/mi-com-product/fly-birds/poco-x5-pro-5g/pc/img10-1.jpg',
+            photo: 'https://placehold.co/400x600/16213e/eee?text=Poco+X5+Pro&font=roboto',
             battery: 33,
             user: null,
             ram: '8GB',
             storage: '256GB',
             status: 'inactive',
             registered: true,
+            type: 'phone',
+        },
+        // ─── Tablet Devices (for filter testing) ───────────────
+        {
+            id: 'DEV-009',
+            name: 'iPad Air 5th Gen',
+            photo: 'https://placehold.co/600x400/0f3460/eee?text=iPad+Air&font=roboto',
+            battery: 8,
+            user: 'Rina Wijaya',
+            ram: '8GB',
+            storage: '256GB',
+            status: 'active',
+            registered: true,
+            type: 'tablet',
+        },
+        {
+            id: 'DEV-010',
+            name: 'Samsung Galaxy Tab S9',
+            photo: 'https://placehold.co/600x400/1a1a2e/eee?text=Tab+S9&font=roboto',
+            battery: 100,
+            user: null,
+            ram: '12GB',
+            storage: '512GB',
+            status: 'inactive',
+            registered: false,
+            type: 'tablet',
         },
     ];
 
-    type Filter = 'all' | 'active' | 'inactive' | 'registered' | 'unregistered';
+    // ─── State ──────────────────────────────────────────────────
+    type Filter =
+        | 'all'
+        | 'active'
+        | 'inactive'
+        | 'registered'
+        | 'unregistered'
+        | 'tablet'
+        | 'phone';
     let activeFilter = $state<Filter>('all');
     let search = $state('');
     let loading = $state(false);
     let failedImages = $state<Set<string>>(new Set());
 
+    // ─── Filtering Logic (Updated for type filter) ─────────────
     const filtered = $derived(
         devices.filter((d) => {
             const matchSearch =
                 d.name.toLowerCase().includes(search.toLowerCase()) ||
                 d.id.toLowerCase().includes(search.toLowerCase());
+
             const matchFilter =
                 activeFilter === 'all'
                     ? true
@@ -139,7 +187,14 @@
                         ? d.status === 'inactive'
                         : activeFilter === 'registered'
                           ? d.registered
-                          : !d.registered;
+                          : activeFilter === 'unregistered'
+                            ? !d.registered
+                            : activeFilter === 'tablet'
+                              ? d.type === 'tablet'
+                              : activeFilter === 'phone'
+                                ? d.type === 'phone'
+                                : true;
+
             return matchSearch && matchFilter;
         }),
     );
@@ -154,10 +209,17 @@
                     ? d.status === 'inactive'
                     : filter === 'registered'
                       ? d.registered
-                      : !d.registered,
+                      : filter === 'unregistered'
+                        ? !d.registered
+                        : filter === 'tablet'
+                          ? d.type === 'tablet'
+                          : filter === 'phone'
+                            ? d.type === 'phone'
+                            : true,
         ).length;
     }
 
+    // ─── Helpers ────────────────────────────────────────────────
     function batteryStyle(b: number) {
         if (b <= 20)
             return 'bg-destructive text-destructive-foreground shadow-[0_0_20px_oklch(0.55_0.22_25_/_0.35)]';
@@ -185,7 +247,7 @@
 
     function handleImageError(deviceId: string) {
         failedImages.add(deviceId);
-        failedImages = failedImages;
+        failedImages = failedImages; // Trigger reactivity in Svelte 5
     }
 
     const filters: { label: string; value: Filter }[] = [
@@ -194,6 +256,8 @@
         { label: 'Non-Aktif', value: 'inactive' },
         { label: 'Terdaftar', value: 'registered' },
         { label: 'Belum Terdaftar', value: 'unregistered' },
+        { label: 'Tablet', value: 'tablet' },
+        { label: 'Phone', value: 'phone' },
     ];
 </script>
 

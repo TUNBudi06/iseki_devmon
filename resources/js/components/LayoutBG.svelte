@@ -3,10 +3,7 @@
 
     let { children, class: className = '' } = $props();
 
-    let classes = cn(
-        'min-h-screen bg-background relative',
-        className,
-    );
+    let classes = cn('min-h-screen bg-background relative', className);
 </script>
 
 <div class={classes}>
