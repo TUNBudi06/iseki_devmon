@@ -50,26 +50,27 @@
         ],
     };
 
-    // ── STATE ──
-    let lenis: Lenis;
-    let stickyRef: $state<HTMLDivElement | null> = null;
+    // ── STATE with runes ──
+    let lenis: Lenis | null = $state(null);
+    let stickyRef = $state<HTMLDivElement | null>(null);
     let isMobile = $state(false);
 
     // Desktop: sticky progress
     let stickyProgress = $state(0);
-    const desktopNavHidden = $derived(!isMobile && stickyProgress > 0.05 && stickyProgress < 0.95);
 
     // Mobile: threshold-based visibility
     let mobileNavVisible = $state(true);
 
     // ScrollTrigger instances untuk cleanup
-    let stMobile: ScrollTrigger | null = null;
-    let stDesktop: ScrollTrigger | null = null;
+    let stMobile: ScrollTrigger | null = $state(null);
+    let stDesktop: ScrollTrigger | null = $state(null);
 
-    // Unified derived transform
+    // Computed values with $derived
+    const desktopNavHidden = $derived(!isMobile && stickyProgress > 0.05 && stickyProgress < 0.95);
+
     const navTransform = $derived(() => {
         if (isMobile) {
-            return mobileNavVisible ? 'translateY(0)' : 'translateY(-100%)';
+            return mobileNavVisible ? 'translateY(-100%)' : 'translateY(0)';
         }
         return desktopNavHidden ? 'translateY(-100%)' : 'translateY(0)';
     });
@@ -78,31 +79,45 @@
 
     // ── HELPERS ──
     function setupMobileTrigger() {
+        if (stMobile) stMobile.kill();
+
         stMobile = ScrollTrigger.create({
-            start: 'top -150', // Hide navbar di 0-150px pertama
+            trigger: document.body,
+            start: 'top top',
             end: 'bottom bottom',
             onUpdate: (self) => {
-                // Show navbar setelah scroll >150px
-                mobileNavVisible = self.progress > 0.02;
+                // Hide navbar after scrolling past 150px
+                mobileNavVisible = self.scroll() < 300;
+                console.log("mobile:" + self.scroll());
             },
         });
     }
 
     function setupDesktopTrigger() {
+        if (stDesktop) stDesktop.kill();
+        if (!stickyRef) return;
+
         stDesktop = ScrollTrigger.create({
             trigger: stickyRef,
             start: 'top top',
             end: 'bottom bottom',
-            scrub: true,
-            onUpdate: (self) => { stickyProgress = self.progress; },
+            scrub: 0.5,
+            onUpdate: (self) => {
+                stickyProgress = self.progress;
+                console.log("desktop:" + self.scroll());
+            },
         });
     }
 
     function killTriggers() {
-        stMobile?.kill();
-        stDesktop?.kill();
-        stMobile = null;
-        stDesktop = null;
+        if (stMobile) {
+            stMobile.kill();
+            stMobile = null;
+        }
+        if (stDesktop) {
+            stDesktop.kill();
+            stDesktop = null;
+        }
     }
 
     function handleResize() {
@@ -116,8 +131,11 @@
             stickyProgress = 0;
             mobileNavVisible = true;
             // Setup trigger sesuai mode baru
-            if (isMobile) setupMobileTrigger();
-            else setupDesktopTrigger();
+            if (isMobile) {
+                setupMobileTrigger();
+            } else {
+                setTimeout(() => setupDesktopTrigger(), 100);
+            }
         }
     }
 
@@ -132,21 +150,29 @@
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -4 * t)),
             smoothWheel: true,
         });
-        function raf(time: number) { lenis.raf(time); requestAnimationFrame(raf); }
+
+        function raf(time: number) {
+            lenis?.raf(time);
+            requestAnimationFrame(raf);
+        }
         requestAnimationFrame(raf);
 
         // ── ScrollTrigger Setup ──
         if (isMobile) {
             setupMobileTrigger();
         } else {
-            setupDesktopTrigger();
+            setTimeout(() => setupDesktopTrigger(), 100);
         }
     });
 
     onDestroy(() => {
-        lenis?.destroy();
+        if (lenis) {
+            lenis.destroy();
+            lenis = null;
+        }
         killTriggers();
         window.removeEventListener('resize', handleResize);
+        ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     });
 </script>
 
@@ -154,7 +180,7 @@
     <!-- ══ NAVBAR ══ -->
     <Navbar
         class="border-b border-border/60 bg-background/80 backdrop-blur-2xl fixed top-0 z-50 w-full transition-transform duration-300 ease-out"
-        style="transform: {navTransform}"
+        style="transform: {navTransform()}"
     >
         <div>
             <div class="text-lg font-semibold tracking-tight text-gradient-pink">DevControl</div>
@@ -178,7 +204,7 @@
 
     <!-- ══ MOBILE LAYOUT ══ -->
     {#if isMobile}
-        <div class="pb-10 space-y-0" bind:this={stickyRef}>
+        <div class="pb-10 space-y-0">
 
             <!-- Foto carousel mobile -->
             <div class="w-full aspect-[3/4] relative overflow-hidden">
