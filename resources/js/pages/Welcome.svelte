@@ -11,6 +11,7 @@
     import { listPhone } from '$routes/phone';
     import LayoutBG from '$/components/LayoutBG.svelte';
     import SpotlightCard from '$shadcn/components/svelte-bits/SpotlightCard.svelte';
+    import {deviceNotRegister} from "$routes/user";
 </script>
 
 <LayoutBG
@@ -77,7 +78,7 @@
 
         <!-- User Login -->
         <SpotlightCard
-            onclick={() => router.visit('/login')}
+            onclick={() => router.visit(routeUrl(deviceNotRegister()))}
             class="group bg-pink-300/30 backdrop-blur-sm border-2 border-border rounded-2xl p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300"
         >
             <div
@@ -87,7 +88,7 @@
             </div>
             <div class="space-y-1">
                 <div class="font-semibold text-lg text-foreground">
-                    Login Pengguna
+                    Daily Absence Checks
                 </div>
             </div>
             <span
@@ -117,7 +118,7 @@
             </div>
             <div class="space-y-1">
                 <div class="font-semibold text-lg text-foreground">
-                    Login Admin
+                    Device Control Sheet
                 </div>
             </div>
             <span

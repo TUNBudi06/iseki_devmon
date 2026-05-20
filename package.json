@@ -54,6 +54,7 @@
         "qr-scanner": "^1.4.2",
         "qrcode": "^1.5.4",
         "runed": "^0.37.1",
+        "sifter": "^0.5.4",
         "svelte": "^5.55.8",
         "svelte-language-server": "^0.18.0",
         "typescript-svelte-plugin": "^0.3.52"

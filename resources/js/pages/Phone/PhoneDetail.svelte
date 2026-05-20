@@ -27,9 +27,9 @@
         storage: '256 GB',
         color: 'Awesome Violet',
         photos: [
-            'https://placehold.co/600x900/111827/f9a8d4?text=Front',
-            'https://placehold.co/600x900/111827/e879f9?text=Back',
-            'https://placehold.co/600x900/18181b/f472b6?text=Side',
+            'https://images.samsung.com/is/image/samsung/p6pim/id/sm-a546ezkdxid/gallery/id-galaxy-a54-5g-sm-a546-sm-a546ezkdxid-535684283?$1164_776_PNG$',
+            'https://images.samsung.com/is/image/samsung/p6pim/id/sm-a546ezkdxid/gallery/id-galaxy-a54-5g-sm-a546-sm-a546ezkdxid-535684266?$1164_776_PNG$',
+            'https://images.samsung.com/is/image/samsung/p6pim/id/sm-a546ezkdxid/gallery/id-galaxy-a54-5g-sm-a546-sm-a546ezkdxid-535684267?$Q90_1368_1094_F_JPG$',
         ],
         purchases: [
             { date: '2024-03-10', vendor: 'iBox Indonesia', invoice: 'INV-2024-0312', price: 'Rp 4.999.000' },
@@ -179,7 +179,7 @@
 <LayoutBG>
     <!-- ══ NAVBAR ══ -->
     <Navbar
-        class="border-b border-border/60 bg-background/80 backdrop-blur-2xl fixed top-0 z-50 w-full transition-transform duration-300 ease-out"
+        class="border-b rounded-b-2xl border-border/60 bg-background/80 backdrop-blur-2xl fixed top-0 z-50 w-full transition-transform duration-300 ease-out"
         style="transform: {navTransform()}"
     >
         <div>
@@ -207,17 +207,17 @@
         <div class="pb-10 space-y-0">
 
             <!-- Foto carousel mobile -->
-            <div class="w-full aspect-[3/4] relative overflow-hidden">
-                <Carousel.Root class="w-full h-full" plugins={[Autoplay({ delay: 3500, stopOnInteraction: false })]}>
+            <div class="w-full aspect-3/4 h-full relative overflow-hidden">
+                <Carousel.Root class="w-full h-full mb-0 pb-0 pt-30" plugins={[Autoplay({ delay: 3500, stopOnInteraction: false })]}>
                     <Carousel.Content class="h-full">
                         {#each phone.photos as photo, i (i)}
                             <Carousel.Item class="h-full">
-                                <img src={photo} alt="foto {i+1}" class="w-full h-full object-cover" />
+                                <img src={photo} alt="foto {i+1}" class="w-full h-full object-contain" />
                             </Carousel.Item>
                         {/each}
                     </Carousel.Content>
                 </Carousel.Root>
-                <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent z-10" />
+                <div class="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-background to-transparent z-10" />
             </div>
 
             <!-- Info cards stacked -->

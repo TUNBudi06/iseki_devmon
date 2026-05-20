@@ -5,6 +5,7 @@
     import { Button } from '$shadcn/components/ui/button';
     import * as InputGroup from '$shadcn/components/ui/input-group';
     import * as Card from '$shadcn/components/ui/card';
+    import * as Carousel from '$shadcn/components/ui/carousel';
     import {
         ArrowRightCircle,
         SearchIcon,
@@ -12,10 +13,15 @@
         BatteryMedium,
         BatteryFull,
         ImageOff,
+        SortAsc,
+        SortDesc
     } from '@lucide/svelte';
     import { routeUrl } from '@tunbudi06/inertia-route-helper';
     import { home } from '$routes';
     import { detailPhone } from '$routes/phone';
+    import Autoplay from 'embla-carousel-autoplay';
+    import * as DropdownMenu from '$shadcn/components/ui/dropdown-menu';
+    import Sifter from 'sifter';
 
     // ─── Types ──────────────────────────────────────────────────
     type DeviceType = 'phone' | 'tablet';
@@ -24,20 +30,27 @@
         id: string;
         name: string;
         photo?: string;
+        photos?: string[];
         battery: number;
         user: string | null;
         ram: string;
         storage: string;
         status: 'active' | 'inactive';
         registered: boolean;
-        type: DeviceType; // ← Added for filter support
+        type: DeviceType;
     };
+
     // ─── Data ───────────────────────────────────────────────────
     const devices: Device[] = [
         {
             id: 'DEV-001',
             name: 'Samsung Galaxy A54',
             photo: 'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+A54&font=roboto',
+            photos: [
+                'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+A54+1&font=roboto',
+                'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+A54+2&font=roboto',
+                'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+A54+3&font=roboto',
+            ],
             battery: 85,
             user: 'Budi Santoso',
             ram: '8GB',
@@ -50,6 +63,10 @@
             id: 'DEV-002',
             name: 'Xiaomi Redmi Note 12',
             photo: 'https://placehold.co/400x600/16213e/eee?text=Redmi+Note+12&font=roboto',
+            photos: [
+                'https://placehold.co/400x600/16213e/eee?text=Redmi+Note+12+1&font=roboto',
+                'https://placehold.co/400x600/16213e/eee?text=Redmi+Note+12+2&font=roboto',
+            ],
             battery: 23,
             user: 'Siti Rahayu',
             ram: '6GB',
@@ -62,6 +79,11 @@
             id: 'DEV-003',
             name: 'OPPO A78',
             photo: 'https://placehold.co/400x600/0f3460/eee?text=OPPO+A78&font=roboto',
+            photos: [
+                'https://placehold.co/400x600/0f3460/eee?text=OPPO+A78+1&font=roboto',
+                'https://placehold.co/400x600/0f3460/eee?text=OPPO+A78+2&font=roboto',
+                'https://placehold.co/400x600/0f3460/eee?text=OPPO+A78+3&font=roboto',
+            ],
             battery: 60,
             user: null,
             ram: '8GB',
@@ -86,6 +108,12 @@
             id: 'DEV-005',
             name: 'iPhone 13',
             photo: 'https://placehold.co/400x600/16213e/eee?text=iPhone+13&font=roboto',
+            photos: [
+                'https://placehold.co/400x600/16213e/eee?text=iPhone+13+1&font=roboto',
+                'https://placehold.co/400x600/16213e/eee?text=iPhone+13+2&font=roboto',
+                'https://placehold.co/400x600/16213e/eee?text=iPhone+13+3&font=roboto',
+                'https://placehold.co/400x600/16213e/eee?text=iPhone+13+4&font=roboto',
+            ],
             battery: 95,
             user: 'Ahmad Fauzi',
             ram: '4GB',
@@ -110,6 +138,11 @@
             id: 'DEV-007',
             name: 'Samsung Galaxy S23',
             photo: 'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+S23&font=roboto',
+            photos: [
+                'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+S23+1&font=roboto',
+                'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+S23+2&font=roboto',
+                'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+S23+3&font=roboto',
+            ],
             battery: 71,
             user: 'Dewi Kartika',
             ram: '8GB',
@@ -122,6 +155,10 @@
             id: 'DEV-008',
             name: 'Poco X5 Pro',
             photo: 'https://placehold.co/400x600/16213e/eee?text=Poco+X5+Pro&font=roboto',
+            photos: [
+                'https://placehold.co/400x600/16213e/eee?text=Poco+X5+Pro+1&font=roboto',
+                'https://placehold.co/400x600/16213e/eee?text=Poco+X5+Pro+2&font=roboto',
+            ],
             battery: 33,
             user: null,
             ram: '8GB',
@@ -130,11 +167,15 @@
             registered: true,
             type: 'phone',
         },
-        // ─── Tablet Devices (for filter testing) ───────────────
         {
             id: 'DEV-009',
             name: 'iPad Air 5th Gen',
             photo: 'https://placehold.co/600x400/0f3460/eee?text=iPad+Air&font=roboto',
+            photos: [
+                'https://placehold.co/600x400/0f3460/eee?text=iPad+Air+1&font=roboto',
+                'https://placehold.co/600x400/0f3460/eee?text=iPad+Air+2&font=roboto',
+                'https://placehold.co/600x400/0f3460/eee?text=iPad+Air+3&font=roboto',
+            ],
             battery: 8,
             user: 'Rina Wijaya',
             ram: '8GB',
@@ -158,74 +199,84 @@
     ];
 
     // ─── State ──────────────────────────────────────────────────
-    type Filter =
-        | 'all'
-        | 'active'
-        | 'inactive'
-        | 'registered'
-        | 'unregistered'
-        | 'tablet'
-        | 'phone';
-    let activeFilter = $state<Filter>('all');
+    type Filter = 'all' | 'active' | 'inactive' | 'registered' | 'unregistered' | 'tablet' | 'phone';
+    type SortOption = 'name-asc' | 'name-desc' | 'battery-asc' | 'battery-desc';
+
     let search = $state('');
+    let activeFilter = $state<Filter>('all');
+    let sortOption = $state<SortOption>('name-asc');
     let loading = $state(false);
     let failedImages = $state<Set<string>>(new Set());
+    let hoveredDeviceId = $state<string | null>(null);
 
-    // ─── Filtering Logic (Updated for type filter) ─────────────
-    const filtered = $derived(
-        devices.filter((d) => {
-            const matchSearch =
-                d.name.toLowerCase().includes(search.toLowerCase()) ||
-                d.id.toLowerCase().includes(search.toLowerCase());
+    // State untuk carousel API per device
+    let carouselApis = $state<Map<string, any>>(new Map());
+    let currentSlideIndices = $state<Map<string, number>>(new Map());
 
-            const matchFilter =
-                activeFilter === 'all'
-                    ? true
-                    : activeFilter === 'active'
-                      ? d.status === 'active'
-                      : activeFilter === 'inactive'
-                        ? d.status === 'inactive'
-                        : activeFilter === 'registered'
-                          ? d.registered
-                          : activeFilter === 'unregistered'
-                            ? !d.registered
-                            : activeFilter === 'tablet'
-                              ? d.type === 'tablet'
-                              : activeFilter === 'phone'
-                                ? d.type === 'phone'
-                                : true;
+    // ─── SEMUA FILTER PAKAI SIFTER ─────────────────────────────
+    const filteredDevices = $derived(() => {
+        // Buat query string untuk Sifter (search + filter)
+        let query = search;
 
-            return matchSearch && matchFilter;
-        }),
-    );
+        // Tambahkan filter ke query
+        if (activeFilter !== 'all') {
+            const filterMap: Record<Filter, string> = {
+                'all': '',
+                'active': 'status:active',
+                'inactive': 'status:inactive',
+                'registered': 'registered:true',
+                'unregistered': 'registered:false',
+                'tablet': 'type:tablet',
+                'phone': 'type:phone'
+            };
+            const filterStr = filterMap[activeFilter];
+            if (filterStr) {
+                query = query ? `${query} ${filterStr}` : filterStr;
+            }
+        }
 
-    function countFilter(filter: Filter) {
-        return devices.filter((d) =>
-            filter === 'all'
-                ? true
-                : filter === 'active'
-                  ? d.status === 'active'
-                  : filter === 'inactive'
-                    ? d.status === 'inactive'
-                    : filter === 'registered'
-                      ? d.registered
-                      : filter === 'unregistered'
-                        ? !d.registered
-                        : filter === 'tablet'
-                          ? d.type === 'tablet'
-                          : filter === 'phone'
-                            ? d.type === 'phone'
-                            : true,
-        ).length;
+        // Konfigurasi Sifter
+        const options: any = {
+            fields: ['name', 'id', 'status', 'type'],
+            limit: 100,
+            sort: [
+                { field: '$score', direction: 'desc' },
+                { field: sortOption.includes('name') ? 'name' : 'battery',
+                    direction: sortOption.includes('asc') ? 'asc' : 'desc' }
+            ],
+            filter: true
+        };
+
+        // Jika tidak ada search query dan hanya filter status, tetap pake Sifter
+        const results = sifter.search(query, options);
+
+        // Kembalikan devices berdasarkan hasil Sifter
+        return results.items.map(item => devices[item.id]);
+    });
+
+    // Inisialisasi Sifter (dilakukan sekali)
+    const sifter = new Sifter(devices);
+
+    function countFilter(filter: Filter): number {
+        if (filter === 'all') return devices.length;
+        const query: Record<Filter, string> = {
+            'all': '',
+            'active': 'status:active',
+            'inactive': 'status:inactive',
+            'registered': 'registered:true',
+            'unregistered': 'registered:false',
+            'tablet': 'type:tablet',
+            'phone': 'type:phone'
+        };
+        const results = sifter.search(query[filter], { fields: [], limit: 1000 });
+        return results.items.length;
     }
 
     // ─── Helpers ────────────────────────────────────────────────
     function batteryStyle(b: number) {
-        if (b <= 20)
-            return 'bg-destructive text-destructive-foreground shadow-[0_0_20px_oklch(0.55_0.22_25_/_0.35)]';
-        if (b <= 50)
-            return 'bg-primary/85 text-primary-foreground shadow-[0_0_24px_oklch(0.72_0.22_350_/_0.28)]';
-        return 'bg-primary text-primary-foreground shadow-[0_0_30px_oklch(0.72_0.22_350_/_0.38)]';
+        if (b <= 20) return 'bg-destructive text-destructive-foreground';
+        if (b <= 50) return 'bg-primary/85 text-primary-foreground';
+        return 'bg-primary text-primary-foreground';
     }
 
     function batteryIcon(b: number) {
@@ -235,9 +286,7 @@
     }
 
     function cardGlow(status: Device['status']) {
-        return status === 'active'
-            ? 'hover:shadow-[0_0_45px_oklch(0.72_0.22_350_/_0.22)]'
-            : 'hover:shadow-[0_0_25px_oklch(0.30_0.05_350_/_0.15)]';
+        return status === 'active' ? 'hover:shadow-[0_0_45px_oklch(0.72_0.22_350_/_0.22)]' : '';
     }
 
     function handleCardClick(device: Device) {
@@ -247,7 +296,31 @@
 
     function handleImageError(deviceId: string) {
         failedImages.add(deviceId);
-        failedImages = failedImages; // Trigger reactivity in Svelte 5
+        failedImages = failedImages;
+    }
+
+    // ─── Carousel Functions dengan API ─────────────────────────
+    function initCarousel(deviceId: string, api: any) {
+        if (!api) return;
+        carouselApis.set(deviceId, api);
+        currentSlideIndices.set(deviceId, 0);
+
+        api.on('select', () => {
+            currentSlideIndices.set(deviceId, api.selectedScrollSnap());
+            // Trigger reactivity
+            currentSlideIndices = currentSlideIndices;
+        });
+    }
+
+    function getCurrentIndex(deviceId: string): number {
+        return currentSlideIndices.get(deviceId) || 0;
+    }
+
+    function scrollToSlide(deviceId: string, index: number) {
+        const api = carouselApis.get(deviceId);
+        if (api) {
+            api.scrollTo(index);
+        }
     }
 
     const filters: { label: string; value: Filter }[] = [
@@ -259,19 +332,20 @@
         { label: 'Tablet', value: 'tablet' },
         { label: 'Phone', value: 'phone' },
     ];
+
+    const sortOptions: { label: string; value: SortOption; icon: any }[] = [
+        { label: 'Nama A-Z', value: 'name-asc', icon: SortAsc },
+        { label: 'Nama Z-A', value: 'name-desc', icon: SortDesc },
+        { label: 'Battery Tertinggi', value: 'battery-desc', icon: SortDesc },
+        { label: 'Battery Terendah', value: 'battery-asc', icon: SortAsc },
+    ];
 </script>
 
 <LayoutBG class="bg-mesh-pink min-h-screen">
     <Navbar>
         <div>
-            <div
-                class="text-lg font-semibold tracking-tight text-gradient-pink"
-            >
-                DevControl
-            </div>
-            <div class="text-xs text-muted-foreground">
-                Device Management System
-            </div>
+            <div class="text-lg font-semibold tracking-tight text-gradient-pink">DevControl</div>
+            <div class="text-xs text-muted-foreground">Device Management System</div>
         </div>
         <Button
             size="sm"
@@ -286,10 +360,9 @@
 
     <div class="p-6 space-y-6">
         <!-- Search + Filter -->
-        <Card.Root
-            class="overflow-hidden border border-border/60 bg-card/60 backdrop-blur-2xl shadow-2xl"
-        >
+        <Card.Root class="overflow-hidden border border-border/60 bg-card/60 backdrop-blur-2xl shadow-2xl">
             <Card.Content class="p-5 space-y-4">
+                <!-- Search Input -->
                 <InputGroup.Root class="h-12 border-border/60 bg-background/40">
                     <InputGroup.Addon>
                         <SearchIcon class="size-4 text-primary" />
@@ -300,19 +373,45 @@
                         class="text-sm"
                     />
                 </InputGroup.Root>
+
+                <!-- Filter Buttons -->
                 <div class="flex flex-wrap gap-2">
                     {#each filters as f}
                         <Button
                             size="sm"
-                            variant={activeFilter === f.value
-                                ? 'default'
-                                : 'outline'}
-                            onclick={() => (activeFilter = f.value)}
+                            variant={activeFilter === f.value ? 'default' : 'outline'}
+                            onclick={() => activeFilter = f.value}
                             class="rounded-full transition-all duration-300"
                         >
                             {f.label} ({countFilter(f.value)})
                         </Button>
                     {/each}
+                </div>
+
+                <!-- Sort Dropdown -->
+                <div class="flex justify-end">
+                    <DropdownMenu.Root>
+                        <DropdownMenu.Trigger asChild>
+                            <Button variant="outline" size="sm" class="gap-2">
+                                {#each sortOptions as opt}
+                                    {#if opt.value === sortOption}
+                                        {@const Icon = opt.icon}
+                                        <Icon class="size-4" />
+                                        {opt.label}
+                                    {/if}
+                                {/each}
+                            </Button>
+                        </DropdownMenu.Trigger>
+                        <DropdownMenu.Content>
+                            {#each sortOptions as opt}
+                                {@const Icon = opt.icon}
+                                <DropdownMenu.Item on:click={() => sortOption = opt.value}>
+                                    <Icon class="size-4 mr-2" />
+                                    {opt.label}
+                                </DropdownMenu.Item>
+                            {/each}
+                        </DropdownMenu.Content>
+                    </DropdownMenu.Root>
                 </div>
             </Card.Content>
         </Card.Root>
@@ -320,26 +419,16 @@
         <!-- Header -->
         <div class="flex items-center justify-between px-1">
             <div>
-                <div
-                    class="text-2xl font-semibold tracking-tight text-card-foreground"
-                >
-                    Device Inventory
-                </div>
-                <div class="text-sm text-muted-foreground">
-                    Menampilkan {filtered.length} perangkat
-                </div>
+                <div class="text-2xl font-semibold tracking-tight text-card-foreground">Device Inventory</div>
+                <div class="text-sm text-muted-foreground">Menampilkan {filteredDevices().length} perangkat</div>
             </div>
         </div>
 
-        <!-- Loading skeleton -->
+        <!-- Device Grid -->
         {#if loading}
-            <div
-                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5"
-            >
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 lg:gap-8">
                 {#each Array(8) as _, i}
-                    <div
-                        class="overflow-hidden rounded-3xl border border-border bg-card/50 animate-pulse"
-                    >
+                    <div class="overflow-hidden rounded-xl border border-border bg-card/50 animate-pulse">
                         <div class="aspect-[3/4] shimmer-pink" />
                         <div class="space-y-3 p-4">
                             <div class="h-4 w-3/4 rounded-full shimmer-pink" />
@@ -349,115 +438,99 @@
                     </div>
                 {/each}
             </div>
-        {:else if filtered.length === 0}
+        {:else if filteredDevices().length === 0}
             <Card.Root class="border-border/60 bg-card/50 backdrop-blur-xl">
                 <Card.Content class="p-16 text-center text-muted-foreground">
                     Tidak ada perangkat yang cocok
                 </Card.Content>
             </Card.Root>
         {:else}
-            <div
-                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 lg:gap-8"
-            >
-                {#each filtered as device (device.id)}
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 lg:gap-8">
+                {#each filteredDevices() as device (device.id)}
                     {@const isRegistered = device.registered}
                     {@const BattIcon = batteryIcon(device.battery)}
+                    {@const hasCarousel = isRegistered && device.photos && device.photos.length > 1}
+                    {@const isHovered = hoveredDeviceId === device.id}
+                    {@const currentIdx = getCurrentIndex(device.id)}
 
                     <div
                         role="button"
                         tabindex={isRegistered ? 0 : -1}
                         aria-disabled={!isRegistered}
                         onclick={() => handleCardClick(device)}
-                        onkeydown={(e) =>
-                            e.key === 'Enter' && handleCardClick(device)}
-                        class="
-                            group overflow-hidden rounded-xl border border-border/60
-                            bg-card/70 backdrop-blur-xl transition-all duration-500
-                            {isRegistered
-                            ? 'cursor-pointer hover:-translate-y-1.5 hover:border-primary/40 ' +
-                              cardGlow(device.status)
-                            : 'cursor-not-allowed opacity-50 grayscale-[50%] saturate-50'}
-                        "
+                        onkeydown={(e) => e.key === 'Enter' && handleCardClick(device)}
+                        onmouseenter={() => hoveredDeviceId = device.id}
+                        onmouseleave={() => hoveredDeviceId = null}
+                        class="group overflow-hidden rounded-xl border border-border/60 bg-card/70 backdrop-blur-xl transition-all duration-500
+                        {isRegistered ? 'cursor-pointer hover:-translate-y-1.5 hover:border-primary/40 ' + cardGlow(device.status) : 'cursor-not-allowed opacity-50 grayscale-[50%] saturate-50'}"
                     >
-                        <!-- Photo -->
-                        <div
-                            class="relative aspect-[3/4] overflow-hidden bg-muted"
-                        >
-                            <div
-                                class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-background/40 z-10"
-                            />
-
+                        <!-- Photo Area -->
+                        <div class="relative aspect-[3/4] overflow-hidden bg-muted">
                             {#if !device.photo || failedImages.has(device.id)}
-                                <div
-                                    class="h-full w-full flex items-center justify-center bg-muted/50 backdrop-blur-sm"
-                                >
-                                    <div class="text-center space-y-2">
-                                        <ImageOff
-                                            class="size-8 mx-auto text-muted-foreground/70"
-                                        />
-                                        <div
-                                            class="text-xs text-muted-foreground"
-                                        >
-                                            No image
-                                        </div>
-                                    </div>
+                                <div class="h-full w-full flex items-center justify-center bg-muted/50">
+                                    <ImageOff class="size-8 text-muted-foreground/70" />
                                 </div>
+                            {:else if hasCarousel && isHovered}
+                                <Carousel.Root
+                                    plugins={[Autoplay({ delay: 2000, stopOnInteraction: false })]}
+                                    class="w-full h-full"
+                                    on:api={(e) => initCarousel(device.id, e.detail)}
+                                >
+                                    <Carousel.Content class="h-full">
+                                        {#each device.photos! as photo, idx (idx)}
+                                            <Carousel.Item class="h-full">
+                                                <img src={photo} alt={device.name} class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                            </Carousel.Item>
+                                        {/each}
+                                    </Carousel.Content>
+                                    <Carousel.Previous class="absolute left-2 top-1/2 -translate-y-1/2 size-7 bg-black/50 hover:bg-black/70 text-white border-none opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <Carousel.Next class="absolute right-2 top-1/2 -translate-y-1/2 size-7 bg-black/50 hover:bg-black/70 text-white border-none opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </Carousel.Root>
                             {:else}
-                                <img
-                                    src={device.photo}
-                                    alt={device.name}
-                                    onerror={() => handleImageError(device.id)}
-                                    class="h-full w-full object-cover transition-transform duration-700
-                {isRegistered ? 'group-hover:scale-105' : ''}"
-                                />
+                                <img src={device.photo} alt={device.name} onerror={() => handleImageError(device.id)} class="h-full w-full object-cover transition-transform duration-700 {isRegistered ? 'group-hover:scale-105' : ''}" />
                             {/if}
 
-                            <!-- Bottom gradient overlay -->
-                            <div
-                                class="absolute inset-x-0 bottom-0 h-15 bg-gradient-to-t from-background via-background/60 to-transparent z-20"
-                            />
+                            <!-- Carousel Dots dengan fungsi klik -->
+                            {#if hasCarousel && isHovered}
+                                <div class="absolute bottom-16 left-0 right-0 z-30 flex justify-center gap-2">
+                                    {#each device.photos! as _, idx (idx)}
+                                        <button
+                                            onclick={(e) => {
+                                                e.stopPropagation();
+                                                scrollToSlide(device.id, idx);
+                                            }}
+                                            class="transition-all duration-300 rounded-full { currentIdx !== idx ? 'bg-white/50' : 'bg-primary'}"
+                                            class:h-1.5={true}
+                                            class:w-1.5={currentIdx !== idx}
+                                            class:w-4={currentIdx === idx}
+                                        class:bg-primary={currentIdx === idx}
+                                        >
+                                        <span class="sr-only">Slide {idx + 1}</span>
+                                        </button>
+                                    {/each}
+                                </div>
+                            {/if}
 
-                            <!-- Battery badge -->
-                            <div
-                                class="absolute top-3 right-3 z-30 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-md border border-white/10 {batteryStyle(
-                                    device.battery,
-                                )}"
-                            >
-                                {#await batteryIcon(device.battery) then Icon}
-                                    <Icon class="size-3" />
-                                {/await}
+                            <!-- Battery Badge -->
+                            <div class="absolute top-3 right-3 z-30 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-md border border-white/10 {batteryStyle(device.battery)}">
+                                <BattIcon class="size-3" />
                                 <span>{device.battery}%</span>
                             </div>
 
-                            <!-- Status / registered badge -->
+                            <!-- Status Badge -->
                             {#if !isRegistered}
-                                <div
-                                    class="absolute bottom-3 left-3 z-30 flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/15 px-3 py-1.5 text-xs font-medium backdrop-blur-lg text-orange-400"
-                                >
-                                    <span
-                                        class="size-2 rounded-full bg-current"
-                                    />
+                                <div class="absolute bottom-3 left-3 z-30 flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/15 px-3 py-1.5 text-xs font-medium backdrop-blur-lg text-orange-400">
+                                    <span class="size-2 rounded-full bg-current" />
                                     Belum Terdaftar
                                 </div>
                             {:else}
-                                <div
-                                    class="absolute bottom-3 left-3 z-30 flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur-lg {device.status ===
-                                    'active'
-                                        ? 'bg-primary/90 text-primary-foreground border-primary/30'
-                                        : 'bg-muted/80 text-muted-foreground border-border'}"
-                                >
-                                    <span
-                                        class="relative flex size-2 rounded-full bg-current"
-                                    >
+                                <div class="absolute bottom-3 left-3 z-30 flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur-lg {device.status === 'active' ? 'bg-primary/90 text-primary-foreground border-primary/30' : 'bg-muted/80 text-muted-foreground border-border'}">
+                                    <span class="relative flex size-2 rounded-full bg-current">
                                         {#if device.status === 'active'}
-                                            <span
-                                                class="animate-ping absolute inline-flex size-full rounded-full bg-current opacity-75"
-                                            ></span>
+                                            <span class="animate-ping absolute inline-flex size-full rounded-full bg-current opacity-75" />
                                         {/if}
                                     </span>
-                                    {device.status === 'active'
-                                        ? 'Aktif'
-                                        : 'Non-Aktif'}
+                                    {device.status === 'active' ? 'Aktif' : 'Non-Aktif'}
                                 </div>
                             {/if}
                         </div>
@@ -465,52 +538,26 @@
                         <!-- Info -->
                         <div class="space-y-4 p-4">
                             <div class="space-y-2">
-                                <div
-                                    class="line-clamp-2 text-[15px] font-semibold tracking-tight text-card-foreground"
-                                >
-                                    {device.name}
-                                </div>
-                                <div
-                                    class="inline-flex items-center rounded-full border border-border bg-muted/60 px-2.5 py-1 font-mono text-[11px] text-muted-foreground"
-                                >
+                                <div class="line-clamp-2 text-[15px] font-semibold tracking-tight text-card-foreground">{device.name}</div>
+                                <div class="inline-flex items-center rounded-full border border-border bg-muted/60 px-2.5 py-1 font-mono text-[11px] text-muted-foreground">
                                     {device.ram} / {device.storage}
                                 </div>
                             </div>
 
-                            <!-- User -->
-                            <div
-                                class="flex items-center gap-3 rounded-2xl border border-border/60 bg-muted/30 p-2.5"
-                            >
+                            <div class="flex items-center gap-3 rounded-2xl border border-border/60 bg-muted/30 p-2.5">
                                 <div class="min-w-0">
-                                    <div
-                                        class="text-[10px] uppercase tracking-[0.18em] text-muted-foreground"
-                                    >
-                                        User
-                                    </div>
-                                    <div
-                                        class="truncate text-sm text-card-foreground {!device.user
-                                            ? 'italic text-muted-foreground'
-                                            : ''}"
-                                    >
+                                    <div class="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">User</div>
+                                    <div class="truncate text-sm text-card-foreground {!device.user ? 'italic text-muted-foreground' : ''}">
                                         {device.user ?? 'Tidak ada pengguna'}
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Footer -->
                             <div class="flex items-center justify-between">
-                                <span
-                                    class="rounded-full border px-2.5 py-1 text-[11px] font-medium
-                                    {isRegistered
-                                        ? 'border-primary/20 bg-primary/10 text-primary'
-                                        : 'border-orange-500/20 bg-orange-500/10 text-orange-400'}"
-                                >
+                                <span class="rounded-full border px-2.5 py-1 text-[11px] font-medium {isRegistered ? 'border-primary/20 bg-primary/10 text-primary' : 'border-orange-500/20 bg-orange-500/10 text-orange-400'}">
                                     {isRegistered ? 'Terdaftar' : 'Belum'}
                                 </span>
-                                <span
-                                    class="font-mono text-[11px] text-muted-foreground"
-                                    >{device.id}</span
-                                >
+                                <span class="font-mono text-[11px] text-muted-foreground">{device.id}</span>
                             </div>
                         </div>
                     </div>
@@ -519,3 +566,16 @@
         {/if}
     </div>
 </LayoutBG>
+
+<style>
+    @keyframes shimmer {
+        0% { background-position: -1000px 0; }
+        100% { background-position: 1000px 0; }
+    }
+
+    .shimmer-pink {
+        background: linear-gradient(90deg, rgba(236, 72, 153, 0.05) 0%, rgba(236, 72, 153, 0.15) 50%, rgba(236, 72, 153, 0.05) 100%);
+        background-size: 1000px 100%;
+        animation: shimmer 2s infinite;
+    }
+</style>
