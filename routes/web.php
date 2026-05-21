@@ -44,6 +44,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('admin-list', [AdminListController::class, 'index'])->name('adminList');
         Route::post('admin-list', [AdminListController::class, 'store']);
+        Route::put('admin-list/{id}', [AdminListController::class, 'update'])->name('adminList.update');
         Route::delete('admin-list/{id}', [AdminListController::class, 'destroy'])->name('adminList.destroy');
 
         Route::get('maintenance', [MaintenanceController::class, 'index'])->name('maintenance');

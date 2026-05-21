@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
+use App\Models\Brand;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,48 +13,55 @@ class ListDeviceController extends Controller
 {
     public function index(): Response
     {
-        $devices = DB::table('brands')->orderBy('created_at', 'desc')->get();
+        $devices = Brand::orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Admin/ListDevice', [
             'devices' => $devices,
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'id' => ['required', 'string', 'max:255', 'unique:brands,id'],
             'name' => ['required', 'string', 'max:255'],
         ]);
 
-        DB::table('brands')->insert([
+        Brand::insert([
             'id' => $validated['id'],
             'name' => $validated['name'],
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
-        return redirect()->route('admin.listDevice')->with('success', 'Perangkat berhasil ditambahkan');
+        return response()->json([
+            'message' => 'Perangkat berhasil ditambahkan',
+            'device' => [
+                'id' => $validated['id'],
+                'name' => $validated['name'],
+            ],
+        ]);
     }
 
-    public function update(Request $request, string $id): RedirectResponse
+    public function update(Request $request, string $id): JsonResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
         ]);
 
-        DB::table('brands')->where('id', $id)->update([
+        Brand::where('id', $id)->update([
             'name' => $validated['name'],
-            'updated_at' => now(),
         ]);
 
-        return redirect()->route('admin.listDevice')->with('success', 'Perangkat berhasil diperbarui');
+        return response()->json([
+            'message' => 'Perangkat berhasil diperbarui',
+        ]);
     }
 
-    public function destroy(string $id): RedirectResponse
+    public function destroy(string $id): JsonResponse
     {
-        DB::table('brands')->where('id', $id)->delete();
+        Brand::where('id', $id)->delete();
 
-        return redirect()->route('admin.listDevice')->with('success', 'Perangkat berhasil dihapus');
+        return response()->json([
+            'message' => 'Perangkat berhasil dihapus',
+        ]);
     }
 }

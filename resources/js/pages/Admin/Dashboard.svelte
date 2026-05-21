@@ -199,7 +199,7 @@
                         tabindex="0"
                         onclick={() => navigate(card.route)}
                         onkeydown={(e) => e.key === 'Enter' && navigate(card.route)}
-                        class="group cursor-pointer rounded-2xl border-2 bg-card/50 backdrop-blur-xl p-8 flex flex-col items-center gap-4 text-center transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl {card.color}"
+                        class="group cursor-pointer rounded-2xl border-2 bg-primary/10 backdrop-blur-xl p-8 flex flex-col items-center gap-4 text-center transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl {card.color}"
                     >
                         <div
                             class="size-16 rounded-2xl flex items-center justify-center {card.iconBg} group-hover:scale-110 transition-transform duration-300"
