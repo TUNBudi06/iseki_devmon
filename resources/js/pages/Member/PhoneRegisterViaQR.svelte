@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {onDestroy, tick} from 'svelte';
+    import { onDestroy, tick } from 'svelte';
     import { router } from '@inertiajs/svelte';
     import {
         QrCode,
@@ -11,7 +11,7 @@
         Loader2,
         Camera,
         FlipHorizontal,
-        Zap
+        Zap,
     } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
     import { routeUrl } from '@tunbudi06/inertia-route-helper';
@@ -22,8 +22,8 @@
     import * as Card from '$shadcn/components/ui/card';
     import * as Alert from '$shadcn/components/ui/alert';
     import QrScanner from 'qr-scanner';
-    import {home} from "$routes";
-    import {deviceNotRegister} from "$routes/user";
+    import { home } from '$routes';
+    import { deviceNotRegister } from '$routes/user';
 
     let videoElement: HTMLVideoElement | null = null;
     let qrScanner: QrScanner | null = null;
@@ -44,7 +44,7 @@
 
     async function startScan() {
         scanning = true;
-        await tick()
+        await tick();
         if (!videoElement) return;
         error = '';
 
@@ -66,18 +66,18 @@
                     highlightScanRegion: true,
                     highlightCodeOutline: true,
                     maxScansPerSecond: 10,
-                    returnDetailedScanResult: true
-                }
+                    returnDetailedScanResult: true,
+                },
             );
 
             await qrScanner.start();
 
             // Cek ketersediaan flash
             hasFlash = await qrScanner.hasFlash();
-
         } catch (err) {
             console.error('Camera error:', err);
-            error = 'Tidak dapat mengakses kamera. Pastikan izin kamera diberikan dan gunakan HTTPS.';
+            error =
+                'Tidak dapat mengakses kamera. Pastikan izin kamera diberikan dan gunakan HTTPS.';
             scanning = false;
         }
     }
@@ -116,7 +116,9 @@
             try {
                 const cameras = await QrScanner.listCameras(true);
                 const currentCamera = await qrScanner.getCamera();
-                const currentIndex = cameras.findIndex(cam => cam.id === currentCamera);
+                const currentIndex = cameras.findIndex(
+                    (cam) => cam.id === currentCamera,
+                );
                 const nextCamera = cameras[(currentIndex + 1) % cameras.length];
                 await qrScanner.setCamera(nextCamera.id);
             } catch (err) {
@@ -132,13 +134,13 @@
 
         try {
             // Simulasi API call untuk verifikasi QR code
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise((resolve) => setTimeout(resolve, 1500));
 
             if (code && code.length > 0) {
                 deviceInfo = {
                     id: code,
                     name: 'Device from QR',
-                    type: 'Smartphone'
+                    type: 'Smartphone',
                 };
                 success = true;
                 scannedData = code;
@@ -201,13 +203,17 @@
             onclick={() => router.visit(routeUrl(deviceNotRegister()))}
             class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
         >
-            <ArrowLeft class="size-4 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft
+                class="size-4 group-hover:-translate-x-1 transition-transform"
+            />
             Kembali ke Beranda
         </button>
     </div>
 
     <!-- Hero section -->
-    <div class="text-center relative z-10 space-y-4 md:space-y-6 max-w-4xl mx-auto">
+    <div
+        class="text-center relative z-10 space-y-4 md:space-y-6 max-w-4xl mx-auto"
+    >
         <div
             class="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 text-primary text-xs font-medium px-4 py-1.5 rounded-full animate-in fade-in slide-in-from-top-5 duration-500"
         >
@@ -221,7 +227,8 @@
         </h1>
 
         <p class="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
-            Scan QR code pada perangkat atau masukkan kode manual untuk memulai pendaftaran
+            Scan QR code pada perangkat atau masukkan kode manual untuk memulai
+            pendaftaran
         </p>
     </div>
 
@@ -231,7 +238,9 @@
             <Card.Root class="border-border/60 bg-card/80 backdrop-blur-sm">
                 <Card.Header>
                     <Card.Title class="text-xl font-bold text-center">
-                        {scanning ? 'Arahkan Kamera ke QR Code' : 'Pilih Metode'}
+                        {scanning
+                            ? 'Arahkan Kamera ke QR Code'
+                            : 'Pilih Metode'}
                     </Card.Title>
                     <Card.Description class="text-center">
                         {scanning
@@ -251,7 +260,9 @@
 
                     {#if scanning}
                         <!-- QR Scanner -->
-                        <div class="relative aspect-square w-full max-w-sm mx-auto rounded-xl overflow-hidden border-2 border-primary/30 bg-black">
+                        <div
+                            class="relative aspect-square w-full max-w-sm mx-auto rounded-xl overflow-hidden border-2 border-primary/30 bg-black"
+                        >
                             <video
                                 bind:this={videoElement}
                                 class="w-full h-full object-cover"
@@ -259,9 +270,15 @@
 
                             <!-- Scanner overlay line -->
                             <div class="absolute inset-0 pointer-events-none">
-                                <div class="absolute inset-0 border-2 border-primary/50 rounded-xl"></div>
-                                <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-primary animate-scan"></div>
-                                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-primary rounded-xl"></div>
+                                <div
+                                    class="absolute inset-0 border-2 border-primary/50 rounded-xl"
+                                ></div>
+                                <div
+                                    class="absolute top-1/2 left-0 right-0 h-0.5 bg-primary animate-scan"
+                                ></div>
+                                <div
+                                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-primary rounded-xl"
+                                ></div>
                             </div>
                         </div>
 
@@ -273,7 +290,11 @@
                                     variant="outline"
                                     class="gap-2"
                                 >
-                                    <Zap class="size-4 {isFlashOn ? 'text-yellow-500 fill-yellow-500' : ''}" />
+                                    <Zap
+                                        class="size-4 {isFlashOn
+                                            ? 'text-yellow-500 fill-yellow-500'
+                                            : ''}"
+                                    />
                                     {isFlashOn ? 'Flash On' : 'Flash Off'}
                                 </Button>
                             {/if}
@@ -297,10 +318,14 @@
                             </Button>
                         </div>
 
-                        <div class="text-center text-xs text-muted-foreground space-y-1">
-                            <p>Pastikan QR code terlihat jelas dan dalam pencahayaan yang cukup</p>
+                        <div
+                            class="text-center text-xs text-muted-foreground space-y-1"
+                        >
+                            <p>
+                                Pastikan QR code terlihat jelas dan dalam
+                                pencahayaan yang cukup
+                            </p>
                         </div>
-
                     {:else}
                         <!-- Method selection -->
                         <div class="grid grid-cols-2 gap-4">
@@ -308,37 +333,66 @@
                                 onclick={startScan}
                                 class="group flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border hover:border-primary/50 bg-card/50 hover:bg-primary/5 transition-all duration-300"
                             >
-                                <div class="size-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <div
+                                    class="size-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform"
+                                >
                                     <Camera class="size-6 text-primary" />
                                 </div>
                                 <div>
-                                    <div class="font-semibold text-sm">Scan Kamera</div>
-                                    <p class="text-xs text-muted-foreground mt-1">Gunakan kamera perangkat</p>
+                                    <div class="font-semibold text-sm">
+                                        Scan Kamera
+                                    </div>
+                                    <p
+                                        class="text-xs text-muted-foreground mt-1"
+                                    >
+                                        Gunakan kamera perangkat
+                                    </p>
                                 </div>
                             </button>
 
                             <button
-                                onclick={() => document.getElementById('manual-input')?.scrollIntoView({ behavior: 'smooth' })}
+                                onclick={() =>
+                                    document
+                                        .getElementById('manual-input')
+                                        ?.scrollIntoView({
+                                            behavior: 'smooth',
+                                        })}
                                 class="group flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border hover:border-primary/50 bg-card/50 hover:bg-primary/5 transition-all duration-300"
                             >
-                                <div class="size-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <div
+                                    class="size-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform"
+                                >
                                     <Smartphone class="size-6 text-primary" />
                                 </div>
                                 <div>
-                                    <div class="font-semibold text-sm">Input Manual</div>
-                                    <p class="text-xs text-muted-foreground mt-1">Masukkan kode QR manual</p>
+                                    <div class="font-semibold text-sm">
+                                        Input Manual
+                                    </div>
+                                    <p
+                                        class="text-xs text-muted-foreground mt-1"
+                                    >
+                                        Masukkan kode QR manual
+                                    </p>
                                 </div>
                             </button>
                         </div>
 
                         <!-- Manual input -->
-                        <div id="manual-input" class="space-y-4 pt-4 border-t border-border">
+                        <div
+                            id="manual-input"
+                            class="space-y-4 pt-4 border-t border-border"
+                        >
                             <div class="space-y-2">
-                                <Label for="qr-code" class="text-sm font-medium">
+                                <Label
+                                    for="qr-code"
+                                    class="text-sm font-medium"
+                                >
                                     Kode QR / Device ID
                                 </Label>
                                 <div class="relative">
-                                    <QrCode class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                                    <QrCode
+                                        class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+                                    />
                                     <Input
                                         id="qr-code"
                                         type="text"
@@ -365,12 +419,15 @@
                     {/if}
                 </Card.Content>
             </Card.Root>
-
         {:else}
             <!-- Success state -->
-            <Card.Root class="border-border/60 bg-card/80 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-5 duration-500">
+            <Card.Root
+                class="border-border/60 bg-card/80 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-5 duration-500"
+            >
                 <Card.Header class="text-center">
-                    <div class="mx-auto size-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
+                    <div
+                        class="mx-auto size-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4"
+                    >
                         <CheckCircle class="size-8 text-emerald-500" />
                     </div>
                     <Card.Title class="text-xl font-bold">
@@ -384,15 +441,25 @@
                 <Card.Content class="space-y-4">
                     <div class="rounded-xl bg-muted/30 p-4 space-y-2">
                         <div class="flex justify-between items-center">
-                            <span class="text-sm text-muted-foreground">Device ID</span>
-                            <code class="text-sm font-mono text-primary">{deviceInfo?.id}</code>
+                            <span class="text-sm text-muted-foreground"
+                                >Device ID</span
+                            >
+                            <code class="text-sm font-mono text-primary"
+                                >{deviceInfo?.id}</code
+                            >
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-sm text-muted-foreground">Nama Perangkat</span>
-                            <span class="text-sm font-medium">{deviceInfo?.name}</span>
+                            <span class="text-sm text-muted-foreground"
+                                >Nama Perangkat</span
+                            >
+                            <span class="text-sm font-medium"
+                                >{deviceInfo?.name}</span
+                            >
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-sm text-muted-foreground">Tipe</span>
+                            <span class="text-sm text-muted-foreground"
+                                >Tipe</span
+                            >
                             <span class="text-sm">{deviceInfo?.type}</span>
                         </div>
                     </div>
@@ -429,8 +496,12 @@
 
 <style>
     @keyframes fade-in {
-        from { opacity: 0; }
-        to { opacity: 1; }
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
     }
 
     @keyframes slide-in-from-top-5 {

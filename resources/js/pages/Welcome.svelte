@@ -12,15 +12,17 @@
     import { listPhone } from '$routes/phone';
     import LayoutBG from '$/components/LayoutBG.svelte';
     import SpotlightCard from '$shadcn/components/svelte-bits/SpotlightCard.svelte';
-    import { deviceNotRegister } from "$routes/user";
-    import { loginAdmin } from "$routes/admin";
+    import { deviceNotRegister } from '$routes/user';
+    import { loginAdmin } from '$routes/admin';
 
     let navigating = $state<string | null>(null);
 
     function visit(path: string, label: string) {
         navigating = label;
         router.visit(path, {
-            onFinish: () => { navigating = null; },
+            onFinish: () => {
+                navigating = null;
+            },
         });
     }
 
@@ -53,7 +55,8 @@
             badge: 'Pengguna',
             route: routeUrl(deviceNotRegister()),
             routeLabel: 'deviceNotRegister',
-            accentClass: 'from-card to-emerald-520/10 hover:border-emerald-500/40',
+            accentClass:
+                'from-card to-emerald-520/10 hover:border-emerald-500/40',
         },
         {
             icon: ShieldCheck,
@@ -103,7 +106,9 @@
                 class="group bg-primary/20 backdrop-blur-sm border-2 border-border rounded-2xl p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 {card.accentClass}"
             >
                 <div
-                    class="size-16 rounded-2xl bg-gradient-to-br {card.accentClass.split(' ')[0]} border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300"
+                    class="size-16 rounded-2xl bg-gradient-to-br {card.accentClass.split(
+                        ' ',
+                    )[0]} border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300"
                 >
                     <svelte:component this={card.icon} class="size-7" />
                 </div>
@@ -117,7 +122,8 @@
                 </div>
                 <span
                     class="text-xs font-medium bg-primary/10 text-primary border border-primary/20 px-4 py-1 rounded-full"
-                >{card.badge}</span>
+                    >{card.badge}</span
+                >
                 <div class="mt-auto pt-4 w-full flex justify-center">
                     <div
                         class="p-2 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors"

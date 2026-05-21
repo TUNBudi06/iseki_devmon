@@ -3,15 +3,16 @@
     import {
         Monitor,
         QrCode,
-        ArrowRightCircle, ArrowLeft,
+        ArrowRightCircle,
+        ArrowLeft,
     } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
     import { routeUrl } from '@tunbudi06/inertia-route-helper';
     import { listPhone } from '$routes/phone';
     import LayoutBG from '$/components/LayoutBG.svelte';
     import SpotlightCard from '$shadcn/components/svelte-bits/SpotlightCard.svelte';
-    import {deviceNotRegister, deviceRegisterQR} from "$routes/user";
-    import {home} from "$routes";
+    import { deviceNotRegister, deviceRegisterQR } from '$routes/user';
+    import { home } from '$routes';
 </script>
 
 <LayoutBG
@@ -30,14 +31,18 @@
             onclick={() => router.visit(routeUrl(home()))}
             class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
         >
-            <ArrowLeft class="size-4 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft
+                class="size-4 group-hover:-translate-x-1 transition-transform"
+            />
             Kembali ke Beranda
         </button>
     </div>
 
-
     <!-- Hero section -->
-    <div class="text-center relative z-10 space-y-4 md:space-y-6 max-w-4xl mx-auto" id="hero">
+    <div
+        class="text-center relative z-10 space-y-4 md:space-y-6 max-w-4xl mx-auto"
+        id="hero"
+    >
         <div
             class="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 text-primary text-xs font-medium px-4 py-1.5 rounded-full animate-in fade-in slide-in-from-top-5 duration-500"
         >
@@ -59,7 +64,9 @@
             class="group relative bg-gradient-to-br from-primary/50 to-card/30 backdrop-blur-sm border border-border rounded-2xl p-6 md:p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500"
         >
             <!-- Decorative gradient orb -->
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div
+                class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            />
 
             <div
                 class="size-16 md:size-20 rounded-2xl bg-gradient-to-br from-card/80 to-primary/5 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 group-hover:rotate-3 transition-all duration-500"
@@ -72,7 +79,8 @@
                     Daftarkan Perangkat Manual
                 </div>
                 <p class="text-sm text-muted-foreground max-w-xs mx-auto">
-                    Input data perangkat secara langsung ke sistem dengan form pendaftaran manual jika perangkat belum ada di list
+                    Input data perangkat secara langsung ke sistem dengan form
+                    pendaftaran manual jika perangkat belum ada di list
                 </p>
             </div>
 
@@ -93,7 +101,9 @@
             class="group relative bg-gradient-to-br from-primary/50 to-card/30 backdrop-blur-sm border border-border rounded-2xl p-6 md:p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500"
         >
             <!-- Decorative gradient orb -->
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div
+                class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            />
 
             <div
                 class="size-16 md:size-20 rounded-2xl bg-gradient-to-br from-card/60 to-primary/5 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 group-hover:rotate-3 transition-all duration-500"
@@ -106,7 +116,8 @@
                     Daftarkan dengan QR Code
                 </div>
                 <p class="text-sm text-muted-foreground max-w-xs mx-auto">
-                    Scan QR code untuk pendaftaran cepat dan mudah langsung dari perangkat mobile yang tersedia di web
+                    Scan QR code untuk pendaftaran cepat dan mudah langsung dari
+                    perangkat mobile yang tersedia di web
                 </p>
             </div>
 

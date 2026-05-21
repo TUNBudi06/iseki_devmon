@@ -6,9 +6,20 @@
     import { home } from '$routes';
     import { Button } from '$shadcn/components/ui/button';
     import {
-        ArrowRightCircle, LucideHome, Cpu, HardDrive,
-        Tag, ShoppingCart, ClipboardList, CheckCircle2,
-        XCircle, User, CreditCard, LogIn, LogOut, FileText
+        ArrowRightCircle,
+        LucideHome,
+        Cpu,
+        HardDrive,
+        Tag,
+        ShoppingCart,
+        ClipboardList,
+        CheckCircle2,
+        XCircle,
+        User,
+        CreditCard,
+        LogIn,
+        LogOut,
+        FileText,
     } from '@lucide/svelte';
     import { listPhone } from '$routes/phone';
     import * as Carousel from '$shadcn/components/ui/carousel';
@@ -20,7 +31,7 @@
 
     // ── DATA ──
     const phone = {
-        id: "DEV-002",
+        id: 'DEV-002',
         name: 'Samsung Galaxy A54',
         price: 'Rp 4.999.000',
         ram: '8 GB',
@@ -32,21 +43,81 @@
             'https://images.samsung.com/is/image/samsung/p6pim/id/sm-a546ezkdxid/gallery/id-galaxy-a54-5g-sm-a546-sm-a546ezkdxid-535684267?$Q90_1368_1094_F_JPG$',
         ],
         purchases: [
-            { date: '2024-03-10', vendor: 'iBox Indonesia', invoice: 'INV-2024-0312', price: 'Rp 4.999.000' },
+            {
+                date: '2024-03-10',
+                vendor: 'iBox Indonesia',
+                invoice: 'INV-2024-0312',
+                price: 'Rp 4.999.000',
+            },
         ],
         checks: [
-            { date: '2026-01-20', user: 'Budi Santoso', nik: '260101', status: 'ok',   note: 'Semua fungsi normal' },
-            { date: '2026-01-15', user: 'Siti Rahayu',  nik: '260102', status: 'ok',   note: 'Layar & kamera baik' },
-            { date: '2026-01-10', user: 'Ahmad Fauzi',  nik: '260103', status: 'fail', note: 'Baterai kembung, diganti' },
-            { date: '2025-12-28', user: 'Dewi Kartika', nik: '251201', status: 'ok',   note: 'Pengecekan rutin' },
-            { date: '2025-12-15', user: 'Budi Santoso', nik: '251202', status: 'ok',   note: 'Pengecekan rutin' },
+            {
+                date: '2026-01-20',
+                user: 'Budi Santoso',
+                nik: '260101',
+                status: 'ok',
+                note: 'Semua fungsi normal',
+            },
+            {
+                date: '2026-01-15',
+                user: 'Siti Rahayu',
+                nik: '260102',
+                status: 'ok',
+                note: 'Layar & kamera baik',
+            },
+            {
+                date: '2026-01-10',
+                user: 'Ahmad Fauzi',
+                nik: '260103',
+                status: 'fail',
+                note: 'Baterai kembung, diganti',
+            },
+            {
+                date: '2025-12-28',
+                user: 'Dewi Kartika',
+                nik: '251201',
+                status: 'ok',
+                note: 'Pengecekan rutin',
+            },
+            {
+                date: '2025-12-15',
+                user: 'Budi Santoso',
+                nik: '251202',
+                status: 'ok',
+                note: 'Pengecekan rutin',
+            },
         ],
         usages: [
-            { name: 'Budi Santoso',  nik: '260101', login: '2026-01-20 08:00', note: 'Survey lapangan' },
-            { name: 'Siti Rahayu',   nik: '260102', login: '2026-01-15 09:30', note: 'Presentasi klien' },
-            { name: 'Ahmad Fauzi',   nik: '260103', login: '2026-01-10 07:45', note: 'Inspeksi gudang' },
-            { name: 'Dewi Kartika',  nik: '251201', login: '2025-12-28 08:00', note: 'Monitoring produksi' },
-            { name: 'Rudi Hermawan', nik: '251202', login: '2025-12-15 10:00', note: 'Cek inventori' },
+            {
+                name: 'Budi Santoso',
+                nik: '260101',
+                login: '2026-01-20 08:00',
+                note: 'Survey lapangan',
+            },
+            {
+                name: 'Siti Rahayu',
+                nik: '260102',
+                login: '2026-01-15 09:30',
+                note: 'Presentasi klien',
+            },
+            {
+                name: 'Ahmad Fauzi',
+                nik: '260103',
+                login: '2026-01-10 07:45',
+                note: 'Inspeksi gudang',
+            },
+            {
+                name: 'Dewi Kartika',
+                nik: '251201',
+                login: '2025-12-28 08:00',
+                note: 'Monitoring produksi',
+            },
+            {
+                name: 'Rudi Hermawan',
+                nik: '251202',
+                login: '2025-12-15 10:00',
+                note: 'Cek inventori',
+            },
         ],
     };
 
@@ -66,7 +137,9 @@
     let stDesktop: ScrollTrigger | null = $state(null);
 
     // Computed values with $derived
-    const desktopNavHidden = $derived(!isMobile && stickyProgress > 0.05 && stickyProgress < 0.95);
+    const desktopNavHidden = $derived(
+        !isMobile && stickyProgress > 0.05 && stickyProgress < 0.95,
+    );
 
     const navTransform = $derived(() => {
         if (isMobile) {
@@ -88,7 +161,7 @@
             onUpdate: (self) => {
                 // Hide navbar after scrolling past 150px
                 mobileNavVisible = self.scroll() < 300;
-                console.log("mobile:" + self.scroll());
+                console.log('mobile:' + self.scroll());
             },
         });
     }
@@ -104,7 +177,7 @@
             scrub: 0.5,
             onUpdate: (self) => {
                 stickyProgress = self.progress;
-                console.log("desktop:" + self.scroll());
+                console.log('desktop:' + self.scroll());
             },
         });
     }
@@ -172,7 +245,7 @@
         }
         killTriggers();
         window.removeEventListener('resize', handleResize);
-        ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+        ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     });
 </script>
 
@@ -183,19 +256,31 @@
         style="transform: {navTransform()}"
     >
         <div>
-            <div class="text-lg font-semibold tracking-tight text-gradient-pink">DevControl</div>
-            <div class="text-xs text-muted-foreground hidden sm:block">Device Management System</div>
+            <div
+                class="text-lg font-semibold tracking-tight text-gradient-pink"
+            >
+                DevControl
+            </div>
+            <div class="text-xs text-muted-foreground hidden sm:block">
+                Device Management System
+            </div>
         </div>
         <div class="flex gap-2">
-            <Button size="sm" variant="ghost"
-                    class="border border-border/60 bg-card/40 backdrop-blur-xl hover:bg-primary/10 gap-2"
-                    onclick={() => router.visit(routeUrl(home()))}>
+            <Button
+                size="sm"
+                variant="ghost"
+                class="border border-border/60 bg-card/40 backdrop-blur-xl hover:bg-primary/10 gap-2"
+                onclick={() => router.visit(routeUrl(home()))}
+            >
                 <LucideHome class="size-4" />
                 <span class="hidden sm:inline">Home</span>
             </Button>
-            <Button size="sm" variant="ghost"
-                    class="border border-border/60 bg-card/40 backdrop-blur-xl hover:bg-primary/10 gap-2"
-                    onclick={() => router.visit(routeUrl(listPhone()))}>
+            <Button
+                size="sm"
+                variant="ghost"
+                class="border border-border/60 bg-card/40 backdrop-blur-xl hover:bg-primary/10 gap-2"
+                onclick={() => router.visit(routeUrl(listPhone()))}
+            >
                 <span class="hidden sm:inline">Kembali</span>
                 <ArrowRightCircle class="size-4" />
             </Button>
@@ -205,90 +290,158 @@
     <!-- ══ MOBILE LAYOUT ══ -->
     {#if isMobile}
         <div class="pb-10 space-y-0">
-
             <!-- Foto carousel mobile -->
             <div class="w-full aspect-3/4 h-full relative overflow-hidden">
-                <Carousel.Root class="w-full h-full mb-0 pb-0 pt-30" plugins={[Autoplay({ delay: 3500, stopOnInteraction: false })]}>
+                <Carousel.Root
+                    class="w-full h-full mb-0 pb-0 pt-30"
+                    plugins={[
+                        Autoplay({ delay: 3500, stopOnInteraction: false }),
+                    ]}
+                >
                     <Carousel.Content class="h-full">
                         {#each phone.photos as photo, i (i)}
                             <Carousel.Item class="h-full">
-                                <img src={photo} alt="foto {i+1}" class="w-full h-full object-contain" />
+                                <img
+                                    src={photo}
+                                    alt="foto {i + 1}"
+                                    class="w-full h-full object-contain"
+                                />
                             </Carousel.Item>
                         {/each}
                     </Carousel.Content>
                 </Carousel.Root>
-                <div class="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-background to-transparent z-10" />
+                <div
+                    class="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-background to-transparent z-10"
+                />
             </div>
 
             <!-- Info cards stacked -->
             <div class="px-4 space-y-4 -mt-6 relative z-10">
-
                 <!-- Nama + Harga -->
-                <div class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-2">
-                    <div class="text-[11px] uppercase tracking-[0.22em] text-primary font-bold">Smartphone</div>
-                    <h1 class="text-2xl font-bold tracking-tight leading-snug">{phone.name}</h1>
-                    <div class="text-lg font-light text-gray-500">({phone.id})</div>
+                <div
+                    class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-2"
+                >
+                    <div
+                        class="text-[11px] uppercase tracking-[0.22em] text-primary font-bold"
+                    >
+                        Smartphone
+                    </div>
+                    <h1 class="text-2xl font-bold tracking-tight leading-snug">
+                        {phone.name}
+                    </h1>
+                    <div class="text-lg font-light text-gray-500">
+                        ({phone.id})
+                    </div>
                     <div class="flex items-center gap-2">
                         <Tag class="size-5 text-primary shrink-0" />
-                        <span class="text-xl font-bold text-primary">{phone.price}</span>
+                        <span class="text-xl font-bold text-primary"
+                            >{phone.price}</span
+                        >
                     </div>
                 </div>
 
                 <!-- Spec -->
-                <div class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-3">
-                    <div class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
+                <div
+                    class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-3"
+                >
+                    <div
+                        class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5"
+                    >
                         <Cpu class="size-4" /> Spesifikasi
                     </div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3">
+                        <div
+                            class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3"
+                        >
                             <Cpu class="size-5 text-primary shrink-0" />
                             <div>
-                                <div class="text-[11px] text-muted-foreground uppercase font-bold">RAM</div>
-                                <div class="font-bold text-base">{phone.ram}</div>
+                                <div
+                                    class="text-[11px] text-muted-foreground uppercase font-bold"
+                                >
+                                    RAM
+                                </div>
+                                <div class="font-bold text-base">
+                                    {phone.ram}
+                                </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3">
+                        <div
+                            class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3"
+                        >
                             <HardDrive class="size-5 text-primary shrink-0" />
                             <div>
-                                <div class="text-[11px] text-muted-foreground uppercase font-bold">Storage</div>
-                                <div class="font-bold text-base">{phone.storage}</div>
+                                <div
+                                    class="text-[11px] text-muted-foreground uppercase font-bold"
+                                >
+                                    Storage
+                                </div>
+                                <div class="font-bold text-base">
+                                    {phone.storage}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Pembelian -->
-                <div class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-3">
-                    <div class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
+                <div
+                    class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-3"
+                >
+                    <div
+                        class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5"
+                    >
                         <ShoppingCart class="size-4" /> Riwayat Pembelian
                     </div>
                     {#each phone.purchases as p}
-                        <div class="rounded-xl border border-border/50 bg-muted/30 p-3">
+                        <div
+                            class="rounded-xl border border-border/50 bg-muted/30 p-3"
+                        >
                             <div class="flex justify-between items-start">
-                                <span class="text-sm font-semibold">{p.vendor}</span>
-                                <span class="text-xs text-muted-foreground">{p.date}</span>
+                                <span class="text-sm font-semibold"
+                                    >{p.vendor}</span
+                                >
+                                <span class="text-xs text-muted-foreground"
+                                    >{p.date}</span
+                                >
                             </div>
                             <div class="flex justify-between items-center mt-1">
-                                <span class="font-mono text-xs text-muted-foreground">{p.invoice}</span>
+                                <span
+                                    class="font-mono text-xs text-muted-foreground"
+                                    >{p.invoice}</span
+                                >
                             </div>
                         </div>
                     {/each}
                 </div>
 
                 <!-- Pengecekan singkat -->
-                <div class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-3">
-                    <div class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
+                <div
+                    class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-3"
+                >
+                    <div
+                        class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5"
+                    >
                         <ClipboardList class="size-4" /> Pengecekan Terakhir
                     </div>
                     {#each phone.checks.slice(0, 3) as check}
-                        <div class="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
+                        <div
+                            class="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2"
+                        >
                             {#if check.status === 'ok'}
-                                <CheckCircle2 class="size-4 text-emerald-500 shrink-0" />
+                                <CheckCircle2
+                                    class="size-4 text-emerald-500 shrink-0"
+                                />
                             {:else}
-                                <XCircle class="size-4 text-destructive shrink-0" />
+                                <XCircle
+                                    class="size-4 text-destructive shrink-0"
+                                />
                             {/if}
-                            <span class="text-sm truncate flex-1">{check.user} ({check.nik})</span>
-                            <span class="text-xs text-muted-foreground shrink-0">{check.date.slice(5)}</span>
+                            <span class="text-sm truncate flex-1"
+                                >{check.user} ({check.nik})</span
+                            >
+                            <span class="text-xs text-muted-foreground shrink-0"
+                                >{check.date.slice(5)}</span
+                            >
                         </div>
                     {/each}
                 </div>
@@ -299,15 +452,25 @@
     {:else}
         <div class="relative" style="height: 200vh" bind:this={stickyRef}>
             <div class="sticky top-0 h-screen flex overflow-hidden">
-
                 <!-- Foto 70% -->
                 <div class="w-[70%] relative overflow-hidden bg-muted/20">
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background/50 z-10 pointer-events-none" />
-                    <Carousel.Root class="w-full h-full" plugins={[Autoplay({ delay: 3500, stopOnInteraction: false })]}>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background/50 z-10 pointer-events-none"
+                    />
+                    <Carousel.Root
+                        class="w-full h-full"
+                        plugins={[
+                            Autoplay({ delay: 3500, stopOnInteraction: false }),
+                        ]}
+                    >
                         <Carousel.Content class="h-full">
                             {#each phone.photos as photo, i (i)}
                                 <Carousel.Item class="h-screen">
-                                    <img src={photo} alt="foto {i+1}" class="w-full h-full object-cover" />
+                                    <img
+                                        src={photo}
+                                        alt="foto {i + 1}"
+                                        class="w-full h-full object-cover"
+                                    />
                                 </Carousel.Item>
                             {/each}
                         </Carousel.Content>
@@ -315,89 +478,167 @@
                 </div>
 
                 <!-- Info 30% -->
-                <div class="w-[30%] flex flex-col justify-center gap-0 px-8 pt-20 pb-10 overflow-hidden">
-
+                <div
+                    class="w-[30%] flex flex-col justify-center gap-0 px-8 pt-20 pb-10 overflow-hidden"
+                >
                     <!-- ① Nama + Harga -->
                     <div class="space-y-2 pb-5">
-                        <div class="text-[11px] uppercase tracking-[0.22em] text-primary font-bold">Smartphone</div>
-                        <h1 class="text-3xl font-bold tracking-tight leading-snug">{phone.name} <span class="text-base ms-auto text-gray-400 font-light tracking-tighter">({phone.id})</span></h1>
+                        <div
+                            class="text-[11px] uppercase tracking-[0.22em] text-primary font-bold"
+                        >
+                            Smartphone
+                        </div>
+                        <h1
+                            class="text-3xl font-bold tracking-tight leading-snug"
+                        >
+                            {phone.name}
+                            <span
+                                class="text-base ms-auto text-gray-400 font-light tracking-tighter"
+                                >({phone.id})</span
+                            >
+                        </h1>
                         <div class="flex items-center gap-2">
                             <Tag class="size-5 text-primary shrink-0" />
-                            <span class="text-2xl font-bold text-primary">{phone.price}</span>
+                            <span class="text-2xl font-bold text-primary"
+                                >{phone.price}</span
+                            >
                         </div>
                     </div>
 
                     <!-- ② Spec -->
-                    <div class="border-t border-border/60 pt-5 pb-5 space-y-3 transition-all duration-700">
-                        <div class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
+                    <div
+                        class="border-t border-border/60 pt-5 pb-5 space-y-3 transition-all duration-700"
+                    >
+                        <div
+                            class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5"
+                        >
                             <Cpu class="size-4" /> Spesifikasi
                         </div>
                         <div class="flex flex-col gap-2">
-                            <div class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3">
-                                <div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <div
+                                class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3"
+                            >
+                                <div
+                                    class="size-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"
+                                >
                                     <Cpu class="size-4 text-primary" />
                                 </div>
                                 <div>
-                                    <div class="text-[11px] text-muted-foreground uppercase tracking-wider font-bold">RAM</div>
-                                    <div class="font-bold text-base">{phone.ram}</div>
+                                    <div
+                                        class="text-[11px] text-muted-foreground uppercase tracking-wider font-bold"
+                                    >
+                                        RAM
+                                    </div>
+                                    <div class="font-bold text-base">
+                                        {phone.ram}
+                                    </div>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3">
-                                <div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <div
+                                class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3"
+                            >
+                                <div
+                                    class="size-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"
+                                >
                                     <HardDrive class="size-4 text-primary" />
                                 </div>
                                 <div>
-                                    <div class="text-[11px] text-muted-foreground uppercase tracking-wider font-bold">Storage</div>
-                                    <div class="font-bold text-base">{phone.storage}</div>
+                                    <div
+                                        class="text-[11px] text-muted-foreground uppercase tracking-wider font-bold"
+                                    >
+                                        Storage
+                                    </div>
+                                    <div class="font-bold text-base">
+                                        {phone.storage}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- ③ Riwayat Pembelian -->
-                    <div class="border-t border-border/60 pt-5 pb-5 space-y-3 transition-all duration-700 delay-100">
-                        <div class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
+                    <div
+                        class="border-t border-border/60 pt-5 pb-5 space-y-3 transition-all duration-700 delay-100"
+                    >
+                        <div
+                            class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5"
+                        >
                             <ShoppingCart class="size-4" /> Riwayat Pembelian
                         </div>
                         {#each phone.purchases as p}
-                            <div class="rounded-xl border border-border/50 bg-card/50 p-3">
+                            <div
+                                class="rounded-xl border border-border/50 bg-card/50 p-3"
+                            >
                                 <div class="flex items-center justify-between">
-                                    <span class="text-sm font-semibold truncate">{p.vendor}</span>
-                                    <span class="text-xs text-muted-foreground shrink-0 ml-2">{p.date}</span>
+                                    <span class="text-sm font-semibold truncate"
+                                        >{p.vendor}</span
+                                    >
+                                    <span
+                                        class="text-xs text-muted-foreground shrink-0 ml-2"
+                                        >{p.date}</span
+                                    >
                                 </div>
-                                <div class="flex items-center justify-between mt-0.5">
-                                    <span class="font-mono text-xs text-muted-foreground">{p.invoice}</span>
+                                <div
+                                    class="flex items-center justify-between mt-0.5"
+                                >
+                                    <span
+                                        class="font-mono text-xs text-muted-foreground"
+                                        >{p.invoice}</span
+                                    >
                                 </div>
                             </div>
                         {/each}
                     </div>
 
                     <!-- ④ Riwayat Pengecekan singkat -->
-                    <div class="border-t border-border/60 pt-5 space-y-3 transition-all duration-700 delay-200">
+                    <div
+                        class="border-t border-border/60 pt-5 space-y-3 transition-all duration-700 delay-200"
+                    >
                         <div class="flex justify-between items-center">
-                            <div class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
+                            <div
+                                class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5"
+                            >
                                 <ClipboardList class="size-4" /> Riwayat Pengecekan
                             </div>
-                            <a href="#checks" class="text-xs flex items-center text-muted-foreground hover:text-primary hover:underline gap-1">
-                                Selengkapnya <ArrowRightCircle class="size-3.5" />
+                            <a
+                                href="#checks"
+                                class="text-xs flex items-center text-muted-foreground hover:text-primary hover:underline gap-1"
+                            >
+                                Selengkapnya <ArrowRightCircle
+                                    class="size-3.5"
+                                />
                             </a>
                         </div>
                         <div class="space-y-1.5">
                             {#each phone.checks.slice(0, 4) as check}
-                                <div class="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
+                                <div
+                                    class="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2"
+                                >
                                     {#if check.status === 'ok'}
-                                        <CheckCircle2 class="size-4 text-emerald-500 shrink-0" />
+                                        <CheckCircle2
+                                            class="size-4 text-emerald-500 shrink-0"
+                                        />
                                     {:else}
-                                        <XCircle class="size-4 text-destructive shrink-0" />
+                                        <XCircle
+                                            class="size-4 text-destructive shrink-0"
+                                        />
                                     {/if}
-                                    <span class="text-sm truncate flex-1">{check.user} ({check.nik})</span>
-                                    <span class="text-xs text-muted-foreground shrink-0">{check.date.slice(5)}</span>
+                                    <span class="text-sm truncate flex-1"
+                                        >{check.user} ({check.nik})</span
+                                    >
+                                    <span
+                                        class="text-xs text-muted-foreground shrink-0"
+                                        >{check.date.slice(5)}</span
+                                    >
                                 </div>
                             {/each}
                         </div>
-                        <p class="text-xs text-muted-foreground text-center pt-1 animate-bounce">↓ Scroll untuk riwayat penggunaan</p>
+                        <p
+                            class="text-xs text-muted-foreground text-center pt-1 animate-bounce"
+                        >
+                            ↓ Scroll untuk riwayat penggunaan
+                        </p>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -407,48 +648,71 @@
     <div class="bg-background border-t-2 border-border" id="usage">
         <div class="px-4 sm:px-12 py-10 sm:py-16 space-y-6">
             <div class="flex items-center gap-3">
-                <div class="size-9 sm:size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <div
+                    class="size-9 sm:size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"
+                >
                     <User class="size-4 sm:size-5 text-primary" />
                 </div>
                 <div>
-                    <h2 class="text-lg sm:text-2xl font-bold tracking-tight">Riwayat Penggunaan</h2>
-                    <p class="text-xs text-muted-foreground">{phone.usages.length} sesi tercatat</p>
+                    <h2 class="text-lg sm:text-2xl font-bold tracking-tight">
+                        Riwayat Penggunaan
+                    </h2>
+                    <p class="text-xs text-muted-foreground">
+                        {phone.usages.length} sesi tercatat
+                    </p>
                 </div>
             </div>
 
             <!-- Desktop table -->
-            <div class="hidden md:block rounded-2xl border border-border/60 overflow-hidden">
-                <div class="grid grid-cols-[1.5fr_1.5fr_2fr_2fr] bg-muted/60 border-b border-border">
-                    {#each [
-                        { icon: User,       label: 'Nama' },
-                        { icon: CreditCard, label: 'NIK' },
-                        { icon: LogIn,      label: 'Absence' },
-                        { icon: FileText,   label: 'Keterangan' },
-                    ] as col}
+            <div
+                class="hidden md:block rounded-2xl border border-border/60 overflow-hidden"
+            >
+                <div
+                    class="grid grid-cols-[1.5fr_1.5fr_2fr_2fr] bg-muted/60 border-b border-border"
+                >
+                    {#each [{ icon: User, label: 'Nama' }, { icon: CreditCard, label: 'NIK' }, { icon: LogIn, label: 'Absence' }, { icon: FileText, label: 'Keterangan' }] as col}
                         <div class="flex items-center gap-1.5 px-4 py-3">
                             <col.icon class="size-4 text-primary shrink-0" />
-                            <span class="text-xs font-bold uppercase tracking-widest text-muted-foreground">{col.label}</span>
+                            <span
+                                class="text-xs font-bold uppercase tracking-widest text-muted-foreground"
+                                >{col.label}</span
+                            >
                         </div>
                     {/each}
                 </div>
                 {#each phone.usages as usage, i (i)}
-                    <div class="grid grid-cols-[1.5fr_1.5fr_2fr_2fr] border-b border-border/40 last:border-0 transition-colors
-                        {i % 2 === 0 ? 'bg-card/40' : 'bg-card/20'} hover:bg-primary/5">
+                    <div
+                        class="grid grid-cols-[1.5fr_1.5fr_2fr_2fr] border-b border-border/40 last:border-0 transition-colors
+                        {i % 2 === 0
+                            ? 'bg-card/40'
+                            : 'bg-card/20'} hover:bg-primary/5"
+                    >
                         <div class="px-4 py-4 flex items-center gap-2">
-                            <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
+                            <div
+                                class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary"
+                            >
                                 {usage.name.charAt(0)}
                             </div>
-                            <span class="text-base font-medium truncate">{usage.name}</span>
+                            <span class="text-base font-medium truncate"
+                                >{usage.name}</span
+                            >
                         </div>
                         <div class="px-4 py-4 flex items-center">
-                            <span class="font-mono text-sm text-muted-foreground">{usage.nik}</span>
+                            <span
+                                class="font-mono text-sm text-muted-foreground"
+                                >{usage.nik}</span
+                            >
                         </div>
                         <div class="px-4 py-4 flex items-center gap-1.5">
                             <LogIn class="size-4 text-emerald-500 shrink-0" />
-                            <span class="text-sm whitespace-nowrap">{usage.login}</span>
+                            <span class="text-sm whitespace-nowrap"
+                                >{usage.login}</span
+                            >
                         </div>
                         <div class="px-4 py-4 flex items-center">
-                            <span class="text-sm text-muted-foreground">{usage.note}</span>
+                            <span class="text-sm text-muted-foreground"
+                                >{usage.note}</span
+                            >
                         </div>
                     </div>
                 {/each}
@@ -457,24 +721,44 @@
             <!-- Mobile cards -->
             <div class="md:hidden space-y-3">
                 {#each phone.usages as usage, i (i)}
-                    <div class="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-3">
+                    <div
+                        class="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-3"
+                    >
                         <div class="flex items-center gap-3">
-                            <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0">
+                            <div
+                                class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0"
+                            >
                                 {usage.name.charAt(0)}
                             </div>
                             <div>
-                                <div class="font-semibold text-base">{usage.name}</div>
-                                <div class="font-mono text-xs text-muted-foreground">{usage.nik}</div>
+                                <div class="font-semibold text-base">
+                                    {usage.name}
+                                </div>
+                                <div
+                                    class="font-mono text-xs text-muted-foreground"
+                                >
+                                    {usage.nik}
+                                </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2">
+                        <div
+                            class="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2"
+                        >
                             <LogIn class="size-4 text-emerald-500 shrink-0" />
                             <div>
-                                <div class="text-[11px] text-muted-foreground uppercase font-bold tracking-wider">Absence</div>
-                                <div class="font-medium text-sm">{usage.login}</div>
+                                <div
+                                    class="text-[11px] text-muted-foreground uppercase font-bold tracking-wider"
+                                >
+                                    Absence
+                                </div>
+                                <div class="font-medium text-sm">
+                                    {usage.login}
+                                </div>
                             </div>
                         </div>
-                        <div class="flex items-start gap-2 text-sm text-muted-foreground">
+                        <div
+                            class="flex items-start gap-2 text-sm text-muted-foreground"
+                        >
                             <FileText class="size-4 shrink-0 mt-0.5" />
                             <span>{usage.note}</span>
                         </div>
@@ -488,48 +772,68 @@
     <div class="bg-muted/20 border-t border-border" id="checks">
         <div class="px-4 sm:px-12 py-10 sm:py-16 space-y-6">
             <div class="flex items-center gap-3">
-                <div class="size-9 sm:size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <div
+                    class="size-9 sm:size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"
+                >
                     <ClipboardList class="size-4 sm:size-5 text-primary" />
                 </div>
                 <div>
-                    <h2 class="text-lg sm:text-2xl font-bold tracking-tight">Riwayat Pengecekan</h2>
-                    <p class="text-xs text-muted-foreground">{phone.checks.length} catatan ditemukan</p>
+                    <h2 class="text-lg sm:text-2xl font-bold tracking-tight">
+                        Riwayat Pengecekan
+                    </h2>
+                    <p class="text-xs text-muted-foreground">
+                        {phone.checks.length} catatan ditemukan
+                    </p>
                 </div>
             </div>
 
             <!-- Desktop table -->
-            <div class="hidden md:block rounded-2xl border border-border/60 overflow-hidden">
-                <div class="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_2fr] bg-muted/60 border-b border-border">
-                    {#each [
-                        { icon: User,          label: 'Petugas' },
-                        { icon: CreditCard,    label: 'NIK' },
-                        { icon: CheckCircle2,  label: 'Status' },
-                        { icon: FileText,      label: 'Tanggal' },
-                        { icon: FileText,      label: 'Catatan' },
-                    ] as col}
+            <div
+                class="hidden md:block rounded-2xl border border-border/60 overflow-hidden"
+            >
+                <div
+                    class="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_2fr] bg-muted/60 border-b border-border"
+                >
+                    {#each [{ icon: User, label: 'Petugas' }, { icon: CreditCard, label: 'NIK' }, { icon: CheckCircle2, label: 'Status' }, { icon: FileText, label: 'Tanggal' }, { icon: FileText, label: 'Catatan' }] as col}
                         <div class="flex items-center gap-1.5 px-4 py-3">
                             <col.icon class="size-4 text-primary shrink-0" />
-                            <span class="text-xs font-bold uppercase tracking-widest text-muted-foreground">{col.label}</span>
+                            <span
+                                class="text-xs font-bold uppercase tracking-widest text-muted-foreground"
+                                >{col.label}</span
+                            >
                         </div>
                     {/each}
                 </div>
                 {#each phone.checks as check, i (i)}
-                    <div class="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_2fr] border-b border-border/40 last:border-0 transition-colors
-                        {i % 2 === 0 ? 'bg-card/40' : 'bg-card/20'} hover:bg-primary/5">
+                    <div
+                        class="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_2fr] border-b border-border/40 last:border-0 transition-colors
+                        {i % 2 === 0
+                            ? 'bg-card/40'
+                            : 'bg-card/20'} hover:bg-primary/5"
+                    >
                         <div class="px-4 py-4 flex items-center gap-2">
-                            <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
+                            <div
+                                class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary"
+                            >
                                 {check.user.charAt(0)}
                             </div>
-                            <span class="text-sm font-medium truncate">{check.user}</span>
+                            <span class="text-sm font-medium truncate"
+                                >{check.user}</span
+                            >
                         </div>
                         <div class="px-4 py-4 flex items-center">
-                            <span class="font-mono text-sm text-muted-foreground">{check.nik}</span>
+                            <span
+                                class="font-mono text-sm text-muted-foreground"
+                                >{check.nik}</span
+                            >
                         </div>
                         <div class="px-4 py-4 flex items-center">
-                            <span class="inline-flex items-center gap-1.5 text-sm px-2.5 py-1 rounded-full font-medium border
+                            <span
+                                class="inline-flex items-center gap-1.5 text-sm px-2.5 py-1 rounded-full font-medium border
                                 {check.status === 'ok'
                                     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                                    : 'bg-destructive/10 text-destructive border-destructive/20'}">
+                                    : 'bg-destructive/10 text-destructive border-destructive/20'}"
+                            >
                                 {#if check.status === 'ok'}
                                     <CheckCircle2 class="size-3.5" />
                                 {:else}
@@ -538,10 +842,14 @@
                                 {check.status === 'ok' ? 'OK' : 'Gagal'}
                             </span>
                         </div>
-                        <div class="px-4 py-4 flex items-center text-sm text-muted-foreground">
+                        <div
+                            class="px-4 py-4 flex items-center text-sm text-muted-foreground"
+                        >
                             {check.date}
                         </div>
-                        <div class="px-4 py-4 flex items-center text-sm text-muted-foreground">
+                        <div
+                            class="px-4 py-4 flex items-center text-sm text-muted-foreground"
+                        >
                             {check.note}
                         </div>
                     </div>
@@ -551,21 +859,33 @@
             <!-- Mobile cards -->
             <div class="md:hidden space-y-3">
                 {#each phone.checks as check, i (i)}
-                    <div class="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-2">
+                    <div
+                        class="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-2"
+                    >
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0">
+                                <div
+                                    class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0"
+                                >
                                     {check.user.charAt(0)}
                                 </div>
                                 <div>
-                                    <div class="font-semibold text-base">{check.user}</div>
-                                    <div class="font-mono text-xs text-muted-foreground">{check.nik}</div>
+                                    <div class="font-semibold text-base">
+                                        {check.user}
+                                    </div>
+                                    <div
+                                        class="font-mono text-xs text-muted-foreground"
+                                    >
+                                        {check.nik}
+                                    </div>
                                 </div>
                             </div>
-                            <span class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border
+                            <span
+                                class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border
                                 {check.status === 'ok'
                                     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                                    : 'bg-destructive/10 text-destructive border-destructive/20'}">
+                                    : 'bg-destructive/10 text-destructive border-destructive/20'}"
+                            >
                                 {#if check.status === 'ok'}
                                     <CheckCircle2 class="size-3.5" />
                                 {:else}
@@ -574,8 +894,12 @@
                                 {check.status === 'ok' ? 'OK' : 'Gagal'}
                             </span>
                         </div>
-                        <div class="text-xs text-muted-foreground font-medium">{check.date}</div>
-                        <div class="text-sm text-muted-foreground flex items-start gap-1.5">
+                        <div class="text-xs text-muted-foreground font-medium">
+                            {check.date}
+                        </div>
+                        <div
+                            class="text-sm text-muted-foreground flex items-start gap-1.5"
+                        >
                             <FileText class="size-4 shrink-0 mt-0.5" />
                             {check.note}
                         </div>
@@ -584,5 +908,4 @@
             </div>
         </div>
     </div>
-
 </LayoutBG>

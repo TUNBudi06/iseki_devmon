@@ -8,7 +8,7 @@
     import { Input } from '$shadcn/components/ui/input';
     import { Label } from '$shadcn/components/ui/label';
     import * as Card from '$shadcn/components/ui/card';
-    import {home} from "$routes";
+    import { home } from '$routes';
 
     let username = $state('');
     let password = $state('');
@@ -25,7 +25,7 @@
         error = '';
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise((resolve) => setTimeout(resolve, 1500));
 
             if (username === 'admin' && password === 'admin123') {
                 router.visit(routeUrl('admin.dashboard'));
@@ -40,7 +40,9 @@
     }
 </script>
 
-<LayoutBG class="min-h-screen bg-background flex items-center justify-center p-4">
+<LayoutBG
+    class="min-h-screen bg-background flex items-center justify-center p-4"
+>
     <Particles
         particleCount={200}
         particleColors={['#000000', '#ff00ae', '#ffffff']}
@@ -60,11 +62,14 @@
 
         <Card.Root class="border-border/60 bg-card/80 backdrop-blur-xl">
             <Card.Header class="text-center">
-                <div class="mx-auto size-14 rounded-2xl bg-primary/20 flex items-center justify-center mb-4">
+                <div
+                    class="mx-auto size-14 rounded-2xl bg-primary/20 flex items-center justify-center mb-4"
+                >
                     <Shield class="size-7 text-primary" />
                 </div>
                 <Card.Title class="text-2xl font-bold">Login Admin</Card.Title>
-                <Card.Description>Masuk ke panel administrator</Card.Description>
+                <Card.Description>Masuk ke panel administrator</Card.Description
+                >
             </Card.Header>
 
             <Card.Content>
@@ -72,7 +77,9 @@
                     <div class="space-y-2">
                         <Label for="username">Username</Label>
                         <div class="relative">
-                            <User class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                            <User
+                                class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+                            />
                             <Input
                                 id="username"
                                 bind:value={username}
@@ -85,7 +92,9 @@
                     <div class="space-y-2">
                         <Label for="password">Password</Label>
                         <div class="relative">
-                            <Lock class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                            <Lock
+                                class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+                            />
                             <Input
                                 id="password"
                                 type="password"
@@ -100,9 +109,15 @@
                         <p class="text-sm text-red-500">{error}</p>
                     {/if}
 
-                    <Button type="submit" class="w-full gap-2" disabled={isLoading}>
+                    <Button
+                        type="submit"
+                        class="w-full gap-2"
+                        disabled={isLoading}
+                    >
                         {#if isLoading}
-                            <div class="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <div
+                                class="size-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+                            />
                             Memproses...
                         {:else}
                             Login

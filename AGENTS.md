@@ -23,6 +23,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - phpunit/phpunit (PHPUNIT) - v11
 - @inertiajs/svelte (INERTIA_SVELTE) - v3
 - @laravel/vite-plugin-wayfinder (WAYFINDER_VITE) - v0
+- prettier (PRETTIER) - v3
 - tailwindcss (TAILWINDCSS) - v4
 
 ## Conventions
