@@ -74,7 +74,7 @@ return [
     */
 
     'links' => [
-        public_path('storage') =>  'D:/iseki_devmon/storage',
+        public_path('storage') => 'D:/iseki_devmon/storage',
     ],
 
 ];

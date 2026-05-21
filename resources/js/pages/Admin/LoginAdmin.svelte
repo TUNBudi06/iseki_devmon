@@ -1,42 +1,33 @@
 <script lang="ts">
-    import { router } from '@inertiajs/svelte';
-    import { Shield, Lock, User, ArrowRight, ArrowLeft } from '@lucide/svelte';
-    import Particles from '$shadcn/components/Particles.svelte';
+    import { router, useHttp } from '@inertiajs/svelte';
     import { routeUrl } from '@tunbudi06/inertia-route-helper';
-    import LayoutBG from '$/components/LayoutBG.svelte';
     import { Button } from '$shadcn/components/ui/button';
+    import * as Card from '$shadcn/components/ui/card';
     import { Input } from '$shadcn/components/ui/input';
     import { Label } from '$shadcn/components/ui/label';
-    import * as Card from '$shadcn/components/ui/card';
+    import { Shield, Lock, User, ArrowRight, ArrowLeft } from '@lucide/svelte';
+    import Particles from '$shadcn/components/Particles.svelte';
+    import LayoutBG from '$/components/LayoutBG.svelte';
     import { home } from '$routes';
+    import { loginAdmin, dashboard } from '$routes/admin';
+    import {toast} from "svelte-sonner";
+    import {tick} from "svelte";
 
-    let username = $state('');
-    let password = $state('');
-    let isLoading = $state(false);
-    let error = $state('');
+    const form = useHttp({
+        username: '',
+        password: '',
+    });
 
-    async function handleSubmit() {
-        if (!username || !password) {
-            error = 'Harap isi username dan password';
-            return;
-        }
-
-        isLoading = true;
-        error = '';
-
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-
-            if (username === 'admin' && password === 'admin123') {
-                router.visit(routeUrl('admin.dashboard'));
-            } else {
-                error = 'Username atau password salah';
-            }
-        } catch (err) {
-            error = 'Terjadi kesalahan, silakan coba lagi';
-        } finally {
-            isLoading = false;
-        }
+    function handleSubmit(e: Event) {
+        e.preventDefault()
+        form.post(routeUrl(loginAdmin.authenticate()), {
+            onSuccess:async () => {
+                await toast.success('Login berhasil! Mengalihkan ke dashboard...')
+                setTimeout(() => {
+                router.visit(routeUrl(dashboard()));
+                }, 2000) // Beri jeda agar toast terlihat
+            },
+        });
     }
 </script>
 
@@ -68,8 +59,7 @@
                     <Shield class="size-7 text-primary" />
                 </div>
                 <Card.Title class="text-2xl font-bold">Login Admin</Card.Title>
-                <Card.Description>Masuk ke panel administrator</Card.Description
-                >
+                <Card.Description>Masuk ke panel administrator</Card.Description>
             </Card.Header>
 
             <Card.Content>
@@ -82,7 +72,7 @@
                             />
                             <Input
                                 id="username"
-                                bind:value={username}
+                                bind:value={form.username}
                                 placeholder="admin"
                                 class="pl-10"
                             />
@@ -98,23 +88,23 @@
                             <Input
                                 id="password"
                                 type="password"
-                                bind:value={password}
+                                bind:value={form.password}
                                 placeholder="••••••••"
                                 class="pl-10"
                             />
                         </div>
                     </div>
 
-                    {#if error}
-                        <p class="text-sm text-red-500">{error}</p>
+                    {#if form.errors.username}
+                        <p class="text-sm text-red-500">{form.errors.username}</p>
                     {/if}
 
                     <Button
                         type="submit"
                         class="w-full gap-2"
-                        disabled={isLoading}
+                        disabled={form.processing}
                     >
-                        {#if isLoading}
+                        {#if form.processing}
                             <div
                                 class="size-4 border-2 border-white border-t-transparent rounded-full animate-spin"
                             />

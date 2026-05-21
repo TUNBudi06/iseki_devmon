@@ -1,5 +1,6 @@
 <script>
     import { cn } from '$shadcn/utils.ts';
+    import {Toaster} from "$shadcn/components/ui/sonner/index.ts";
 
     let { children, class: className = '' } = $props();
 
@@ -7,6 +8,8 @@
         cn('min-h-screen bg-background relative', className),
     );
 </script>
+
+<Toaster richColors position="top-right" />
 
 <div class={classes}>
     <!-- Blobs punya overflow-hidden sendiri, tidak ganggu sticky -->
