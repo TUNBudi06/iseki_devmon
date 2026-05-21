@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('phone_lists', function (Blueprint $table) {
             $table->id();
+            $table->string('brand_id');
+            $table->string('model_id')->comment('unique identifier for each device unit (like serial number)');
+            $table->string('model_type')->comment('Phone or Tablet');
+            $table->string('buy_date');
+            $table->string('price');
+            $table->string('ram');
+            $table->string('storage');
+            $table->boolean('registered')->default(false)->comment('since this set as belum terdaftar semisal hp itu belum terkoneksi terdaftar di web');
+            $table->text('hash_token')->nullable();
             $table->timestamps();
         });
     }

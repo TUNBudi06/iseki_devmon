@@ -39,8 +39,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('list-device', [ListDeviceController::class, 'index'])->name('listDevice');
         Route::post('list-device', [ListDeviceController::class, 'store']);
-        Route::put('list-device/{id}', [ListDeviceController::class, 'update'])->name('listDevice.update');
-        Route::delete('list-device/{id}', [ListDeviceController::class, 'destroy'])->name('listDevice.destroy');
+        Route::put('list-device/{id}', [ListDeviceController::class, 'updateBrand'])->name('listDevice.update');
+        Route::delete('list-device/{id}', [ListDeviceController::class, 'destroyBrand'])->name('listDevice.destroy');
+
+        Route::get('list-device/phone', [ListDeviceController::class, 'index']);
+        Route::post('list-device/phone', [ListDeviceController::class, 'storePhone'])->name('listDevice.phone.store');
+        Route::put('list-device/phone/{id}', [ListDeviceController::class, 'updatePhone'])->name('listDevice.phone.update');
+        Route::delete('list-device/phone/{id}', [ListDeviceController::class, 'destroyPhone'])->name('listDevice.phone.destroy');
+        Route::delete('list-device/phone/{id}/photo', [ListDeviceController::class, 'destroyPhonePhoto'])->name('listDevice.phone.photo.destroy');
+        Route::delete('list-device/phone/{id}/thumbnail', [ListDeviceController::class, 'destroyPhoneThumbnail'])->name('listDevice.phone.thumbnail.destroy');
 
         Route::get('admin-list', [AdminListController::class, 'index'])->name('adminList');
         Route::post('admin-list', [AdminListController::class, 'store']);

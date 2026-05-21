@@ -18,6 +18,7 @@ class BrandSeeder extends Seeder
             ['id' => 'redmi', 'name' => 'Redmi'],
             ['id' => 'oppo', 'name' => 'Oppo'],
             ['id' => 'poco', 'name' => 'Poco'],
+            ['id' => 'infinix', 'name' => 'Infinix'],
         ]);
     }
 }
