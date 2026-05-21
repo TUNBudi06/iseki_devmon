@@ -24,5 +24,9 @@ Route::prefix('user')->group(function () {
     Route::get('registerDevice/Qr',[\App\Http\Controllers\User\DeviceManagement::class,'registerViaQR'])->name('user.deviceRegisterQR');
 
 
-    Route::get('login',[\App\Http\Controllers\User\LoginController::class,'index'])->name('user.loginMember');
+    Route::get('absence',[\App\Http\Controllers\User\LoginController::class,'index'])->name('user.loginMember');
+});
+
+Route::prefix('admin')->group(function () {
+   Route::get('login',[\App\Http\Controllers\Admin\LoginController::class,'index'])->name('admin.loginAdmin');
 });

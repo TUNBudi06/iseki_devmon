@@ -5,13 +5,66 @@
         UserCircle,
         ShieldCheck,
         ArrowRight,
+        Loader2,
     } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
     import { routeUrl } from '@tunbudi06/inertia-route-helper';
     import { listPhone } from '$routes/phone';
     import LayoutBG from '$/components/LayoutBG.svelte';
     import SpotlightCard from '$shadcn/components/svelte-bits/SpotlightCard.svelte';
-    import {deviceNotRegister} from "$routes/user";
+    import { deviceNotRegister } from "$routes/user";
+    import { loginAdmin } from "$routes/admin";
+
+    let navigating = $state<string | null>(null);
+
+    function visit(path: string, label: string) {
+        navigating = label;
+        router.visit(path, {
+            onFinish: () => { navigating = null; },
+        });
+    }
+
+    const year = new Date().getFullYear();
+
+    type CardEntry = {
+        icon: typeof Monitor;
+        label: string;
+        description: string;
+        badge: string;
+        route: string;
+        routeLabel: string;
+        accentClass: string;
+    };
+
+    const cards: CardEntry[] = [
+        {
+            icon: Monitor,
+            label: 'Semua Perangkat',
+            description: 'Lihat seluruh daftar perangkat',
+            badge: 'Publik',
+            route: routeUrl(listPhone()),
+            routeLabel: 'listPhone',
+            accentClass: 'from-card to-blue-500/20 hover:border-blue-500/40',
+        },
+        {
+            icon: UserCircle,
+            label: 'Daily Absence Checks',
+            description: 'Cek absensi harian pengguna',
+            badge: 'Pengguna',
+            route: routeUrl(deviceNotRegister()),
+            routeLabel: 'deviceNotRegister',
+            accentClass: 'from-card to-emerald-520/10 hover:border-emerald-500/40',
+        },
+        {
+            icon: ShieldCheck,
+            label: 'Device Control Sheet',
+            description: 'Kelola dan kendalikan perangkat',
+            badge: 'Admin',
+            route: routeUrl(loginAdmin()),
+            routeLabel: 'loginAdmin',
+            accentClass: 'from-card to-amber-500210 hover:border-amber-500/40',
+        },
+    ];
 </script>
 
 <LayoutBG
@@ -35,10 +88,7 @@
         </div>
         <h1 class="text-4xl font-semibold tracking-tight">
             Selamat datang di
-            <span
-                class="bg-linear-to-br bg-clip-text text-transparent from-blue-700 to-violet-900"
-                >ISEKI-</span
-            ><span class="text-gradient-pink">DevControl</span>
+            <span class="text-gradient-pink">ISEKI-DevControl</span>
         </h1>
     </div>
 
@@ -46,98 +96,46 @@
     <div
         class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-7xl relative z-10"
     >
-        <!-- Semua Perangkat -->
-        <SpotlightCard
-            onclick={() => router.visit(routeUrl(listPhone()))}
-            class="group bg-pink-300/30 backdrop-blur-sm border-2 border-border rounded-2xl p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300"
-        >
-            <div
-                class="size-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300"
+        {#each cards as card}
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <SpotlightCard
+                onclick={() => visit(card.route, card.routeLabel)}
+                class="group bg-primary/20 backdrop-blur-sm border-2 border-border rounded-2xl p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 {card.accentClass}"
             >
-                <Monitor class="size-7" />
-            </div>
-            <div class="space-y-1">
-                <div class="font-semibold text-lg text-foreground">
-                    Semua Perangkat
-                </div>
-            </div>
-            <span
-                class="text-xs font-medium bg-primary/10 text-primary border border-primary/20 px-4 py-1 rounded-full"
-                >Publik</span
-            >
-            <div class="mt-auto pt-4 w-full flex justify-center">
                 <div
-                    class="p-2 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors"
+                    class="size-16 rounded-2xl bg-gradient-to-br {card.accentClass.split(' ')[0]} border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300"
                 >
-                    <ArrowRight
-                        class="size-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all"
-                    />
+                    <svelte:component this={card.icon} class="size-7" />
                 </div>
-            </div>
-        </SpotlightCard>
-
-        <!-- User Login -->
-        <SpotlightCard
-            onclick={() => router.visit(routeUrl(deviceNotRegister()))}
-            class="group bg-pink-300/30 backdrop-blur-sm border-2 border-border rounded-2xl p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300"
-        >
-            <div
-                class="size-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300"
-            >
-                <UserCircle class="size-7" />
-            </div>
-            <div class="space-y-1">
-                <div class="font-semibold text-lg text-foreground">
-                    Daily Absence Checks
+                <div class="space-y-1">
+                    <div class="font-semibold text-lg text-foreground">
+                        {card.label}
+                    </div>
+                    <p class="text-xs text-muted-foreground/70 max-w-48">
+                        {card.description}
+                    </p>
                 </div>
-            </div>
-            <span
-                class="text-xs font-medium bg-primary/10 text-primary border border-primary/20 px-4 py-1 rounded-full"
-                >Pengguna</span
-            >
-            <div class="mt-auto pt-4 w-full flex justify-center">
-                <div
-                    class="p-2 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors"
-                >
-                    <ArrowRight
-                        class="size-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all"
-                    />
+                <span
+                    class="text-xs font-medium bg-primary/10 text-primary border border-primary/20 px-4 py-1 rounded-full"
+                >{card.badge}</span>
+                <div class="mt-auto pt-4 w-full flex justify-center">
+                    <div
+                        class="p-2 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors"
+                    >
+                        {#if navigating === card.routeLabel}
+                            <Loader2 class="size-5 text-primary animate-spin" />
+                        {:else}
+                            <ArrowRight
+                                class="size-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all"
+                            />
+                        {/if}
+                    </div>
                 </div>
-            </div>
-        </SpotlightCard>
-
-        <!-- Admin Login -->
-        <SpotlightCard
-            onclick={() => router.visit('/admin/login')}
-            class="group bg-pink-300/30 backdrop-blur-sm border-2 border-border rounded-2xl p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300"
-        >
-            <div
-                class="size-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:bg-pink-500/40 group-hover:scale-110 transition-all duration-300"
-            >
-                <ShieldCheck class="size-7" />
-            </div>
-            <div class="space-y-1">
-                <div class="font-semibold text-lg text-foreground">
-                    Device Control Sheet
-                </div>
-            </div>
-            <span
-                class="text-xs font-medium bg-primary/10 text-primary border border-primary/20 px-4 py-1 rounded-full"
-                >Admin</span
-            >
-            <div class="mt-auto pt-4 w-full flex justify-center">
-                <div
-                    class="p-2 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors"
-                >
-                    <ArrowRight
-                        class="size-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all"
-                    />
-                </div>
-            </div>
-        </SpotlightCard>
+            </SpotlightCard>
+        {/each}
     </div>
 
     <p class="text-xs text-muted-foreground relative z-10">
-        &copy; 2025 DevControl &mdash; Sistem Manajemen Perangkat Lapangan
+        &copy; {year} DevControl &mdash; Sistem Manajemen Perangkat Lapangan
     </p>
 </LayoutBG>
