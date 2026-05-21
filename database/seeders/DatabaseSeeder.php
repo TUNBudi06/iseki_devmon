@@ -15,6 +15,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([
+            BrandSeeder::class,
+        ]);
+
         User::insert([
             ['name' => 'Admin', 'username' => 'admin', 'password' => 'admin123'],
             ['name' => 'Saiful', 'username' => 'saiful', 'password' => 'vockompenir'],

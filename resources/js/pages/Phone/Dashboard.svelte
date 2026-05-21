@@ -287,8 +287,8 @@
         return BatteryFull;
     }
 
-    function cardGlow(status: Device['status']) {
-        return status === 'active' ? 'hover:shadow-[0_0_45px_oklch(0.72_0.22_350_/_0.22)]' : '';
+    function cardGlowStyle(status: Device['status']) {
+        return status === 'active' ? 'box-shadow: 0 0 45px oklch(0.72 0.22 350 / 0.22);' : '';
     }
 
     function handleCardClick(device: Device) {
@@ -297,8 +297,7 @@
     }
 
     function handleImageError(deviceId: string) {
-        failedImages.add(deviceId);
-        failedImages = failedImages;
+        failedImages = new Set([...failedImages, deviceId]);
     }
 
     // ─── Carousel Functions dengan API ─────────────────────────
@@ -312,16 +311,7 @@
         });
     }
 
-    function getCurrentIndex(deviceId: string): number {
-        return currentSlideIndices[deviceId] ?? 0;
-    }
 
-    function scrollToSlide(deviceId: string, index: number) {
-        const api = carouselApis[deviceId];
-        if (api) {
-            api.scrollTo(index);
-        }
-    }
 
     const filters: { label: string; value: Filter }[] = [
         { label: 'Semua', value: 'all' },
@@ -451,7 +441,6 @@
                     {@const BattIcon = batteryIcon(device.battery)}
                     {@const hasCarousel = isRegistered && device.photos && device.photos.length > 1}
                     {@const isHovered = hoveredDeviceId === device.id}
-                    {@const currentIdx = currentSlideIndices[device.id] ?? 0}
 
                     <div
                         role="button"
@@ -462,7 +451,8 @@
                         onmouseenter={() => hoveredDeviceId = device.id}
                         onmouseleave={() => hoveredDeviceId = null}
                         class="group overflow-hidden rounded-xl border border-border/60 bg-card/70 backdrop-blur-xl transition-all duration-500
-                        {isRegistered ? 'cursor-pointer hover:-translate-y-1.5 hover:border-primary/40 ' + cardGlow(device.status) : 'cursor-not-allowed opacity-50 grayscale-[50%] saturate-50'}"
+                        {isRegistered ? 'cursor-pointer hover:-translate-y-1.5 hover:border-primary/40' : 'cursor-not-allowed opacity-50 grayscale-[50%] saturate-50'}"
+                        style={isRegistered ? cardGlowStyle(device.status) : ''}
                     >
                         <!-- Photo Area -->
                         <div class="relative aspect-[3/4] overflow-hidden bg-muted">
@@ -474,7 +464,7 @@
                                 <Carousel.Root
                                     plugins={[Autoplay({ delay: 2000, stopOnInteraction: false })]}
                                     class="w-full h-full"
-                                    on:api={(e) => initCarousel(device.id, e.detail)}
+                                    onapi={(e) => initCarousel(device.id, e.detail)}
                                 >
                                     <Carousel.Content class="h-full">
                                         {#each device.photos! as photo, idx (idx)}
@@ -490,27 +480,6 @@
                                 <img src={device.photo} alt={device.name} onerror={() => handleImageError(device.id)} class="h-full w-full object-cover transition-transform duration-700 {isRegistered ? 'group-hover:scale-105' : ''}" />
                             {/if}
 
-                            <!--since the dots not working on dynamic api field from carousel so just removing it-->
-                            <!--&lt;!&ndash; Carousel Dots dengan fungsi klik &ndash;&gt;-->
-                            <!--{#if hasCarousel && isHovered}-->
-                            <!--    <div class="absolute bottom-16 left-0 right-0 z-30 flex justify-center gap-2">-->
-                            <!--        {#each device.photos! as _, idx (idx)}-->
-                            <!--            <button-->
-                            <!--                onclick={(e) => {-->
-                            <!--                    e.stopPropagation();-->
-                            <!--                    scrollToSlide(device.id, idx);-->
-                            <!--                }}-->
-                            <!--                class="transition-all duration-300 rounded-full { currentIdx !== idx ? 'bg-white/50' : 'bg-primary'}"-->
-                            <!--                class:h-1.5={true}-->
-                            <!--                class:w-1.5={currentIdx !== idx}-->
-                            <!--                class:w-4={currentIdx === idx}-->
-                            <!--            class:bg-primary={currentIdx === idx}-->
-                            <!--            >-->
-                            <!--            <span class="sr-only">Slide {idx + 1}</span>-->
-                            <!--            </button>-->
-                            <!--        {/each}-->
-                            <!--    </div>-->
-                            <!--{/if}-->
 
                             <!-- Battery Badge -->
                             <div class="absolute top-3 right-3 z-30 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-md border border-white/10 {batteryStyle(device.battery)}">
