@@ -210,48 +210,51 @@
     let hoveredDeviceId = $state<string | null>(null);
 
     // State untuk carousel API per device
-    let carouselApis = $state<Map<string, any>>(new Map());
-    let currentSlideIndices = $state<Map<string, number>>(new Map());
+    let currentSlideIndices = $state<Record<string, number>>({});
+    let carouselApis: Record<string, any> = {};
 
     // ─── SEMUA FILTER PAKAI SIFTER ─────────────────────────────
-    const filteredDevices = $derived(() => {
-        // Buat query string untuk Sifter (search + filter)
-        let query = search;
+    const filteredDevices = $derived.by(() => {
+        let items = [...devices];
 
-        // Tambahkan filter ke query
-        if (activeFilter !== 'all') {
-            const filterMap: Record<Filter, string> = {
-                'all': '',
-                'active': 'status:active',
-                'inactive': 'status:inactive',
-                'registered': 'registered:true',
-                'unregistered': 'registered:false',
-                'tablet': 'type:tablet',
-                'phone': 'type:phone'
-            };
-            const filterStr = filterMap[activeFilter];
-            if (filterStr) {
-                query = query ? `${query} ${filterStr}` : filterStr;
-            }
+        // 1. Search filter (if search is not empty)
+        if (search.trim()) {
+            const results = sifter.search(search, {
+                fields: ['name', 'id'],
+                limit: 100,
+                filter: true
+            });
+            items = results.items.map(item => devices[item.id as number]);
         }
 
-        // Konfigurasi Sifter
-        const options: any = {
-            fields: ['name', 'id', 'status', 'type'],
-            limit: 100,
-            sort: [
-                { field: '$score', direction: 'desc' },
-                { field: sortOption.includes('name') ? 'name' : 'battery',
-                    direction: sortOption.includes('asc') ? 'asc' : 'desc' }
-            ],
-            filter: true
-        };
+        // 2. Category filter
+        if (activeFilter !== 'all') {
+            items = items.filter(device => {
+                if (activeFilter === 'active') return device.status === 'active';
+                if (activeFilter === 'inactive') return device.status === 'inactive';
+                if (activeFilter === 'registered') return device.registered;
+                if (activeFilter === 'unregistered') return !device.registered;
+                if (activeFilter === 'tablet') return device.type === 'tablet';
+                if (activeFilter === 'phone') return device.type === 'phone';
+                return true;
+            });
+        }
 
-        // Jika tidak ada search query dan hanya filter status, tetap pake Sifter
-        const results = sifter.search(query, options);
+        // 3. Sort
+        items.sort((a, b) => {
+            const [field, direction] = sortOption.split('-');
+            const isAsc = direction === 'asc';
 
-        // Kembalikan devices berdasarkan hasil Sifter
-        return results.items.map(item => devices[item.id]);
+            if (field === 'name') {
+                return isAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+            }
+            if (field === 'battery') {
+                return isAsc ? a.battery - b.battery : b.battery - a.battery;
+            }
+            return 0;
+        });
+
+        return items;
     });
 
     // Inisialisasi Sifter (dilakukan sekali)
@@ -259,17 +262,16 @@
 
     function countFilter(filter: Filter): number {
         if (filter === 'all') return devices.length;
-        const query: Record<Filter, string> = {
-            'all': '',
-            'active': 'status:active',
-            'inactive': 'status:inactive',
-            'registered': 'registered:true',
-            'unregistered': 'registered:false',
-            'tablet': 'type:tablet',
-            'phone': 'type:phone'
-        };
-        const results = sifter.search(query[filter], { fields: [], limit: 1000 });
-        return results.items.length;
+
+        return devices.filter(device => {
+            if (filter === 'active') return device.status === 'active';
+            if (filter === 'inactive') return device.status === 'inactive';
+            if (filter === 'registered') return device.registered;
+            if (filter === 'unregistered') return !device.registered;
+            if (filter === 'tablet') return device.type === 'tablet';
+            if (filter === 'phone') return device.type === 'phone';
+            return true;
+        }).length;
     }
 
     // ─── Helpers ────────────────────────────────────────────────
@@ -302,22 +304,20 @@
     // ─── Carousel Functions dengan API ─────────────────────────
     function initCarousel(deviceId: string, api: any) {
         if (!api) return;
-        carouselApis.set(deviceId, api);
-        currentSlideIndices.set(deviceId, 0);
+        carouselApis[deviceId] = api;
+        currentSlideIndices[deviceId] = 0;
 
         api.on('select', () => {
-            currentSlideIndices.set(deviceId, api.selectedScrollSnap());
-            // Trigger reactivity
-            currentSlideIndices = currentSlideIndices;
+            currentSlideIndices[deviceId] = api.selectedScrollSnap();
         });
     }
 
     function getCurrentIndex(deviceId: string): number {
-        return currentSlideIndices.get(deviceId) || 0;
+        return currentSlideIndices[deviceId] ?? 0;
     }
 
     function scrollToSlide(deviceId: string, index: number) {
-        const api = carouselApis.get(deviceId);
+        const api = carouselApis[deviceId];
         if (api) {
             api.scrollTo(index);
         }
@@ -405,7 +405,7 @@
                         <DropdownMenu.Content>
                             {#each sortOptions as opt}
                                 {@const Icon = opt.icon}
-                                <DropdownMenu.Item on:click={() => sortOption = opt.value}>
+                                <DropdownMenu.Item onclick={() => sortOption = opt.value}>
                                     <Icon class="size-4 mr-2" />
                                     {opt.label}
                                 </DropdownMenu.Item>
@@ -420,7 +420,7 @@
         <div class="flex items-center justify-between px-1">
             <div>
                 <div class="text-2xl font-semibold tracking-tight text-card-foreground">Device Inventory</div>
-                <div class="text-sm text-muted-foreground">Menampilkan {filteredDevices().length} perangkat</div>
+                <div class="text-sm text-muted-foreground">Menampilkan {filteredDevices.length} perangkat</div>
             </div>
         </div>
 
@@ -438,7 +438,7 @@
                     </div>
                 {/each}
             </div>
-        {:else if filteredDevices().length === 0}
+        {:else if filteredDevices.length === 0}
             <Card.Root class="border-border/60 bg-card/50 backdrop-blur-xl">
                 <Card.Content class="p-16 text-center text-muted-foreground">
                     Tidak ada perangkat yang cocok
@@ -446,12 +446,12 @@
             </Card.Root>
         {:else}
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 lg:gap-8">
-                {#each filteredDevices() as device (device.id)}
+                {#each filteredDevices as device (device.id)}
                     {@const isRegistered = device.registered}
                     {@const BattIcon = batteryIcon(device.battery)}
                     {@const hasCarousel = isRegistered && device.photos && device.photos.length > 1}
                     {@const isHovered = hoveredDeviceId === device.id}
-                    {@const currentIdx = getCurrentIndex(device.id)}
+                    {@const currentIdx = currentSlideIndices[device.id] ?? 0}
 
                     <div
                         role="button"
@@ -490,26 +490,27 @@
                                 <img src={device.photo} alt={device.name} onerror={() => handleImageError(device.id)} class="h-full w-full object-cover transition-transform duration-700 {isRegistered ? 'group-hover:scale-105' : ''}" />
                             {/if}
 
-                            <!-- Carousel Dots dengan fungsi klik -->
-                            {#if hasCarousel && isHovered}
-                                <div class="absolute bottom-16 left-0 right-0 z-30 flex justify-center gap-2">
-                                    {#each device.photos! as _, idx (idx)}
-                                        <button
-                                            onclick={(e) => {
-                                                e.stopPropagation();
-                                                scrollToSlide(device.id, idx);
-                                            }}
-                                            class="transition-all duration-300 rounded-full { currentIdx !== idx ? 'bg-white/50' : 'bg-primary'}"
-                                            class:h-1.5={true}
-                                            class:w-1.5={currentIdx !== idx}
-                                            class:w-4={currentIdx === idx}
-                                        class:bg-primary={currentIdx === idx}
-                                        >
-                                        <span class="sr-only">Slide {idx + 1}</span>
-                                        </button>
-                                    {/each}
-                                </div>
-                            {/if}
+                            <!--since the dots not working on dynamic api field from carousel so just removing it-->
+                            <!--&lt;!&ndash; Carousel Dots dengan fungsi klik &ndash;&gt;-->
+                            <!--{#if hasCarousel && isHovered}-->
+                            <!--    <div class="absolute bottom-16 left-0 right-0 z-30 flex justify-center gap-2">-->
+                            <!--        {#each device.photos! as _, idx (idx)}-->
+                            <!--            <button-->
+                            <!--                onclick={(e) => {-->
+                            <!--                    e.stopPropagation();-->
+                            <!--                    scrollToSlide(device.id, idx);-->
+                            <!--                }}-->
+                            <!--                class="transition-all duration-300 rounded-full { currentIdx !== idx ? 'bg-white/50' : 'bg-primary'}"-->
+                            <!--                class:h-1.5={true}-->
+                            <!--                class:w-1.5={currentIdx !== idx}-->
+                            <!--                class:w-4={currentIdx === idx}-->
+                            <!--            class:bg-primary={currentIdx === idx}-->
+                            <!--            >-->
+                            <!--            <span class="sr-only">Slide {idx + 1}</span>-->
+                            <!--            </button>-->
+                            <!--        {/each}-->
+                            <!--    </div>-->
+                            <!--{/if}-->
 
                             <!-- Battery Badge -->
                             <div class="absolute top-3 right-3 z-30 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-md border border-white/10 {batteryStyle(device.battery)}">

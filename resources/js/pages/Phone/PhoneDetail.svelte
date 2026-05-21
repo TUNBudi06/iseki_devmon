@@ -35,18 +35,18 @@
             { date: '2024-03-10', vendor: 'iBox Indonesia', invoice: 'INV-2024-0312', price: 'Rp 4.999.000' },
         ],
         checks: [
-            { date: '2026-01-20', user: 'Budi Santoso',  status: 'ok',   note: 'Semua fungsi normal' },
-            { date: '2026-01-15', user: 'Siti Rahayu',   status: 'ok',   note: 'Layar & kamera baik' },
-            { date: '2026-01-10', user: 'Ahmad Fauzi',   status: 'fail', note: 'Baterai kembung, diganti' },
-            { date: '2025-12-28', user: 'Dewi Kartika',  status: 'ok',   note: 'Pengecekan rutin' },
-            { date: '2025-12-15', user: 'Budi Santoso',  status: 'ok',   note: 'Pengecekan rutin' },
+            { date: '2026-01-20', user: 'Budi Santoso', nik: '260101', status: 'ok',   note: 'Semua fungsi normal' },
+            { date: '2026-01-15', user: 'Siti Rahayu',  nik: '260102', status: 'ok',   note: 'Layar & kamera baik' },
+            { date: '2026-01-10', user: 'Ahmad Fauzi',  nik: '260103', status: 'fail', note: 'Baterai kembung, diganti' },
+            { date: '2025-12-28', user: 'Dewi Kartika', nik: '251201', status: 'ok',   note: 'Pengecekan rutin' },
+            { date: '2025-12-15', user: 'Budi Santoso', nik: '251202', status: 'ok',   note: 'Pengecekan rutin' },
         ],
         usages: [
-            { name: 'Budi Santoso',  nik: '3301234567890001', login: '2026-01-20 08:00', logout: '2026-01-20 17:00', note: 'Survey lapangan' },
-            { name: 'Siti Rahayu',   nik: '3301234567890002', login: '2026-01-15 09:30', logout: '2026-01-15 16:00', note: 'Presentasi klien' },
-            { name: 'Ahmad Fauzi',   nik: '3301234567890003', login: '2026-01-10 07:45', logout: '2026-01-10 15:30', note: 'Inspeksi gudang' },
-            { name: 'Dewi Kartika',  nik: '3301234567890004', login: '2025-12-28 08:00', logout: '2025-12-28 17:00', note: 'Monitoring produksi' },
-            { name: 'Rudi Hermawan', nik: '3301234567890005', login: '2025-12-15 10:00', logout: '2025-12-15 14:00', note: 'Cek inventori' },
+            { name: 'Budi Santoso',  nik: '260101', login: '2026-01-20 08:00', note: 'Survey lapangan' },
+            { name: 'Siti Rahayu',   nik: '260102', login: '2026-01-15 09:30', note: 'Presentasi klien' },
+            { name: 'Ahmad Fauzi',   nik: '260103', login: '2026-01-10 07:45', note: 'Inspeksi gudang' },
+            { name: 'Dewi Kartika',  nik: '251201', login: '2025-12-28 08:00', note: 'Monitoring produksi' },
+            { name: 'Rudi Hermawan', nik: '251202', login: '2025-12-15 10:00', note: 'Cek inventori' },
         ],
     };
 
@@ -225,33 +225,33 @@
 
                 <!-- Nama + Harga -->
                 <div class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-2">
-                    <div class="text-[10px] uppercase tracking-[0.22em] text-primary font-bold">Smartphone</div>
-                    <h1 class="text-xl font-bold tracking-tight leading-snug">{phone.name}</h1>
-                    <div class="text-md font-light text-gray-500">({phone.id})</div>
+                    <div class="text-[11px] uppercase tracking-[0.22em] text-primary font-bold">Smartphone</div>
+                    <h1 class="text-2xl font-bold tracking-tight leading-snug">{phone.name}</h1>
+                    <div class="text-lg font-light text-gray-500">({phone.id})</div>
                     <div class="flex items-center gap-2">
-                        <Tag class="size-4 text-primary shrink-0" />
-                        <span class="text-lg font-bold text-primary">{phone.price}</span>
+                        <Tag class="size-5 text-primary shrink-0" />
+                        <span class="text-xl font-bold text-primary">{phone.price}</span>
                     </div>
                 </div>
 
                 <!-- Spec -->
                 <div class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-3">
-                    <div class="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
-                        <Cpu class="size-3" /> Spesifikasi
+                    <div class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
+                        <Cpu class="size-4" /> Spesifikasi
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3">
-                            <Cpu class="size-4 text-primary shrink-0" />
+                            <Cpu class="size-5 text-primary shrink-0" />
                             <div>
-                                <div class="text-[10px] text-muted-foreground uppercase">RAM</div>
-                                <div class="font-bold text-sm">{phone.ram}</div>
+                                <div class="text-[11px] text-muted-foreground uppercase font-bold">RAM</div>
+                                <div class="font-bold text-base">{phone.ram}</div>
                             </div>
                         </div>
                         <div class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3">
-                            <HardDrive class="size-4 text-primary shrink-0" />
+                            <HardDrive class="size-5 text-primary shrink-0" />
                             <div>
-                                <div class="text-[10px] text-muted-foreground uppercase">Storage</div>
-                                <div class="font-bold text-sm">{phone.storage}</div>
+                                <div class="text-[11px] text-muted-foreground uppercase font-bold">Storage</div>
+                                <div class="font-bold text-base">{phone.storage}</div>
                             </div>
                         </div>
                     </div>
@@ -259,18 +259,17 @@
 
                 <!-- Pembelian -->
                 <div class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-3">
-                    <div class="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
-                        <ShoppingCart class="size-3" /> Riwayat Pembelian
+                    <div class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
+                        <ShoppingCart class="size-4" /> Riwayat Pembelian
                     </div>
                     {#each phone.purchases as p}
                         <div class="rounded-xl border border-border/50 bg-muted/30 p-3">
                             <div class="flex justify-between items-start">
-                                <span class="text-xs font-semibold">{p.vendor}</span>
-                                <span class="text-[10px] text-muted-foreground">{p.date}</span>
+                                <span class="text-sm font-semibold">{p.vendor}</span>
+                                <span class="text-xs text-muted-foreground">{p.date}</span>
                             </div>
                             <div class="flex justify-between items-center mt-1">
-                                <span class="font-mono text-[10px] text-muted-foreground">{p.invoice}</span>
-                                <span class="text-xs font-bold text-primary">{p.price}</span>
+                                <span class="font-mono text-xs text-muted-foreground">{p.invoice}</span>
                             </div>
                         </div>
                     {/each}
@@ -278,18 +277,18 @@
 
                 <!-- Pengecekan singkat -->
                 <div class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-3">
-                    <div class="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
-                        <ClipboardList class="size-3" /> Pengecekan Terakhir
+                    <div class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
+                        <ClipboardList class="size-4" /> Pengecekan Terakhir
                     </div>
                     {#each phone.checks.slice(0, 3) as check}
                         <div class="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
                             {#if check.status === 'ok'}
-                                <CheckCircle2 class="size-3.5 text-emerald-500 shrink-0" />
+                                <CheckCircle2 class="size-4 text-emerald-500 shrink-0" />
                             {:else}
-                                <XCircle class="size-3.5 text-destructive shrink-0" />
+                                <XCircle class="size-4 text-destructive shrink-0" />
                             {/if}
-                            <span class="text-xs truncate flex-1">{check.user}</span>
-                            <span class="text-[10px] text-muted-foreground shrink-0">{check.date.slice(5)}</span>
+                            <span class="text-sm truncate flex-1">{check.user} ({check.nik})</span>
+                            <span class="text-xs text-muted-foreground shrink-0">{check.date.slice(5)}</span>
                         </div>
                     {/each}
                 </div>
@@ -320,36 +319,36 @@
 
                     <!-- ① Nama + Harga -->
                     <div class="space-y-2 pb-5">
-                        <div class="text-[10px] uppercase tracking-[0.22em] text-primary font-bold">Smartphone</div>
-                        <h1 class="text-2xl font-bold tracking-tight leading-snug">{phone.name} <span class="text-sm ms-auto text-gray-400 font-light tracking-tighter">({phone.id})</span></h1>
+                        <div class="text-[11px] uppercase tracking-[0.22em] text-primary font-bold">Smartphone</div>
+                        <h1 class="text-3xl font-bold tracking-tight leading-snug">{phone.name} <span class="text-base ms-auto text-gray-400 font-light tracking-tighter">({phone.id})</span></h1>
                         <div class="flex items-center gap-2">
-                            <Tag class="size-4 text-primary shrink-0" />
-                            <span class="text-xl font-bold text-primary">{phone.price}</span>
+                            <Tag class="size-5 text-primary shrink-0" />
+                            <span class="text-2xl font-bold text-primary">{phone.price}</span>
                         </div>
                     </div>
 
                     <!-- ② Spec -->
                     <div class="border-t border-border/60 pt-5 pb-5 space-y-3 transition-all duration-700">
-                        <div class="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
-                            <Cpu class="size-3" /> Spesifikasi
+                        <div class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
+                            <Cpu class="size-4" /> Spesifikasi
                         </div>
                         <div class="flex flex-col gap-2">
                             <div class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3">
-                                <div class="size-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                    <Cpu class="size-3.5 text-primary" />
+                                <div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Cpu class="size-4 text-primary" />
                                 </div>
                                 <div>
-                                    <div class="text-[10px] text-muted-foreground uppercase tracking-wider">RAM</div>
-                                    <div class="font-bold text-sm">{phone.ram}</div>
+                                    <div class="text-[11px] text-muted-foreground uppercase tracking-wider font-bold">RAM</div>
+                                    <div class="font-bold text-base">{phone.ram}</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3">
-                                <div class="size-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                    <HardDrive class="size-3.5 text-primary" />
+                                <div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                    <HardDrive class="size-4 text-primary" />
                                 </div>
                                 <div>
-                                    <div class="text-[10px] text-muted-foreground uppercase tracking-wider">Storage</div>
-                                    <div class="font-bold text-sm">{phone.storage}</div>
+                                    <div class="text-[11px] text-muted-foreground uppercase tracking-wider font-bold">Storage</div>
+                                    <div class="font-bold text-base">{phone.storage}</div>
                                 </div>
                             </div>
                         </div>
@@ -357,18 +356,17 @@
 
                     <!-- ③ Riwayat Pembelian -->
                     <div class="border-t border-border/60 pt-5 pb-5 space-y-3 transition-all duration-700 delay-100">
-                        <div class="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
-                            <ShoppingCart class="size-3" /> Riwayat Pembelian
+                        <div class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
+                            <ShoppingCart class="size-4" /> Riwayat Pembelian
                         </div>
                         {#each phone.purchases as p}
                             <div class="rounded-xl border border-border/50 bg-card/50 p-3">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-xs font-semibold truncate">{p.vendor}</span>
-                                    <span class="text-[10px] text-muted-foreground shrink-0 ml-2">{p.date}</span>
+                                    <span class="text-sm font-semibold truncate">{p.vendor}</span>
+                                    <span class="text-xs text-muted-foreground shrink-0 ml-2">{p.date}</span>
                                 </div>
                                 <div class="flex items-center justify-between mt-0.5">
-                                    <span class="font-mono text-[10px] text-muted-foreground">{p.invoice}</span>
-                                    <span class="text-xs font-bold text-primary">{p.price}</span>
+                                    <span class="font-mono text-xs text-muted-foreground">{p.invoice}</span>
                                 </div>
                             </div>
                         {/each}
@@ -377,27 +375,27 @@
                     <!-- ④ Riwayat Pengecekan singkat -->
                     <div class="border-t border-border/60 pt-5 space-y-3 transition-all duration-700 delay-200">
                         <div class="flex justify-between items-center">
-                            <div class="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
-                                <ClipboardList class="size-3" /> Riwayat Pengecekan
+                            <div class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5">
+                                <ClipboardList class="size-4" /> Riwayat Pengecekan
                             </div>
-                            <a href="#checks" class="text-[10px] flex items-center text-muted-foreground hover:text-primary hover:underline gap-1">
-                                Selengkapnya <ArrowRightCircle class="size-3" />
+                            <a href="#checks" class="text-xs flex items-center text-muted-foreground hover:text-primary hover:underline gap-1">
+                                Selengkapnya <ArrowRightCircle class="size-3.5" />
                             </a>
                         </div>
                         <div class="space-y-1.5">
                             {#each phone.checks.slice(0, 4) as check}
                                 <div class="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
                                     {#if check.status === 'ok'}
-                                        <CheckCircle2 class="size-3.5 text-emerald-500 shrink-0" />
+                                        <CheckCircle2 class="size-4 text-emerald-500 shrink-0" />
                                     {:else}
-                                        <XCircle class="size-3.5 text-destructive shrink-0" />
+                                        <XCircle class="size-4 text-destructive shrink-0" />
                                     {/if}
-                                    <span class="text-xs truncate flex-1">{check.user}</span>
-                                    <span class="text-[10px] text-muted-foreground shrink-0">{check.date.slice(5)}</span>
+                                    <span class="text-sm truncate flex-1">{check.user} ({check.nik})</span>
+                                    <span class="text-xs text-muted-foreground shrink-0">{check.date.slice(5)}</span>
                                 </div>
                             {/each}
                         </div>
-                        <p class="text-[10px] text-muted-foreground text-center pt-1 animate-bounce">↓ Scroll untuk riwayat penggunaan</p>
+                        <p class="text-xs text-muted-foreground text-center pt-1 animate-bounce">↓ Scroll untuk riwayat penggunaan</p>
                     </div>
 
                 </div>
@@ -420,42 +418,37 @@
 
             <!-- Desktop table -->
             <div class="hidden md:block rounded-2xl border border-border/60 overflow-hidden">
-                <div class="grid grid-cols-[1.5fr_1.5fr_1fr_1fr_2fr] bg-muted/60 border-b border-border">
+                <div class="grid grid-cols-[1.5fr_1.5fr_2fr_2fr] bg-muted/60 border-b border-border">
                     {#each [
                         { icon: User,       label: 'Nama' },
                         { icon: CreditCard, label: 'NIK' },
-                        { icon: LogIn,      label: 'Login' },
-                        { icon: LogOut,     label: 'Logout' },
+                        { icon: LogIn,      label: 'Absence' },
                         { icon: FileText,   label: 'Keterangan' },
                     ] as col}
                         <div class="flex items-center gap-1.5 px-4 py-3">
-                            <col.icon class="size-3.5 text-primary shrink-0" />
-                            <span class="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{col.label}</span>
+                            <col.icon class="size-4 text-primary shrink-0" />
+                            <span class="text-xs font-bold uppercase tracking-widest text-muted-foreground">{col.label}</span>
                         </div>
                     {/each}
                 </div>
                 {#each phone.usages as usage, i (i)}
-                    <div class="grid grid-cols-[1.5fr_1.5fr_1fr_1fr_2fr] border-b border-border/40 last:border-0 transition-colors
+                    <div class="grid grid-cols-[1.5fr_1.5fr_2fr_2fr] border-b border-border/40 last:border-0 transition-colors
                         {i % 2 === 0 ? 'bg-card/40' : 'bg-card/20'} hover:bg-primary/5">
                         <div class="px-4 py-4 flex items-center gap-2">
-                            <div class="size-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-[11px] font-bold text-primary">
+                            <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
                                 {usage.name.charAt(0)}
                             </div>
-                            <span class="text-sm font-medium truncate">{usage.name}</span>
+                            <span class="text-base font-medium truncate">{usage.name}</span>
                         </div>
                         <div class="px-4 py-4 flex items-center">
-                            <span class="font-mono text-xs text-muted-foreground">{usage.nik}</span>
+                            <span class="font-mono text-sm text-muted-foreground">{usage.nik}</span>
                         </div>
                         <div class="px-4 py-4 flex items-center gap-1.5">
-                            <LogIn class="size-3.5 text-emerald-500 shrink-0" />
-                            <span class="text-xs whitespace-nowrap">{usage.login}</span>
-                        </div>
-                        <div class="px-4 py-4 flex items-center gap-1.5">
-                            <LogOut class="size-3.5 text-destructive shrink-0" />
-                            <span class="text-xs whitespace-nowrap">{usage.logout}</span>
+                            <LogIn class="size-4 text-emerald-500 shrink-0" />
+                            <span class="text-sm whitespace-nowrap">{usage.login}</span>
                         </div>
                         <div class="px-4 py-4 flex items-center">
-                            <span class="text-xs text-muted-foreground">{usage.note}</span>
+                            <span class="text-sm text-muted-foreground">{usage.note}</span>
                         </div>
                     </div>
                 {/each}
@@ -466,32 +459,23 @@
                 {#each phone.usages as usage, i (i)}
                     <div class="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-3">
                         <div class="flex items-center gap-3">
-                            <div class="size-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">
+                            <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0">
                                 {usage.name.charAt(0)}
                             </div>
                             <div>
-                                <div class="font-semibold text-sm">{usage.name}</div>
-                                <div class="font-mono text-[11px] text-muted-foreground">{usage.nik}</div>
+                                <div class="font-semibold text-base">{usage.name}</div>
+                                <div class="font-mono text-xs text-muted-foreground">{usage.nik}</div>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div class="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2">
-                                <LogIn class="size-3.5 text-emerald-500 shrink-0" />
-                                <div>
-                                    <div class="text-[10px] text-muted-foreground">Login</div>
-                                    <div class="font-medium">{usage.login}</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-1.5 rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2">
-                                <LogOut class="size-3.5 text-destructive shrink-0" />
-                                <div>
-                                    <div class="text-[10px] text-muted-foreground">Logout</div>
-                                    <div class="font-medium">{usage.logout}</div>
-                                </div>
+                        <div class="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2">
+                            <LogIn class="size-4 text-emerald-500 shrink-0" />
+                            <div>
+                                <div class="text-[11px] text-muted-foreground uppercase font-bold tracking-wider">Absence</div>
+                                <div class="font-medium text-sm">{usage.login}</div>
                             </div>
                         </div>
-                        <div class="flex items-start gap-2 text-xs text-muted-foreground">
-                            <FileText class="size-3.5 shrink-0 mt-0.5" />
+                        <div class="flex items-start gap-2 text-sm text-muted-foreground">
+                            <FileText class="size-4 shrink-0 mt-0.5" />
                             <span>{usage.note}</span>
                         </div>
                     </div>
@@ -515,45 +499,49 @@
 
             <!-- Desktop table -->
             <div class="hidden md:block rounded-2xl border border-border/60 overflow-hidden">
-                <div class="grid grid-cols-[1fr_1fr_1fr_2fr] bg-muted/60 border-b border-border">
+                <div class="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_2fr] bg-muted/60 border-b border-border">
                     {#each [
                         { icon: User,          label: 'Petugas' },
+                        { icon: CreditCard,    label: 'NIK' },
                         { icon: CheckCircle2,  label: 'Status' },
                         { icon: FileText,      label: 'Tanggal' },
                         { icon: FileText,      label: 'Catatan' },
                     ] as col}
                         <div class="flex items-center gap-1.5 px-4 py-3">
-                            <col.icon class="size-3.5 text-primary shrink-0" />
-                            <span class="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{col.label}</span>
+                            <col.icon class="size-4 text-primary shrink-0" />
+                            <span class="text-xs font-bold uppercase tracking-widest text-muted-foreground">{col.label}</span>
                         </div>
                     {/each}
                 </div>
                 {#each phone.checks as check, i (i)}
-                    <div class="grid grid-cols-[1fr_1fr_1fr_2fr] border-b border-border/40 last:border-0 transition-colors
+                    <div class="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_2fr] border-b border-border/40 last:border-0 transition-colors
                         {i % 2 === 0 ? 'bg-card/40' : 'bg-card/20'} hover:bg-primary/5">
                         <div class="px-4 py-4 flex items-center gap-2">
-                            <div class="size-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-[11px] font-bold text-primary">
+                            <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
                                 {check.user.charAt(0)}
                             </div>
                             <span class="text-sm font-medium truncate">{check.user}</span>
                         </div>
                         <div class="px-4 py-4 flex items-center">
-                            <span class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium border
+                            <span class="font-mono text-sm text-muted-foreground">{check.nik}</span>
+                        </div>
+                        <div class="px-4 py-4 flex items-center">
+                            <span class="inline-flex items-center gap-1.5 text-sm px-2.5 py-1 rounded-full font-medium border
                                 {check.status === 'ok'
                                     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
                                     : 'bg-destructive/10 text-destructive border-destructive/20'}">
                                 {#if check.status === 'ok'}
-                                    <CheckCircle2 class="size-3" />
+                                    <CheckCircle2 class="size-3.5" />
                                 {:else}
-                                    <XCircle class="size-3" />
+                                    <XCircle class="size-3.5" />
                                 {/if}
                                 {check.status === 'ok' ? 'OK' : 'Gagal'}
                             </span>
                         </div>
-                        <div class="px-4 py-4 flex items-center text-xs text-muted-foreground">
+                        <div class="px-4 py-4 flex items-center text-sm text-muted-foreground">
                             {check.date}
                         </div>
-                        <div class="px-4 py-4 flex items-center text-xs text-muted-foreground">
+                        <div class="px-4 py-4 flex items-center text-sm text-muted-foreground">
                             {check.note}
                         </div>
                     </div>
@@ -566,26 +554,29 @@
                     <div class="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-2">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                                <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0">
                                     {check.user.charAt(0)}
                                 </div>
-                                <span class="font-semibold text-sm">{check.user}</span>
+                                <div>
+                                    <div class="font-semibold text-base">{check.user}</div>
+                                    <div class="font-mono text-xs text-muted-foreground">{check.nik}</div>
+                                </div>
                             </div>
                             <span class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border
                                 {check.status === 'ok'
                                     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
                                     : 'bg-destructive/10 text-destructive border-destructive/20'}">
                                 {#if check.status === 'ok'}
-                                    <CheckCircle2 class="size-3" />
+                                    <CheckCircle2 class="size-3.5" />
                                 {:else}
-                                    <XCircle class="size-3" />
+                                    <XCircle class="size-3.5" />
                                 {/if}
                                 {check.status === 'ok' ? 'OK' : 'Gagal'}
                             </span>
                         </div>
-                        <div class="text-[11px] text-muted-foreground">{check.date}</div>
-                        <div class="text-xs text-muted-foreground flex items-start gap-1.5">
-                            <FileText class="size-3.5 shrink-0 mt-0.5" />
+                        <div class="text-xs text-muted-foreground font-medium">{check.date}</div>
+                        <div class="text-sm text-muted-foreground flex items-start gap-1.5">
+                            <FileText class="size-4 shrink-0 mt-0.5" />
                             {check.note}
                         </div>
                     </div>
