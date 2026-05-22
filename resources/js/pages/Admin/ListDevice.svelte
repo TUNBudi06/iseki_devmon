@@ -18,7 +18,6 @@
         Trash2,
         Edit,
         X,
-        Check,
         Search,
         Tablet,
         Cpu,
@@ -27,6 +26,7 @@
         Banknote,
         CircleCheck,
         CircleX,
+        Check,
         AppWindow,
         Image,
         ImageUp,
@@ -58,6 +58,7 @@
         thumbnail: string | null;
         list_photos: string[] | null;
         registered: boolean;
+        approved: boolean;
         hash_token: string | null;
         created_at: string;
         updated_at: string;
@@ -144,6 +145,24 @@
     // ─── Delete Phone ────────────────────────────────────────────
     const deletePhoneForm = useHttp({});
     let deletePhoneTarget = $state<PhoneList | null>(null);
+
+    // ─── Approve Phone ────────────────────────────────────────────
+    let approvingId = $state<number | null>(null);
+
+    function handleApprovePhone(phone: PhoneList) {
+        approvingId = phone.id;
+        router.post(listDevice.phone.approve({ id: phone.id }).url, {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+                approvingId = null;
+                toast.success('Perangkat disetujui');
+            },
+            onError: () => {
+                approvingId = null;
+                toast.error('Gagal menyetujui perangkat');
+            },
+        });
+    }
 
     // ─── Delete Photo ────────────────────────────────────────────
     const deletePhotoForm = useHttp({});
@@ -756,17 +775,29 @@
                                             </span>
                                         </Table.Cell>
                                         <Table.Cell>
-                                            {#if phone.registered}
-                                                <Badge class="bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-300/30 gap-1">
-                                                    <CircleCheck class="size-3" />
-                                                    Registered
-                                                </Badge>
-                                            {:else}
-                                                <Badge variant="secondary" class="bg-rose-500/10 text-rose-500 border-rose-300/30 gap-1">
-                                                    <CircleX class="size-3" />
-                                                    Unregistered
-                                                </Badge>
-                                            {/if}
+                                            <div class="flex flex-wrap gap-1">
+                                                {#if phone.registered}
+                                                    <Badge class="bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-300/30 gap-1">
+                                                        <CircleCheck class="size-3" />
+                                                        Registered
+                                                    </Badge>
+                                                {:else}
+                                                    <Badge variant="secondary" class="bg-rose-500/10 text-rose-500 border-rose-300/30 gap-1">
+                                                        <CircleX class="size-3" />
+                                                        Unregistered
+                                                    </Badge>
+                                                {/if}
+                                                {#if !phone.approved}
+                                                    <Badge variant="outline" class="bg-amber-500/10 border-amber-300/30 text-amber-500 gap-1">
+                                                        Pending
+                                                    </Badge>
+                                                {:else}
+                                                    <Badge class="bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-300/30 gap-1">
+                                                        <Check class="size-3" />
+                                                        Disetujui
+                                                    </Badge>
+                                                {/if}
+                                            </div>
                                         </Table.Cell>
                                         <Table.Cell class="text-right">
                                             {#if !phone.deleted_at}
@@ -780,6 +811,22 @@
                                                             title="Tampilkan QR Code"
                                                         >
                                                             <QrCode class="size-3.5" />
+                                                        </Button>
+                                                    {/if}
+                                                    {#if !phone.approved}
+                                                        <Button
+                                                            size="icon"
+                                                            variant="ghost"
+                                                            class="size-8 text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10"
+                                                            onclick={() => handleApprovePhone(phone)}
+                                                            title="Setujui perangkat"
+                                                            disabled={approvingId === phone.id}
+                                                        >
+                                                            {#if approvingId === phone.id}
+                                                                <div class="size-3.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                                                            {:else}
+                                                                <Check class="size-3.5" />
+                                                            {/if}
                                                         </Button>
                                                     {/if}
                                                     <Button

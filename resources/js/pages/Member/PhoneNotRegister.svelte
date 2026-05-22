@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
     import { router } from '@inertiajs/svelte';
     import {
         Monitor,
@@ -10,8 +11,16 @@
     import { listPhone } from '$routes/phone';
     import LayoutBG from '$/components/LayoutBG.svelte';
     import SpotlightCard from '$shadcn/components/svelte-bits/SpotlightCard.svelte';
-    import { deviceNotRegister, deviceRegisterQR } from '$routes/user';
+    import { deviceNotRegister, deviceRegisterQR, deviceRegisterManual, loginMember } from '$routes/user';
     import { home } from '$routes';
+    import { getDeviceAuth } from '$lib/indexedDB';
+
+    onMount(async () => {
+        const auth = await getDeviceAuth();
+        if (auth) {
+            router.visit(loginMember(auth.device_id).url);
+        }
+    });
 </script>
 
 <LayoutBG
@@ -60,6 +69,7 @@
     >
         <!-- Manual Register -->
         <SpotlightCard
+            onclick={() => router.visit(deviceRegisterManual().url)}
             class="group relative bg-gradient-to-br from-primary/50 to-card/30 backdrop-blur-sm border border-border rounded-2xl p-6 md:p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500"
         >
             <!-- Decorative gradient orb -->

@@ -76,18 +76,36 @@ class PhoneListSeeder extends Seeder
         ];
 
         foreach ($devices as $i => $device) {
-            PhoneList::create([
-                'brand_id' => $device['brand_id'],
-                'model_name' => $device['model_name'],
-                'model_id' => $device['model_name'].'-'.str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT),
-                'model_type' => $device['model_type'],
-                'buy_date' => $device['buy_date'],
-                'price' => $device['price'],
-                'ram' => $device['ram'],
-                'storage' => $device['storage'],
-                'registered' => false,
-                'hash_token' => null,
-            ]);
+            $modelId = $device['model_name'].'-'.str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT);
+            $phone = PhoneList::updateOrCreate(
+                ['model_id' => $modelId],
+                [
+                    'brand_id' => $device['brand_id'],
+                    'model_name' => $device['model_name'],
+                    'model_type' => $device['model_type'],
+                    'buy_date' => $device['buy_date'],
+                    'price' => $device['price'],
+                    'ram' => $device['ram'],
+                    'storage' => $device['storage'],
+                    'registered' => false,
+                    'approved' => true,
+                    'hash_token' => null,
+                ]
+            );
+
+            // Link existing photo files if any
+            $photoDir = public_path('storage/device/'.$phone->id);
+            if (is_dir($photoDir)) {
+                $files = array_values(array_filter(scandir($photoDir), fn ($f) => ! in_array($f, ['.', '..'])));
+                if (! empty($files)) {
+                    sort($files);
+                    $paths = array_map(fn ($f) => 'storage/device/'.$phone->id.'/'.$f, $files);
+                    $phone->update([
+                        'thumbnail' => $paths[0],
+                        'list_photos' => $paths,
+                    ]);
+                }
+            }
         }
     }
 }

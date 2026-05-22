@@ -12,7 +12,7 @@ class BrandSeeder extends Seeder
 
     public function run(): void
     {
-        Brand::insert([
+        Brand::insertOrIgnore([
             ['id' => 'samsung', 'name' => 'Samsung'],
             ['id' => 'vivo', 'name' => 'Vivo'],
             ['id' => 'redmi', 'name' => 'Redmi'],

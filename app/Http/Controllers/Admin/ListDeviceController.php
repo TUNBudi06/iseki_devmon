@@ -126,6 +126,7 @@ class ListDeviceController extends Controller
 
         $data = collect($validated)->except(['list_photos'])->toArray();
         $data['registered'] = false;
+        $data['approved'] = true;
         $data['hash_token'] = null;
 
         // Create phone first to get the ID
@@ -238,5 +239,12 @@ class ListDeviceController extends Controller
         }
 
         return response()->json(['message' => 'Phone berhasil dihapus']);
+    }
+
+    public function approvePhone(PhoneList $phone): RedirectResponse
+    {
+        $phone->update(['approved' => true]);
+
+        return redirect()->back()->with('success', 'Perangkat berhasil disetujui');
     }
 }

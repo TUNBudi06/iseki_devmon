@@ -1,6 +1,6 @@
 <script lang="ts">
     import { router } from '@inertiajs/svelte';
-    import { User, Lock, ArrowRight, ArrowLeft } from '@lucide/svelte';
+    import { Fingerprint, Smartphone, ArrowRight, ArrowLeft, AlertCircle, IdCard, Lock, CheckCircle2 } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
 
     import LayoutBG from '$/components/LayoutBG.svelte';
@@ -8,82 +8,124 @@
     import { Input } from '$shadcn/components/ui/input';
     import { Label } from '$shadcn/components/ui/label';
     import * as Card from '$shadcn/components/ui/card';
+    import * as Alert from '$shadcn/components/ui/alert';
+    import { Badge } from '$shadcn/components/ui/badge';
     import { home } from '$routes';
+    import { dashboard } from '$routes/user';
+    import loginMember from '$routes/user/loginMember';
 
-    let username = $state('');
+    type DeviceInfo = {
+        model_id: string;
+        model_name: string;
+        approved: boolean;
+        registered: boolean;
+    };
+
+    let { device, error: serverError }: { device: DeviceInfo | null; error: string | null } = $props();
+
+    let nik = $state('');
     let password = $state('');
     let isLoading = $state(false);
-    let error = $state('');
+    let localError = $state('');
+
+    let blocked = $derived(!device || !device.approved || !device.registered || !!serverError);
+    let deviceId = $derived(device?.model_id ?? '');
+
+    function handleNIKInput(e: Event) {
+        const input = e.target as HTMLInputElement;
+        nik = input.value.replace(/\D/g, '').slice(0, 6);
+    }
 
     async function handleSubmit() {
-        if (!username || !password) {
-            error = 'Harap isi username dan password';
+        if (nik.length !== 6 || !password) {
+            localError = 'Harap isi NIK (6 digit) dan password';
             return;
         }
 
         isLoading = true;
-        error = '';
+        localError = '';
 
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-
-            if (username === 'member' && password === 'member123') {
-                router.visit('/iseki_devmon/public/member/dashboard');
-            } else {
-                error = 'Username atau password salah';
+        router.post(loginMember.store(deviceId).url, {
+            nik: nik,
+            password: password,
+        }, {
+            onSuccess: () => {
+                router.visit(dashboard(deviceId).url);
+            },
+            onError: (errors) => {
+                localError = errors.error || errors.message || 'Terjadi kesalahan';
+                isLoading = false;
+            },
+            onFinish: () => {
+                isLoading = false;
             }
-        } catch (err) {
-            error = 'Terjadi kesalahan, silakan coba lagi';
-        } finally {
-            isLoading = false;
-        }
+        });
     }
+
+    let today = $derived(new Date().toLocaleDateString('id-ID', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    }));
 </script>
 
-<LayoutBG
-    class="min-h-screen bg-background flex items-center justify-center p-4"
->
-    <Particles
-        particleCount={200}
-        particleColors={['#000000', '#ff00ae', '#ffffff']}
-        particleBaseSize={100}
-        speed={0.05}
-        class="absolute inset-0 z-0 opacity-30"
-    />
+<LayoutBG class="min-h-screen bg-background flex items-center justify-center p-4">
+    <Particles particleCount={200} particleColors={['#000000', '#ff00ae', '#ffffff']} particleBaseSize={100} speed={0.05} class="absolute inset-0 z-0 opacity-30" />
 
     <div class="w-full max-w-md relative z-10">
-        <button
-            onclick={() => router.visit(home().url)}
-            class="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-        >
-            <ArrowLeft class="size-4" />
-            Kembali
+        <button onclick={() => router.visit(home().url)} class="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+            <ArrowLeft class="size-4" /> Kembali
         </button>
 
         <Card.Root class="border-border/60 bg-card/80 backdrop-blur-xl">
             <Card.Header class="text-center">
-                <div
-                    class="mx-auto size-14 rounded-2xl bg-primary/20 flex items-center justify-center mb-4"
-                >
-                    <User class="size-7 text-primary" />
+                <div class="mx-auto size-14 rounded-2xl bg-primary/20 flex items-center justify-center mb-4">
+                    <Fingerprint class="size-7 text-primary" />
                 </div>
-                <Card.Title class="text-2xl font-bold">Login Member</Card.Title>
-                <Card.Description>Masuk ke akun member Anda</Card.Description>
+                <Card.Title class="text-2xl font-bold">Absensi Perangkat</Card.Title>
+                <Card.Description class="text-sm">{today}</Card.Description>
             </Card.Header>
 
-            <Card.Content>
+            <Card.Content class="space-y-4">
+                {#if device}
+                    <div class="rounded-xl bg-muted/30 p-3 space-y-1.5">
+                        <div class="flex items-center gap-2 justify-center">
+                            <Smartphone class="size-4 text-primary shrink-0" />
+                            <span class="font-semibold text-sm">{device.model_name}</span>
+                        </div>
+                        <div class="text-center">
+                            <code class="text-xs text-muted-foreground">{device.model_id}</code>
+                        </div>
+                    </div>
+                {/if}
+
+                {#if serverError}
+                    <Alert.Root variant="destructive">
+                        <AlertCircle class="size-4" />
+                        <Alert.Description>{serverError}</Alert.Description>
+                    </Alert.Root>
+                {/if}
+
+                {#if localError}
+                    <Alert.Root variant="destructive">
+                        <AlertCircle class="size-4" />
+                        <Alert.Description>{localError}</Alert.Description>
+                    </Alert.Root>
+                {/if}
+
                 <form onsubmit={handleSubmit} class="space-y-4">
                     <div class="space-y-2">
-                        <Label for="username">Username</Label>
+                        <Label for="nik">NIK</Label>
                         <div class="relative">
-                            <User
-                                class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
-                            />
+                            <IdCard class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                             <Input
-                                id="username"
-                                bind:value={username}
-                                placeholder="member"
-                                class="pl-10"
+                                id="nik"
+                                type="text"
+                                inputmode="numeric"
+                                bind:value={nik}
+                                oninput={handleNIKInput}
+                                placeholder="6 digit NIK"
+                                maxlength={6}
+                                class="pl-10 font-mono tracking-widest text-center"
+                                disabled={blocked}
                             />
                         </div>
                     </div>
@@ -91,35 +133,17 @@
                     <div class="space-y-2">
                         <Label for="password">Password</Label>
                         <div class="relative">
-                            <Lock
-                                class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
-                            />
-                            <Input
-                                id="password"
-                                type="password"
-                                bind:value={password}
-                                placeholder="••••••••"
-                                class="pl-10"
-                            />
+                            <Lock class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                            <Input id="password" type="password" bind:value={password} placeholder="Password" class="pl-10" disabled={blocked} />
                         </div>
                     </div>
 
-                    {#if error}
-                        <p class="text-sm text-red-500">{error}</p>
-                    {/if}
-
-                    <Button
-                        type="submit"
-                        class="w-full gap-2"
-                        disabled={isLoading}
-                    >
+                    <Button type="submit" class="w-full gap-2" disabled={isLoading || blocked}>
                         {#if isLoading}
-                            <div
-                                class="size-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-                            />
-                            Memproses...
+                            <div class="size-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Memproses...
                         {:else}
-                            Login
+                            <CheckCircle2 class="size-4" />
+                            Absen Sekarang
                             <ArrowRight class="size-4" />
                         {/if}
                     </Button>

@@ -13,6 +13,7 @@ createInertiaApp({
         const pages = import.meta.glob<ResolvedComponent>(
             './pages/**/*.svelte',
         );
+        // console.log(`Resolving page: ${name}`);
         return pages[`./pages/${name}.svelte`]();
     },
     setup({ el, App, props }) {

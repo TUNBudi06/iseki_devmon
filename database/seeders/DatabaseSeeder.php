@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             PhoneListSeeder::class,
         ]);
 
-        User::insert([
+        User::insertOrIgnore([
             ['name' => 'Admin', 'username' => 'admin', 'password' => 'admin123'],
             ['name' => 'Saiful', 'username' => 'saiful', 'password' => 'vockompenir'],
         ]);

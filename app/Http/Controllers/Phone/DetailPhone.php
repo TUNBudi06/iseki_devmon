@@ -12,6 +12,7 @@ class DetailPhone extends Controller
     {
         $phone = PhoneList::with('brand')
             ->where('model_id', $id)
+            ->where('approved', true)
             ->firstOrFail();
 
         return Inertia::render('Phone/PhoneDetail', [

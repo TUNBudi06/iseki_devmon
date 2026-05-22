@@ -23,7 +23,8 @@
     import * as Alert from '$shadcn/components/ui/alert';
     import QrScanner from 'qr-scanner';
     import { home } from '$routes';
-    import { deviceNotRegister } from '$routes/user';
+    import { loginMember, deviceNotRegister, deviceVerify, deviceRegister } from '$routes/user';
+    import { saveDeviceAuth } from '$lib/indexedDB';
 
     let videoElement: HTMLVideoElement | null = null;
     let qrScanner: QrScanner | null = null;
@@ -31,15 +32,16 @@
     let manualCode = $state('');
     let isLoading = $state(false);
     let error = $state('');
-    let success = $state(false);
-    let scannedData = $state('');
     let hasFlash = $state(false);
     let isFlashOn = $state(false);
+    let showDeviceInfo = $state(false);
 
     let deviceInfo = $state<null | {
-        id: string;
-        name: string;
-        type: string;
+        model_id: string;
+        model_name: string;
+        model_type: string;
+        brand_name: string | null;
+        thumbnail: string | null;
     }>(null);
 
     async function startScan() {
@@ -52,17 +54,13 @@
             qrScanner = new QrScanner(
                 videoElement,
                 (result) => {
-                    // QR Code berhasil discan
-                    if (result?.data && !isLoading && !success) {
-                        processQRCode(result.data);
+                    if (result?.data && !isLoading && !showDeviceInfo) {
+                        verifyCode(result.data);
                     }
                 },
                 {
-                    onDecodeError: (err) => {
-                        console.log('Decode error:', err);
-                        // Tidak menampilkan error ke user karena akan terus muncul
-                    },
-                    preferredCamera: 'environment', // Kamera belakang
+                    onDecodeError: () => {},
+                    preferredCamera: 'environment',
                     highlightScanRegion: true,
                     highlightCodeOutline: true,
                     maxScansPerSecond: 10,
@@ -71,13 +69,9 @@
             );
 
             await qrScanner.start();
-
-            // Cek ketersediaan flash
             hasFlash = await qrScanner.hasFlash();
         } catch (err) {
-            console.error('Camera error:', err);
-            error =
-                'Tidak dapat mengakses kamera. Pastikan izin kamera diberikan dan gunakan HTTPS.';
+            error = 'Tidak dapat mengakses kamera. Pastikan izin kamera diberikan.';
             scanning = false;
         }
     }
@@ -116,9 +110,7 @@
             try {
                 const cameras = await QrScanner.listCameras(true);
                 const currentCamera = await qrScanner.getCamera();
-                const currentIndex = cameras.findIndex(
-                    (cam) => cam.id === currentCamera,
-                );
+                const currentIndex = cameras.findIndex((cam) => cam.id === currentCamera);
                 const nextCamera = cameras[(currentIndex + 1) % cameras.length];
                 await qrScanner.setCamera(nextCamera.id);
             } catch (err) {
@@ -127,55 +119,88 @@
         }
     }
 
-    async function processQRCode(code: string) {
+    async function verifyCode(code: string) {
         await stopScan();
         isLoading = true;
         error = '';
 
         try {
-            // Simulasi API call untuk verifikasi QR code
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            const res = await fetch(deviceVerify().url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ code }),
+            });
 
-            if (code && code.length > 0) {
-                deviceInfo = {
-                    id: code,
-                    name: 'Device from QR',
-                    type: 'Smartphone',
-                };
-                success = true;
-                scannedData = code;
-            } else {
-                error = 'QR Code tidak valid atau perangkat tidak ditemukan';
-                success = false;
+            const data = await res.json();
+
+            if (!res.ok) {
+                error = data.message ?? 'Gagal memverifikasi perangkat';
+                isLoading = false;
+                return;
             }
-        } catch (err) {
-            error = 'Terjadi kesalahan, silakan coba lagi';
+
+            if (data.found && !data.registered) {
+                deviceInfo = data.device;
+                showDeviceInfo = true;
+            } else {
+                error = data.message ?? 'Perangkat tidak valid';
+            }
+        } catch {
+            error = 'Terjadi kesalahan jaringan. Silakan coba lagi.';
         } finally {
             isLoading = false;
         }
     }
 
     async function handleManualSubmit() {
-        if (!manualCode) {
-            error = 'Harap masukkan kode QR';
+        if (!manualCode.trim()) {
+            error = 'Harap masukkan kode perangkat';
             return;
         }
-        await stopScan();
-        await processQRCode(manualCode);
+        await verifyCode(manualCode.trim());
     }
 
-    function handleRegister() {
-        router.visit('/iseki_devmon/public/register-device?deviceId=' + (deviceInfo?.id ?? ''));
+    let isRegistering = $state(false);
+
+    async function handleRegister() {
+        if (!deviceInfo) return;
+        isRegistering = true;
+        error = '';
+
+        try {
+            const res = await fetch(deviceRegister().url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ model_id: deviceInfo.model_id }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                error = data.message ?? 'Gagal mendaftarkan perangkat';
+                isRegistering = false;
+                return;
+            }
+
+            // Save JWT to IndexedDB
+            await saveDeviceAuth(data.device_id, data.jwt);
+
+            // Redirect to login member with device_id
+            router.visit(loginMember({ query: { device_id: data.device_id } }).url);
+        } catch {
+            error = 'Gagal mendaftarkan perangkat. Silakan coba lagi.';
+        } finally {
+            isRegistering = false;
+        }
     }
 
-    function resetScan() {
+    function cancelRegistration() {
         scanning = false;
         manualCode = '';
         deviceInfo = null;
-        success = false;
         error = '';
-        scannedData = '';
         isFlashOn = false;
+        showDeviceInfo = false;
     }
 
     onDestroy(() => {
@@ -203,20 +228,14 @@
             onclick={() => router.visit(deviceNotRegister().url)}
             class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
         >
-            <ArrowLeft
-                class="size-4 group-hover:-translate-x-1 transition-transform"
-            />
-            Kembali ke Beranda
+            <ArrowLeft class="size-4 group-hover:-translate-x-1 transition-transform" />
+            Kembali
         </button>
     </div>
 
     <!-- Hero section -->
-    <div
-        class="text-center relative z-10 space-y-4 md:space-y-6 max-w-4xl mx-auto"
-    >
-        <div
-            class="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 text-primary text-xs font-medium px-4 py-1.5 rounded-full animate-in fade-in slide-in-from-top-5 duration-500"
-        >
+    <div class="text-center relative z-10 space-y-4 md:space-y-6 max-w-4xl mx-auto">
+        <div class="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 text-primary text-xs font-medium px-4 py-1.5 rounded-full animate-in fade-in slide-in-from-top-5 duration-500">
             <QrCode class="size-3" />
             <span class="size-1.5 rounded-full bg-primary animate-pulse"></span>
             Pendaftaran Cepat
@@ -227,25 +246,22 @@
         </h1>
 
         <p class="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
-            Scan QR code pada perangkat atau masukkan kode manual untuk memulai
-            pendaftaran
+            Scan QR code pada perangkat atau masukkan kode manual untuk memulai pendaftaran
         </p>
     </div>
 
     <!-- Main Content -->
     <div class="w-full max-w-2xl relative z-10 px-4">
-        {#if !success}
+        {#if !showDeviceInfo}
             <Card.Root class="border-border/60 bg-card/80 backdrop-blur-sm">
                 <Card.Header>
                     <Card.Title class="text-xl font-bold text-center">
-                        {scanning
-                            ? 'Arahkan Kamera ke QR Code'
-                            : 'Pilih Metode'}
+                        {scanning ? 'Arahkan Kamera ke QR Code' : 'Pilih Metode'}
                     </Card.Title>
                     <Card.Description class="text-center">
                         {scanning
                             ? 'Tempatkan QR code di dalam area scanner'
-                            : 'Scan menggunakan kamera atau masukkan kode manual'}
+                            : 'Scan menggunakan kamera atau masukkan kode perangkat'}
                     </Card.Description>
                 </Card.Header>
 
@@ -253,78 +269,44 @@
                     {#if error}
                         <Alert.Root variant="destructive">
                             <AlertCircle class="size-4" />
-                            <Alert.Title>Error</Alert.Title>
+                            <Alert.Title>Gagal</Alert.Title>
                             <Alert.Description>{error}</Alert.Description>
                         </Alert.Root>
                     {/if}
 
-                    {#if scanning}
-                        <!-- QR Scanner -->
-                        <div
-                            class="relative aspect-square w-full max-w-sm mx-auto rounded-xl overflow-hidden border-2 border-primary/30 bg-black"
-                        >
-                            <video
-                                bind:this={videoElement}
-                                class="w-full h-full object-cover"
-                            ></video>
-
-                            <!-- Scanner overlay line -->
+                    {#if isLoading}
+                        <div class="p-16 flex flex-col items-center gap-4">
+                            <Loader2 class="size-10 text-primary animate-spin" />
+                            <p class="text-sm text-muted-foreground">Memverifikasi perangkat...</p>
+                        </div>
+                    {:else if scanning}
+                        <!-- Scanner -->
+                        <div class="relative aspect-square w-full max-w-sm mx-auto rounded-xl overflow-hidden border-2 border-primary/30 bg-black">
+                            <video bind:this={videoElement} class="w-full h-full object-cover"></video>
                             <div class="absolute inset-0 pointer-events-none">
-                                <div
-                                    class="absolute inset-0 border-2 border-primary/50 rounded-xl"
-                                ></div>
-                                <div
-                                    class="absolute top-1/2 left-0 right-0 h-0.5 bg-primary animate-scan"
-                                ></div>
-                                <div
-                                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-primary rounded-xl"
-                                ></div>
+                                <div class="absolute inset-0 border-2 border-primary/50 rounded-xl"></div>
+                                <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-primary animate-scan"></div>
+                                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-primary rounded-xl"></div>
                             </div>
                         </div>
 
-                        <!-- Controls -->
-                        <div class="flex justify-center gap-3">
+                        <div class="flex justify-center gap-3 flex-wrap">
                             {#if hasFlash}
-                                <Button
-                                    onclick={toggleFlash}
-                                    variant="outline"
-                                    class="gap-2"
-                                >
-                                    <Zap
-                                        class="size-4 {isFlashOn
-                                            ? 'text-yellow-500 fill-yellow-500'
-                                            : ''}"
-                                    />
+                                <Button onclick={toggleFlash} variant="outline" class="gap-2">
+                                    <Zap class="size-4 {isFlashOn ? 'text-yellow-500 fill-yellow-500' : ''}" />
                                     {isFlashOn ? 'Flash On' : 'Flash Off'}
                                 </Button>
                             {/if}
-
-                            <Button
-                                onclick={switchCamera}
-                                variant="outline"
-                                class="gap-2"
-                            >
-                                <FlipHorizontal class="size-4" />
-                                Ganti Kamera
+                            <Button onclick={switchCamera} variant="outline" class="gap-2">
+                                <FlipHorizontal class="size-4" /> Ganti Kamera
                             </Button>
-
-                            <Button
-                                onclick={stopScan}
-                                variant="outline"
-                                class="gap-2"
-                            >
-                                <X class="size-4" />
-                                Batal
+                            <Button onclick={stopScan} variant="outline" class="gap-2">
+                                <X class="size-4" /> Batal
                             </Button>
                         </div>
 
-                        <div
-                            class="text-center text-xs text-muted-foreground space-y-1"
-                        >
-                            <p>
-                                Pastikan QR code terlihat jelas dan dalam
-                                pencahayaan yang cukup
-                            </p>
+                        <div class="text-center text-xs text-muted-foreground">
+                            <p>Pastikan QR code terlihat jelas dan dalam pencahayaan yang cukup</p>
                         </div>
                     {:else}
                         <!-- Method selection -->
@@ -333,152 +315,94 @@
                                 onclick={startScan}
                                 class="group flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border hover:border-primary/50 bg-card/50 hover:bg-primary/5 transition-all duration-300"
                             >
-                                <div
-                                    class="size-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform"
-                                >
+                                <div class="size-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                                     <Camera class="size-6 text-primary" />
                                 </div>
                                 <div>
-                                    <div class="font-semibold text-sm">
-                                        Scan Kamera
-                                    </div>
-                                    <p
-                                        class="text-xs text-muted-foreground mt-1"
-                                    >
-                                        Gunakan kamera perangkat
-                                    </p>
+                                    <div class="font-semibold text-sm">Scan Kamera</div>
+                                    <p class="text-xs text-muted-foreground mt-1">Gunakan kamera perangkat</p>
                                 </div>
                             </button>
-
                             <button
-                                onclick={() =>
-                                    document
-                                        .getElementById('manual-input')
-                                        ?.scrollIntoView({
-                                            behavior: 'smooth',
-                                        })}
+                                onclick={() => document.getElementById('manual-input')?.scrollIntoView({ behavior: 'smooth' })}
                                 class="group flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border hover:border-primary/50 bg-card/50 hover:bg-primary/5 transition-all duration-300"
                             >
-                                <div
-                                    class="size-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform"
-                                >
+                                <div class="size-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                                     <Smartphone class="size-6 text-primary" />
                                 </div>
                                 <div>
-                                    <div class="font-semibold text-sm">
-                                        Input Manual
-                                    </div>
-                                    <p
-                                        class="text-xs text-muted-foreground mt-1"
-                                    >
-                                        Masukkan kode QR manual
-                                    </p>
+                                    <div class="font-semibold text-sm">Input Manual</div>
+                                    <p class="text-xs text-muted-foreground mt-1">Masukkan model ID perangkat</p>
                                 </div>
                             </button>
                         </div>
 
-                        <!-- Manual input -->
-                        <div
-                            id="manual-input"
-                            class="space-y-4 pt-4 border-t border-border"
-                        >
+                        <div id="manual-input" class="space-y-4 pt-4 border-t border-border">
                             <div class="space-y-2">
-                                <Label
-                                    for="qr-code"
-                                    class="text-sm font-medium"
-                                >
-                                    Kode QR / Device ID
-                                </Label>
+                                <Label for="qr-code" class="text-sm font-medium">Model ID / Kode Perangkat</Label>
                                 <div class="relative">
-                                    <QrCode
-                                        class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
-                                    />
+                                    <QrCode class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                                     <Input
                                         id="qr-code"
                                         type="text"
                                         bind:value={manualCode}
-                                        placeholder="Contoh: DEV-2024-001"
+                                        placeholder="Contoh: Samsung-S24-001"
                                         class="pl-10 bg-background/50 border-border/60 focus:border-primary"
                                     />
                                 </div>
                             </div>
-                            <Button
-                                onclick={handleManualSubmit}
-                                disabled={isLoading || !manualCode}
-                                class="w-full gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary transition-all duration-300"
-                            >
+                            <Button onclick={handleManualSubmit} disabled={isLoading || !manualCode.trim()} class="w-full gap-2">
                                 {#if isLoading}
-                                    <Loader2 class="size-4 animate-spin" />
-                                    Memverifikasi...
+                                    <Loader2 class="size-4 animate-spin" /> Memverifikasi...
                                 {:else}
-                                    Verifikasi Kode
-                                    <CheckCircle class="size-4" />
+                                    Verifikasi Kode <CheckCircle class="size-4" />
                                 {/if}
                             </Button>
                         </div>
                     {/if}
                 </Card.Content>
             </Card.Root>
-        {:else}
-            <!-- Success state -->
-            <Card.Root
-                class="border-border/60 bg-card/80 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-5 duration-500"
-            >
+        {:else if deviceInfo}
+            <!-- Device Info Step -->
+            <Card.Root class="border-border/60 bg-card/80 backdrop-blur-sm animate-in zoom-in-95 duration-200">
                 <Card.Header class="text-center">
-                    <div
-                        class="mx-auto size-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4"
-                    >
-                        <CheckCircle class="size-8 text-emerald-500" />
+                    <div class="mx-auto size-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center mb-3">
+                        <Smartphone class="size-7 text-emerald-400" />
                     </div>
-                    <Card.Title class="text-xl font-bold">
-                        Perangkat Ditemukan!
-                    </Card.Title>
-                    <Card.Description>
-                        Verifikasi berhasil, silakan lanjutkan pendaftaran
-                    </Card.Description>
+                    <Card.Title class="text-xl font-bold">Perangkat Ditemukan!</Card.Title>
+                    <Card.Description>Verifikasi berhasil — perangkat siap didaftarkan</Card.Description>
                 </Card.Header>
 
                 <Card.Content class="space-y-4">
-                    <div class="rounded-xl bg-muted/30 p-4 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-muted-foreground"
-                                >Device ID</span
-                            >
-                            <code class="text-sm font-mono text-primary"
-                                >{deviceInfo?.id}</code
-                            >
+                    <div class="rounded-xl bg-muted/30 p-5 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-muted-foreground">Model ID</span>
+                            <code class="text-sm font-mono text-primary font-semibold">{deviceInfo.model_id}</code>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-muted-foreground"
-                                >Nama Perangkat</span
-                            >
-                            <span class="text-sm font-medium"
-                                >{deviceInfo?.name}</span
-                            >
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-muted-foreground">Nama Perangkat</span>
+                            <span class="text-sm font-semibold">{deviceInfo.model_name}</span>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-muted-foreground"
-                                >Tipe</span
-                            >
-                            <span class="text-sm">{deviceInfo?.type}</span>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-muted-foreground">Brand</span>
+                            <span class="text-sm font-semibold">{deviceInfo.brand_name ?? '-'}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-muted-foreground">Tipe</span>
+                            <span class="text-sm">{deviceInfo.model_type}</span>
                         </div>
                     </div>
 
                     <div class="flex gap-3">
-                        <Button
-                            onclick={resetScan}
-                            variant="outline"
-                            class="flex-1 gap-2"
-                        >
-                            <X class="size-4" />
-                            Scan Ulang
+                        <Button variant="outline" onclick={cancelRegistration} class="flex-1 gap-2">
+                            <X class="size-4" /> Batal
                         </Button>
-                        <Button
-                            onclick={handleRegister}
-                            class="flex-1 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
-                        >
-                            Lanjutkan
-                            <ArrowLeft class="size-4 rotate-180" />
+                        <Button onclick={handleRegister} disabled={isRegistering} class="flex-1 gap-2">
+                            {#if isRegistering}
+                                <Loader2 class="size-4 animate-spin" /> Mendaftarkan...
+                            {:else}
+                                <CheckCircle class="size-4" /> Daftarkan
+                            {/if}
                         </Button>
                     </div>
                 </Card.Content>
@@ -488,71 +412,18 @@
 
     <!-- Footer -->
     <div class="relative z-10 pt-4">
-        <p class="text-xs text-muted-foreground/60">
-            &copy; 2025 DevControl — Sistem Manajemen Perangkat Lapangan
-        </p>
+        <p class="text-xs text-muted-foreground/60">&copy; 2025 DevControl — Sistem Manajemen Perangkat Lapangan</p>
     </div>
 </LayoutBG>
 
 <style>
-    @keyframes fade-in {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
-
-    @keyframes slide-in-from-top-5 {
-        from {
-            transform: translateY(-5px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    @keyframes slide-in-from-bottom-5 {
-        from {
-            transform: translateY(5px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    @keyframes scan {
-        0% {
-            top: 0%;
-        }
-        100% {
-            top: 100%;
-        }
-    }
-
-    .animate-in {
-        animation-duration: 0.5s;
-        animation-fill-mode: both;
-    }
-
-    .fade-in {
-        animation-name: fade-in;
-    }
-
-    .slide-in-from-top-5 {
-        animation-name: slide-in-from-top-5;
-    }
-
-    .slide-in-from-bottom-5 {
-        animation-name: slide-in-from-bottom-5;
-    }
-
-    .animate-scan {
-        animation: scan 2s linear infinite;
-    }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slide-in-from-top-5 { from { transform: translateY(-5px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+    .animate-in { animation-duration: 0.5s; animation-fill-mode: both; }
+    .fade-in { animation-name: fade-in; }
+    .slide-in-from-top-5 { animation-name: slide-in-from-top-5; }
+    .animate-scan { animation: scan 2s linear infinite; }
+    .zoom-in-95 { animation-name: zoom-in-95; }
+    @keyframes zoom-in-95 { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 </style>

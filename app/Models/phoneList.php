@@ -25,6 +25,7 @@ class PhoneList extends Model
         'ram',
         'storage',
         'registered',
+        'approved',
         'hash_token',
         'thumbnail',
         'list_photos',
@@ -34,6 +35,7 @@ class PhoneList extends Model
     {
         return [
             'registered' => 'boolean',
+            'approved' => 'boolean',
             'list_photos' => 'array',
         ];
     }

@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "laravel-boost": {
+      "command": "php",
+      "args": [
+        "C:\\xampp\\htdocs\\iseki_devmon\\artisan",
+        "boost:mcp"
+      ],
+      "cwd": "C:\\xampp\\htdocs\\iseki_devmon",
+      "directTools": true
+    },
+    "svelte-docs": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-svelte-docs"
+      ],
+      "directTools": true
+    },
+    "shadcn-svelte": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@binsarjr/shadcn-svelte-mcp"
+      ],
+      "directTools": true
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "directTools": true
+    }
+  }
+}

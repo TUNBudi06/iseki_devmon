@@ -11,6 +11,7 @@ class MainPhone extends Controller
     public function index()
     {
         $devices = PhoneList::with('brand')
+            ->where('approved', true)
             ->orderBy('created_at', 'desc')
             ->get();
 

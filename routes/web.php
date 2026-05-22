@@ -24,7 +24,19 @@ Route::prefix('user')->group(function () {
     Route::get('NotRegisterDevice', [DeviceManagement::class, 'index'])->name('user.deviceNotRegister');
     Route::get('registerDevice/Qr', [DeviceManagement::class, 'registerViaQR'])->name('user.deviceRegisterQR');
 
-    Route::get('absence', [LoginController::class, 'index'])->name('user.loginMember');
+    Route::post('registerDevice/verify', [DeviceManagement::class, 'verifyDevice'])->name('user.deviceVerify');
+    Route::post('registerDevice/confirm', [DeviceManagement::class, 'registerDevice'])->name('user.deviceRegister');
+    Route::get('registerDevice/manual', [DeviceManagement::class, 'registerManual'])->name('user.deviceRegisterManual');
+    Route::post('registerDevice/manual', [DeviceManagement::class, 'storeManualDevice'])->name('user.deviceRegisterManual.store');
+
+    Route::prefix('absence/{device_id}')->group(function () {
+        Route::get('/', [LoginController::class, 'index'])->name('user.loginMember');
+        Route::post('/', [LoginController::class, 'store'])->name('user.loginMember.store');
+    });
+    Route::prefix('dashboard/{device_id}')->group(function () {
+        Route::get('/', [LoginController::class, 'dashboard'])->name('user.dashboard');
+        Route::post('catatan', [LoginController::class, 'updateCatatan'])->name('user.dashboard.catatan');
+    });
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -48,6 +60,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('list-device/phone/{id}', [ListDeviceController::class, 'destroyPhone'])->name('listDevice.phone.destroy');
         Route::delete('list-device/phone/{id}/photo', [ListDeviceController::class, 'destroyPhonePhoto'])->name('listDevice.phone.photo.destroy');
         Route::delete('list-device/phone/{id}/thumbnail', [ListDeviceController::class, 'destroyPhoneThumbnail'])->name('listDevice.phone.thumbnail.destroy');
+        Route::post('list-device/phone/{phone}/approve', [ListDeviceController::class, 'approvePhone'])->name('listDevice.phone.approve');
 
         Route::get('admin-list', [AdminListController::class, 'index'])->name('adminList');
         Route::post('admin-list', [AdminListController::class, 'store']);

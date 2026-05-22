@@ -35,6 +35,7 @@ class LoginController extends Controller
                     'name' => $user->name,
                     'username' => $user->username,
                 ],
+                'admin_last_activity' => time(),
             ]);
 
             return response()->json(['success' => true]);
