@@ -1,6 +1,6 @@
 <script lang="ts">
     import { router, useHttp } from '@inertiajs/svelte';
-    import { routeUrl } from '@tunbudi06/inertia-route-helper';
+    import { routeUrl, assetUrl } from '@tunbudi06/inertia-route-helper';
     import { Button } from '$shadcn/components/ui/button';
     import * as Card from '$shadcn/components/ui/card';
     import * as Table from '$shadcn/components/ui/table';
@@ -64,6 +64,8 @@
     };
 
     let { brands, phoneLists }: { brands: Brand[]; phoneLists: PhoneList[] } = $props();
+    // console.log(brands,phoneLists)
+    console.log(assetUrl('/testing',{absolute:true}))
 
     // ─── Active Tab ──────────────────────────────────────────────
     const tabs = [
@@ -135,9 +137,8 @@
         qrTarget = null;
     }
 
-    function getQrUrl(phone: PhoneList): string {
-        const base = window.location.origin;
-        return `${base}/iseki_devmon/public/user/registerDevice/Qr?token=${phone.hash_token ?? ''}&model=${encodeURIComponent(phone.model_id)}`;
+    function getQrValue(phone: PhoneList): string {
+        return phone.hash_token ?? phone.model_id;
     }
 
     // ─── Delete Phone ────────────────────────────────────────────
@@ -614,7 +615,7 @@
                                             {#if phone.thumbnail}
                                                 <div class="relative group">
                                                     <img
-                                                        src={phone.thumbnail}
+                                                        src={assetUrl(phone.thumbnail)}
                                                         alt={phone.model_name}
                                                         class="size-10 rounded-lg object-cover ring-1 ring-pink-300/30 shrink-0"
                                                     />
@@ -686,15 +687,17 @@
                                         </Table.Cell>
                                         <Table.Cell class="text-right">
                                             <div class="flex items-center justify-end gap-1">
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    class="size-8 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10"
-                                                    onclick={() => openQr(phone)}
-                                                    title="Tampilkan QR Code"
-                                                >
-                                                    <QrCode class="size-3.5" />
-                                                </Button>
+                                                {#if !phone.registered}
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        class="size-8 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10"
+                                                        onclick={() => openQr(phone)}
+                                                        title="Tampilkan QR Code"
+                                                    >
+                                                        <QrCode class="size-3.5" />
+                                                    </Button>
+                                                {/if}
                                                 <Button
                                                     size="icon"
                                                     variant="ghost"
@@ -1137,7 +1140,7 @@
                         <div class="flex flex-wrap gap-2 mb-2">
                             {#each editPhoneTarget.list_photos as photo, i}
                                 <div class="relative group" onclick={() => editExistingThumbnailIdx = i}>
-                                    <img src={photo} alt="Gallery {i + 1}"
+                                    <img src={assetUrl(photo)} alt="Gallery {i + 1}"
                                         class="size-16 rounded-lg object-cover transition-all duration-200 cursor-pointer
                                             {i === editExistingThumbnailIdx
                                                 ? 'ring-2 ring-emerald-500 ring-offset-2 ring-offset-background scale-110'
@@ -1231,7 +1234,7 @@
             <Card.Content class="pt-6 pb-2 flex flex-col items-center gap-4">
                 <div class="rounded-2xl bg-white p-4 shadow-lg ring-1 ring-emerald-500/20">
                     <QRCode
-                        value={getQrUrl(qrTarget)}
+                        value={getQrValue(qrTarget)}
                         size={220}
                         fgColor="#000000"
                         bgColor="#ffffff"

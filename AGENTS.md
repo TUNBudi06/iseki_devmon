@@ -31,6 +31,17 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
 - Check for existing components to reuse before writing a new one.
+- This app is deployed on an Apache subfolder. Always use helpers from `@tunbudi06/inertia-route-helper` for all URLs. Import with:
+  ```ts
+  import { routeUrl, assetUrl } from '@tunbudi06/inertia-route-helper';
+  ```
+  - **`routeUrl()`** — for **route navigation** (Inertia visits, form submissions):
+    - Navigation: `router.visit(routeUrl(someRoute()))` / `router.post(routeUrl(someRoute()))`
+    - Form submissions: `form.post(routeUrl(someRoute()))`, `form.put(...)`, `form.delete(...)`
+  - **`assetUrl()`** — for **static files / storage paths** (images, thumbnails, photos):
+    - `src={assetUrl(phone.thumbnail)}` — converts `storage/device/1/abc.png` → `http://host/iseki_devmon/public/storage/device/1/abc.png`
+    - Do NOT use `routeUrl()` for asset URLs — it adds the admin prefix and produces broken paths like `.../admin/storage/...`
+  - The helper is initialized globally in `resources/js/app.ts` via `initRouteHelper(props)`.
 
 ## Verification Scripts
 
