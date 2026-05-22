@@ -28,7 +28,7 @@ Route::prefix('user')->group(function () {
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('login', [App\Http\Controllers\Admin\LoginController::class, 'index'])->name('loginAdmin');
+    Route::get('login', [App\Http\Controllers\Admin\LoginController::class, 'index'])->name('loginAdmin')->middleware('admin.guest');
     Route::post('login', [App\Http\Controllers\Admin\LoginController::class, 'authenticate'])->name('loginAdmin.authenticate');
     Route::post('logout', [App\Http\Controllers\Admin\LoginController::class, 'logout'])->name('logout');
 

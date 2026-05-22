@@ -261,7 +261,7 @@
                                 <img
                                     src={photo}
                                     alt="foto {i + 1}"
-                                    class="w-full h-full object-contain"
+                                    class="w-full h-full object-contain p-4"
                                 />
                             </Carousel.Item>
                         {/each}
@@ -345,7 +345,7 @@
         <div class="relative" style="height: 200vh" bind:this={stickyRef}>
             <div class="sticky top-0 h-screen flex overflow-hidden">
                 <!-- Foto 70% -->
-                <div class="w-[70%] relative overflow-hidden bg-muted/20">
+                <div class="w-[70%] relative overflow-hidden bg-black/60">
                     <div
                         class="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background/50 z-10 pointer-events-none"
                     />
@@ -362,7 +362,7 @@
                                         <img
                                             src={photo}
                                             alt="foto {i + 1}"
-                                            class="w-full h-full object-cover"
+                                            class="w-full h-full object-contain p-4"
                                         />
                                     </Carousel.Item>
                                 {/each}
