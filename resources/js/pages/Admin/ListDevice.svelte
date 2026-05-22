@@ -1,6 +1,6 @@
 <script lang="ts">
     import { router, useHttp, useForm } from '@inertiajs/svelte';
-    import { assetUrl } from '@tunbudi06/inertia-route-helper';
+    import storage from '$routes/storage';
     import { Button } from '$shadcn/components/ui/button';
     import * as Card from '$shadcn/components/ui/card';
     import * as Table from '$shadcn/components/ui/table';
@@ -193,6 +193,13 @@
     );
 
     const removedDevices = $derived(phoneLists.filter((p) => p.deleted_at !== null).length);
+
+    function storageUrl(path: string | null): string | null {
+        if (!path) return null;
+        // Strip 'storage/' prefix if present (handles both old and new stored paths)
+        const clean = path.replace(/^storage\//, '');
+        return storage.local({ path: clean }).url;
+    }
 
     function formatDate(dateStr: string): string {
         return new Date(dateStr).toLocaleDateString('id-ID', {
@@ -423,21 +430,34 @@
     function handleDeletePhoto(photoUrl: string) {
         if (!editPhoneTarget) return;
         deletingPhotoUrl = photoUrl;
-        router.post(listDevice.phone.photo.destroy({ id: editPhoneTarget.id }).url, {
-            _method: 'delete',
-            photo_url: photoUrl,
-        }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                deletingPhotoUrl = null;
-                router.reload();
-                toast.success('Foto berhasil dihapus');
+
+        fetch(listDevice.phone.photo.destroy({ id: editPhoneTarget.id }).url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
             },
-            onError: () => {
+            body: JSON.stringify({ photo_url: photoUrl }),
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error('Gagal menghapus foto');
+                deletingPhotoUrl = null;
+                // Update local state — modal stays open, photo removed instantly
+                if (editPhoneTarget) {
+                    const photos = [...(editPhoneTarget.list_photos ?? [])];
+                    editPhoneTarget.list_photos = photos.filter(p => p !== photoUrl);
+                    if (editPhoneTarget.thumbnail === photoUrl) {
+                        const remaining = editPhoneTarget.list_photos ?? [];
+                        editPhoneTarget.thumbnail = remaining[0] ?? null;
+                    }
+                    editExistingThumbnailIdx = 0;
+                }
+                toast.success('Foto berhasil dihapus');
+            })
+            .catch(() => {
                 deletingPhotoUrl = null;
                 toast.error('Gagal menghapus foto');
-            },
-        });
+            });
     }
 </script>
 
@@ -659,7 +679,7 @@
                                             {#if phone.thumbnail}
                                                 <div class="relative group">
                                                     <img
-                                                        src={assetUrl(phone.thumbnail)}
+                                                        src={storageUrl(phone.thumbnail)}
                                                         alt={phone.model_name}
                                                         class="size-10 rounded-lg object-cover ring-1 ring-pink-300/30 shrink-0"
                                                     />
@@ -670,7 +690,7 @@
                                             {:else if phone.list_photos && phone.list_photos.length > 0}
                                                 <div class="relative group">
                                                     <img
-                                                        src={assetUrl(phone.list_photos[0])}
+                                                        src={storageUrl(phone.list_photos[0])}
                                                         alt={phone.model_name}
                                                         class="size-10 rounded-lg object-cover ring-1 ring-pink-300/30 shrink-0"
                                                     />
@@ -1206,7 +1226,7 @@
                             {#each editPhoneTarget.list_photos as photo, i}
                                 <div class="relative group">
                                     <div onclick={() => editExistingThumbnailIdx = i} class="cursor-pointer">
-                                        <img src={assetUrl(photo)} alt="Gallery {i + 1}"
+                                        <img src={storageUrl(photo)} alt="Gallery {i + 1}"
                                             class="size-16 rounded-lg object-cover transition-all duration-200
                                                 {i === editExistingThumbnailIdx
                                                     ? 'ring-2 ring-emerald-500 ring-offset-2 ring-offset-background scale-110'

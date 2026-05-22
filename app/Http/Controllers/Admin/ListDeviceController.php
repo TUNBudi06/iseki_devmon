@@ -69,13 +69,12 @@ class ListDeviceController extends Controller
     /**
      * Save an uploaded photo under public/storage/device/{phoneId}/
      * Uses CRC32 of file content for the filename to avoid duplicates.
-     * Returns a path like "device/{id}/{hash}.{ext}" (no storage/ prefix —
-     * the Wayfinder storage.local route adds it).
+     * Returns the public URL path like "storage/device/{id}/{hash}.{ext}"
      */
     private function savePhoto(UploadedFile $file, int $phoneId): string
     {
-        $relativePath = 'device/'.$phoneId;
-        $directory = public_path('storage/'.$relativePath);
+        $basePath = 'storage/device/'.$phoneId;
+        $directory = public_path($basePath);
 
         if (! is_dir($directory)) {
             mkdir($directory, 0755, true);
@@ -89,22 +88,20 @@ class ListDeviceController extends Controller
 
         // If file with same hash already exists, return existing URL
         if (file_exists($fullPath)) {
-            return $relativePath.'/'.$filename;
+            return $basePath.'/'.$filename;
         }
 
         $file->move($directory, $filename);
 
-        return $relativePath.'/'.$filename;
+        return $basePath.'/'.$filename;
     }
 
     /**
-     * Delete a photo file given its public path.
-     * Handles both old ("storage/device/...") and new ("device/...") formats.
+     * Delete a photo file given its public path (e.g. "storage/device/1/abc123.jpg")
      */
     private function deletePhotoByPath(string $path): void
     {
-        $clean = preg_replace('/^storage\//', '', $path);
-        $full = public_path('storage/'.$clean);
+        $full = public_path($path);
         if (file_exists($full)) {
             unlink($full);
         }

@@ -362,7 +362,7 @@
                                         <img
                                             src={photo}
                                             alt="foto {i + 1}"
-                                            class="w-full h-full object-contain"
+                                            class="w-full h-full object-cover"
                                         />
                                     </Carousel.Item>
                                 {/each}

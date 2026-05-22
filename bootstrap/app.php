@@ -23,6 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'admin/list-device/phone/*/photo',
+        ]);
+
         $middleware->alias([
             'admin.auth' => AdminAuthenticate::class,
         ]);

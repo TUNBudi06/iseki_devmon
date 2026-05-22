@@ -136,8 +136,14 @@
             });
         }
 
-        // 3. Sort
+        // 3. Sort — active devices first, then non-active
         items.sort((a, b) => {
+            // Primary: active before inactive
+            const aActive = a.status === 'active' ? 0 : 1;
+            const bActive = b.status === 'active' ? 0 : 1;
+            if (aActive !== bActive) return aActive - bActive;
+
+            // Secondary: user-selected sort
             const [field, direction] = sortOption.split('-');
             const isAsc = direction === 'asc';
 
@@ -348,7 +354,7 @@
                         style={isRegistered ? cardGlowStyle(device.status) : ''}
                     >
                         <!-- Photo Area -->
-                        <div class="relative aspect-[3/4] overflow-hidden bg-muted">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-muted [&_[data-slot='carousel-content']]:h-full">
                             {#if !device.photo || failedImages.has(device.id)}
                                 <div class="h-full w-full flex items-center justify-center bg-muted/50">
                                     <ImageOff class="size-8 text-muted-foreground/70" />
