@@ -4,13 +4,14 @@
     import { router } from '@inertiajs/svelte';
     import { home } from '$routes';
     import { Button } from '$shadcn/components/ui/button';
+    import storage from '$routes/storage';
     import {
         ArrowRightCircle,
         LucideHome,
         Cpu,
         HardDrive,
         Tag,
-        ShoppingCart,
+        CalendarDays,
         ClipboardList,
         CheckCircle2,
         XCircle,
@@ -28,96 +29,55 @@
     import ScrollTrigger from 'gsap/ScrollTrigger';
     import Autoplay from 'embla-carousel-autoplay';
 
-    // ── DATA ──
+    // ─── Helpers ────────────────────────────────────────────────
+    function assetUrl(path: string | null): string | null {
+        if (!path) return null;
+        // Strip 'storage/' prefix if present (backward compat with old stored paths)
+        const clean = path.replace(/^storage\//, '');
+        return storage.local({ path: clean }).url;
+    }
+
+    function formatPrice(val: string): string {
+        const num = parseInt(val.replace(/\D/g, ''), 10);
+        if (isNaN(num)) return val;
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+    }
+
+    // ─── Props ──────────────────────────────────────────────────
+    let { phone: raw }: { phone: PhoneType } = $props();
+
+    type PhoneType = {
+        id: number;
+        brand_id: string;
+        model_id: string;
+        model_name: string;
+        model_type: string;
+        buy_date: string;
+        price: string;
+        ram: string;
+        storage: string;
+        thumbnail: string | null;
+        list_photos: string[] | null;
+        registered: boolean;
+        hash_token: string | null;
+        created_at: string;
+        updated_at: string;
+        deleted_at: string | null;
+        brand: { id: string; name: string } | null;
+    };
+
+    // ─── Map to display data ────────────────────────────────────
     const phone = {
-        id: 'DEV-002',
-        name: 'Samsung Galaxy A54',
-        price: 'Rp 4.999.000',
-        ram: '8 GB',
-        storage: '256 GB',
-        color: 'Awesome Violet',
-        photos: [
-            'https://images.samsung.com/is/image/samsung/p6pim/id/sm-a546ezkdxid/gallery/id-galaxy-a54-5g-sm-a546-sm-a546ezkdxid-535684283?$1164_776_PNG$',
-            'https://images.samsung.com/is/image/samsung/p6pim/id/sm-a546ezkdxid/gallery/id-galaxy-a54-5g-sm-a546-sm-a546ezkdxid-535684266?$1164_776_PNG$',
-            'https://images.samsung.com/is/image/samsung/p6pim/id/sm-a546ezkdxid/gallery/id-galaxy-a54-5g-sm-a546-sm-a546ezkdxid-535684267?$Q90_1368_1094_F_JPG$',
-        ],
-        purchases: [
-            {
-                date: '2024-03-10',
-                vendor: 'iBox Indonesia',
-                invoice: 'INV-2024-0312',
-                price: 'Rp 4.999.000',
-            },
-        ],
-        checks: [
-            {
-                date: '2026-01-20',
-                user: 'Budi Santoso',
-                nik: '260101',
-                status: 'ok',
-                note: 'Semua fungsi normal',
-            },
-            {
-                date: '2026-01-15',
-                user: 'Siti Rahayu',
-                nik: '260102',
-                status: 'ok',
-                note: 'Layar & kamera baik',
-            },
-            {
-                date: '2026-01-10',
-                user: 'Ahmad Fauzi',
-                nik: '260103',
-                status: 'fail',
-                note: 'Baterai kembung, diganti',
-            },
-            {
-                date: '2025-12-28',
-                user: 'Dewi Kartika',
-                nik: '251201',
-                status: 'ok',
-                note: 'Pengecekan rutin',
-            },
-            {
-                date: '2025-12-15',
-                user: 'Budi Santoso',
-                nik: '251202',
-                status: 'ok',
-                note: 'Pengecekan rutin',
-            },
-        ],
-        usages: [
-            {
-                name: 'Budi Santoso',
-                nik: '260101',
-                login: '2026-01-20 08:00',
-                note: 'Survey lapangan',
-            },
-            {
-                name: 'Siti Rahayu',
-                nik: '260102',
-                login: '2026-01-15 09:30',
-                note: 'Presentasi klien',
-            },
-            {
-                name: 'Ahmad Fauzi',
-                nik: '260103',
-                login: '2026-01-10 07:45',
-                note: 'Inspeksi gudang',
-            },
-            {
-                name: 'Dewi Kartika',
-                nik: '251201',
-                login: '2025-12-28 08:00',
-                note: 'Monitoring produksi',
-            },
-            {
-                name: 'Rudi Hermawan',
-                nik: '251202',
-                login: '2025-12-15 10:00',
-                note: 'Cek inventori',
-            },
-        ],
+        id: raw.model_id,
+        name: raw.model_name,
+        price: raw.price,
+        ram: raw.ram,
+        storage: raw.storage,
+        color: '',
+        photos: raw.list_photos?.map((p) => assetUrl(p)).filter(Boolean) as string[] ?? [],
+        buy_date: raw.buy_date,
+        checks: [] as { date: string; user: string; nik: string; status: string; note: string }[],
+        usages: [] as { name: string; nik: string; login: string; note: string }[],
     };
 
     // ── STATE with runes ──
@@ -160,7 +120,6 @@
             onUpdate: (self) => {
                 // Hide navbar after scrolling past 150px
                 mobileNavVisible = self.scroll() < 300;
-                console.log('mobile:' + self.scroll());
             },
         });
     }
@@ -176,7 +135,6 @@
             scrub: 0.5,
             onUpdate: (self) => {
                 stickyProgress = self.progress;
-                console.log('desktop:' + self.scroll());
             },
         });
     }
@@ -323,7 +281,7 @@
                     <div
                         class="text-[11px] uppercase tracking-[0.22em] text-primary font-bold"
                     >
-                        Smartphone
+                        {raw.model_type}
                     </div>
                     <h1 class="text-2xl font-bold tracking-tight leading-snug">
                         {phone.name}
@@ -333,9 +291,7 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <Tag class="size-5 text-primary shrink-0" />
-                        <span class="text-xl font-bold text-primary"
-                            >{phone.price}</span
-                        >
+                        <span class="text-xl font-bold text-primary">{formatPrice(phone.price)}</span>
                     </div>
                 </div>
 
@@ -381,69 +337,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Pembelian -->
-                <div
-                    class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-3"
-                >
-                    <div
-                        class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5"
-                    >
-                        <ShoppingCart class="size-4" /> Riwayat Pembelian
-                    </div>
-                    {#each phone.purchases as p}
-                        <div
-                            class="rounded-xl border border-border/50 bg-muted/30 p-3"
-                        >
-                            <div class="flex justify-between items-start">
-                                <span class="text-sm font-semibold"
-                                    >{p.vendor}</span
-                                >
-                                <span class="text-xs text-muted-foreground"
-                                    >{p.date}</span
-                                >
-                            </div>
-                            <div class="flex justify-between items-center mt-1">
-                                <span
-                                    class="font-mono text-xs text-muted-foreground"
-                                    >{p.invoice}</span
-                                >
-                            </div>
-                        </div>
-                    {/each}
-                </div>
-
-                <!-- Pengecekan singkat -->
-                <div
-                    class="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 space-y-3"
-                >
-                    <div
-                        class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5"
-                    >
-                        <ClipboardList class="size-4" /> Pengecekan Terakhir
-                    </div>
-                    {#each phone.checks.slice(0, 3) as check}
-                        <div
-                            class="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2"
-                        >
-                            {#if check.status === 'ok'}
-                                <CheckCircle2
-                                    class="size-4 text-emerald-500 shrink-0"
-                                />
-                            {:else}
-                                <XCircle
-                                    class="size-4 text-destructive shrink-0"
-                                />
-                            {/if}
-                            <span class="text-sm truncate flex-1"
-                                >{check.user} ({check.nik})</span
-                            >
-                            <span class="text-xs text-muted-foreground shrink-0"
-                                >{check.date.slice(5)}</span
-                            >
-                        </div>
-                    {/each}
-                </div>
             </div>
         </div>
 
@@ -462,17 +355,19 @@
                             Autoplay({ delay: 3500, stopOnInteraction: false }),
                         ]}
                     >
-                        <Carousel.Content class="h-full">
-                            {#each phone.photos as photo, i (i)}
-                                <Carousel.Item class="h-screen">
-                                    <img
-                                        src={photo}
-                                        alt="foto {i + 1}"
-                                        class="w-full h-full object-cover"
-                                    />
-                                </Carousel.Item>
-                            {/each}
-                        </Carousel.Content>
+                        {#if phone.photos.length > 0}
+                            <Carousel.Content class="h-full">
+                                {#each phone.photos as photo, i (i)}
+                                    <Carousel.Item class="h-screen">
+                                        <img
+                                            src={photo}
+                                            alt="foto {i + 1}"
+                                            class="w-full h-full object-contain"
+                                        />
+                                    </Carousel.Item>
+                                {/each}
+                            </Carousel.Content>
+                        {/if}
                     </Carousel.Root>
                 </div>
 
@@ -485,7 +380,7 @@
                         <div
                             class="text-[11px] uppercase tracking-[0.22em] text-primary font-bold"
                         >
-                            Smartphone
+                            {raw.model_type}
                         </div>
                         <h1
                             class="text-3xl font-bold tracking-tight leading-snug"
@@ -498,9 +393,7 @@
                         </h1>
                         <div class="flex items-center gap-2">
                             <Tag class="size-5 text-primary shrink-0" />
-                            <span class="text-2xl font-bold text-primary"
-                                >{phone.price}</span
-                            >
+                            <span class="text-2xl font-bold text-primary">{formatPrice(phone.price)}</span>
                         </div>
                     </div>
 
@@ -555,38 +448,31 @@
                         </div>
                     </div>
 
-                    <!-- ③ Riwayat Pembelian -->
+                    <!-- ③ Tanggal Penggantian -->
                     <div
                         class="border-t border-border/60 pt-5 pb-5 space-y-3 transition-all duration-700 delay-100"
                     >
                         <div
                             class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5"
                         >
-                            <ShoppingCart class="size-4" /> Riwayat Pembelian
+                            <CalendarDays class="size-4" /> Tanggal Penggantian
                         </div>
-                        {#each phone.purchases as p}
-                            <div
-                                class="rounded-xl border border-border/50 bg-card/50 p-3"
-                            >
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-semibold truncate"
-                                        >{p.vendor}</span
-                                    >
-                                    <span
-                                        class="text-xs text-muted-foreground shrink-0 ml-2"
-                                        >{p.date}</span
-                                    >
-                                </div>
-                                <div
-                                    class="flex items-center justify-between mt-0.5"
-                                >
-                                    <span
-                                        class="font-mono text-xs text-muted-foreground"
-                                        >{p.invoice}</span
-                                    >
-                                </div>
+                        <div
+                            class="rounded-xl border border-border/50 bg-card/50 p-4"
+                        >
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-muted-foreground">Tanggal Pembelian</span>
+                                <span class="text-sm font-semibold">{phone.buy_date}</span>
                             </div>
-                        {/each}
+                            <div class="flex items-center justify-between mt-1.5">
+                                <span class="text-sm text-muted-foreground">Brand</span>
+                                <span class="text-sm font-semibold">{raw.brand?.name ?? raw.brand_id}</span>
+                            </div>
+                            <div class="flex items-center justify-between mt-1.5">
+                                <span class="text-sm text-muted-foreground">Tipe</span>
+                                <span class="text-sm font-semibold">{raw.model_type}</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- ④ Riwayat Pengecekan singkat -->
@@ -599,44 +485,35 @@
                             >
                                 <ClipboardList class="size-4" /> Riwayat Pengecekan
                             </div>
-                            <a
-                                href="#checks"
-                                class="text-xs flex items-center text-muted-foreground hover:text-primary hover:underline gap-1"
-                            >
-                                Selengkapnya <ArrowRightCircle
-                                    class="size-3.5"
-                                />
-                            </a>
                         </div>
-                        <div class="space-y-1.5">
-                            {#each phone.checks.slice(0, 4) as check}
-                                <div
-                                    class="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2"
-                                >
-                                    {#if check.status === 'ok'}
-                                        <CheckCircle2
-                                            class="size-4 text-emerald-500 shrink-0"
-                                        />
-                                    {:else}
-                                        <XCircle
-                                            class="size-4 text-destructive shrink-0"
-                                        />
-                                    {/if}
-                                    <span class="text-sm truncate flex-1"
-                                        >{check.user} ({check.nik})</span
+                        {#if phone.checks.length > 0}
+                            <div class="space-y-1.5">
+                                {#each phone.checks.slice(0, 4) as check}
+                                    <div
+                                        class="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2"
                                     >
-                                    <span
-                                        class="text-xs text-muted-foreground shrink-0"
-                                        >{check.date.slice(5)}</span
-                                    >
-                                </div>
-                            {/each}
-                        </div>
-                        <p
-                            class="text-xs text-muted-foreground text-center pt-1 animate-bounce"
-                        >
-                            ↓ Scroll untuk riwayat penggunaan
-                        </p>
+                                        {#if check.status === 'ok'}
+                                            <CheckCircle2
+                                                class="size-4 text-emerald-500 shrink-0"
+                                            />
+                                        {:else}
+                                            <XCircle
+                                                class="size-4 text-destructive shrink-0"
+                                            />
+                                        {/if}
+                                        <span class="text-sm truncate flex-1"
+                                            >{check.user} ({check.nik})</span
+                                        >
+                                        <span
+                                            class="text-xs text-muted-foreground shrink-0"
+                                            >{check.date.slice(5)}</span
+                                        >
+                                    </div>
+                                {/each}
+                            </div>
+                        {:else}
+                            <p class="text-sm text-muted-foreground">Belum ada riwayat pengecekan.</p>
+                        {/if}
                     </div>
                 </div>
             </div>
@@ -662,108 +539,112 @@
                 </div>
             </div>
 
-            <!-- Desktop table -->
-            <div
-                class="hidden md:block rounded-2xl border border-border/60 overflow-hidden"
-            >
+            {#if phone.usages.length > 0}
+                <!-- Desktop table -->
                 <div
-                    class="grid grid-cols-[1.5fr_1.5fr_2fr_2fr] bg-muted/60 border-b border-border"
+                    class="hidden md:block rounded-2xl border border-border/60 overflow-hidden"
                 >
-                    {#each [{ icon: User, label: 'Nama' }, { icon: CreditCard, label: 'NIK' }, { icon: LogIn, label: 'Absence' }, { icon: FileText, label: 'Keterangan' }] as col}
-                        <div class="flex items-center gap-1.5 px-4 py-3">
-                            <col.icon class="size-4 text-primary shrink-0" />
-                            <span
-                                class="text-xs font-bold uppercase tracking-widest text-muted-foreground"
-                                >{col.label}</span
-                            >
+                    <div
+                        class="grid grid-cols-[1.5fr_1.5fr_2fr_2fr] bg-muted/60 border-b border-border"
+                    >
+                        {#each [{ icon: User, label: 'Nama' }, { icon: CreditCard, label: 'NIK' }, { icon: LogIn, label: 'Absence' }, { icon: FileText, label: 'Keterangan' }] as col}
+                            <div class="flex items-center gap-1.5 px-4 py-3">
+                                <col.icon class="size-4 text-primary shrink-0" />
+                                <span
+                                    class="text-xs font-bold uppercase tracking-widest text-muted-foreground"
+                                    >{col.label}</span
+                                >
+                            </div>
+                        {/each}
+                    </div>
+                    {#each phone.usages as usage, i (i)}
+                        <div
+                            class="grid grid-cols-[1.5fr_1.5fr_2fr_2fr] border-b border-border/40 last:border-0 transition-colors
+                            {i % 2 === 0
+                                ? 'bg-card/40'
+                                : 'bg-card/20'} hover:bg-primary/5"
+                        >
+                            <div class="px-4 py-4 flex items-center gap-2">
+                                <div
+                                    class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary"
+                                >
+                                    {usage.name.charAt(0)}
+                                </div>
+                                <span class="text-base font-medium truncate"
+                                    >{usage.name}</span
+                                >
+                            </div>
+                            <div class="px-4 py-4 flex items-center">
+                                <span
+                                    class="font-mono text-sm text-muted-foreground"
+                                    >{usage.nik}</span
+                                >
+                            </div>
+                            <div class="px-4 py-4 flex items-center gap-1.5">
+                                <LogIn class="size-4 text-emerald-500 shrink-0" />
+                                <span class="text-sm whitespace-nowrap"
+                                    >{usage.login}</span
+                                >
+                            </div>
+                            <div class="px-4 py-4 flex items-center">
+                                <span class="text-sm text-muted-foreground"
+                                    >{usage.note}</span
+                                >
+                            </div>
                         </div>
                     {/each}
                 </div>
-                {#each phone.usages as usage, i (i)}
-                    <div
-                        class="grid grid-cols-[1.5fr_1.5fr_2fr_2fr] border-b border-border/40 last:border-0 transition-colors
-                        {i % 2 === 0
-                            ? 'bg-card/40'
-                            : 'bg-card/20'} hover:bg-primary/5"
-                    >
-                        <div class="px-4 py-4 flex items-center gap-2">
-                            <div
-                                class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary"
-                            >
-                                {usage.name.charAt(0)}
-                            </div>
-                            <span class="text-base font-medium truncate"
-                                >{usage.name}</span
-                            >
-                        </div>
-                        <div class="px-4 py-4 flex items-center">
-                            <span
-                                class="font-mono text-sm text-muted-foreground"
-                                >{usage.nik}</span
-                            >
-                        </div>
-                        <div class="px-4 py-4 flex items-center gap-1.5">
-                            <LogIn class="size-4 text-emerald-500 shrink-0" />
-                            <span class="text-sm whitespace-nowrap"
-                                >{usage.login}</span
-                            >
-                        </div>
-                        <div class="px-4 py-4 flex items-center">
-                            <span class="text-sm text-muted-foreground"
-                                >{usage.note}</span
-                            >
-                        </div>
-                    </div>
-                {/each}
-            </div>
 
-            <!-- Mobile cards -->
-            <div class="md:hidden space-y-3">
-                {#each phone.usages as usage, i (i)}
-                    <div
-                        class="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-3"
-                    >
-                        <div class="flex items-center gap-3">
+                <!-- Mobile cards -->
+                <div class="md:hidden space-y-3">
+                    {#each phone.usages as usage, i (i)}
+                        <div
+                            class="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-3"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0"
+                                >
+                                    {usage.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-base">
+                                        {usage.name}
+                                    </div>
+                                    <div
+                                        class="font-mono text-xs text-muted-foreground"
+                                    >
+                                        {usage.nik}
+                                    </div>
+                                </div>
+                            </div>
                             <div
-                                class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0"
+                                class="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2"
                             >
-                                {usage.name.charAt(0)}
-                            </div>
-                            <div>
-                                <div class="font-semibold text-base">
-                                    {usage.name}
-                                </div>
-                                <div
-                                    class="font-mono text-xs text-muted-foreground"
-                                >
-                                    {usage.nik}
-                                </div>
-                            </div>
-                        </div>
-                        <div
-                            class="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2"
-                        >
-                            <LogIn class="size-4 text-emerald-500 shrink-0" />
-                            <div>
-                                <div
-                                    class="text-[11px] text-muted-foreground uppercase font-bold tracking-wider"
-                                >
-                                    Absence
-                                </div>
-                                <div class="font-medium text-sm">
-                                    {usage.login}
+                                <LogIn class="size-4 text-emerald-500 shrink-0" />
+                                <div>
+                                    <div
+                                        class="text-[11px] text-muted-foreground uppercase font-bold tracking-wider"
+                                    >
+                                        Absence
+                                    </div>
+                                    <div class="font-medium text-sm">
+                                        {usage.login}
+                                    </div>
                                 </div>
                             </div>
+                            <div
+                                class="flex items-start gap-2 text-sm text-muted-foreground"
+                            >
+                                <FileText class="size-4 shrink-0 mt-0.5" />
+                                <span>{usage.note}</span>
+                            </div>
                         </div>
-                        <div
-                            class="flex items-start gap-2 text-sm text-muted-foreground"
-                        >
-                            <FileText class="size-4 shrink-0 mt-0.5" />
-                            <span>{usage.note}</span>
-                        </div>
-                    </div>
-                {/each}
-            </div>
+                    {/each}
+                </div>
+            {:else}
+                <p class="text-sm text-muted-foreground">Belum ada riwayat penggunaan.</p>
+            {/if}
         </div>
     </div>
 
@@ -786,125 +667,129 @@
                 </div>
             </div>
 
-            <!-- Desktop table -->
-            <div
-                class="hidden md:block rounded-2xl border border-border/60 overflow-hidden"
-            >
+            {#if phone.checks.length > 0}
+                <!-- Desktop table -->
                 <div
-                    class="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_2fr] bg-muted/60 border-b border-border"
+                    class="hidden md:block rounded-2xl border border-border/60 overflow-hidden"
                 >
-                    {#each [{ icon: User, label: 'Petugas' }, { icon: CreditCard, label: 'NIK' }, { icon: CheckCircle2, label: 'Status' }, { icon: FileText, label: 'Tanggal' }, { icon: FileText, label: 'Catatan' }] as col}
-                        <div class="flex items-center gap-1.5 px-4 py-3">
-                            <col.icon class="size-4 text-primary shrink-0" />
-                            <span
-                                class="text-xs font-bold uppercase tracking-widest text-muted-foreground"
-                                >{col.label}</span
-                            >
-                        </div>
-                    {/each}
-                </div>
-                {#each phone.checks as check, i (i)}
                     <div
-                        class="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_2fr] border-b border-border/40 last:border-0 transition-colors
-                        {i % 2 === 0
-                            ? 'bg-card/40'
-                            : 'bg-card/20'} hover:bg-primary/5"
+                        class="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_2fr] bg-muted/60 border-b border-border"
                     >
-                        <div class="px-4 py-4 flex items-center gap-2">
-                            <div
-                                class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary"
-                            >
-                                {check.user.charAt(0)}
+                        {#each [{ icon: User, label: 'Petugas' }, { icon: CreditCard, label: 'NIK' }, { icon: CheckCircle2, label: 'Status' }, { icon: FileText, label: 'Tanggal' }, { icon: FileText, label: 'Catatan' }] as col}
+                            <div class="flex items-center gap-1.5 px-4 py-3">
+                                <col.icon class="size-4 text-primary shrink-0" />
+                                <span
+                                    class="text-xs font-bold uppercase tracking-widest text-muted-foreground"
+                                    >{col.label}</span
+                                >
                             </div>
-                            <span class="text-sm font-medium truncate"
-                                >{check.user}</span
-                            >
-                        </div>
-                        <div class="px-4 py-4 flex items-center">
-                            <span
-                                class="font-mono text-sm text-muted-foreground"
-                                >{check.nik}</span
-                            >
-                        </div>
-                        <div class="px-4 py-4 flex items-center">
-                            <span
-                                class="inline-flex items-center gap-1.5 text-sm px-2.5 py-1 rounded-full font-medium border
-                                {check.status === 'ok'
-                                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                                    : 'bg-destructive/10 text-destructive border-destructive/20'}"
-                            >
-                                {#if check.status === 'ok'}
-                                    <CheckCircle2 class="size-3.5" />
-                                {:else}
-                                    <XCircle class="size-3.5" />
-                                {/if}
-                                {check.status === 'ok' ? 'OK' : 'Gagal'}
-                            </span>
-                        </div>
-                        <div
-                            class="px-4 py-4 flex items-center text-sm text-muted-foreground"
-                        >
-                            {check.date}
-                        </div>
-                        <div
-                            class="px-4 py-4 flex items-center text-sm text-muted-foreground"
-                        >
-                            {check.note}
-                        </div>
+                        {/each}
                     </div>
-                {/each}
-            </div>
-
-            <!-- Mobile cards -->
-            <div class="md:hidden space-y-3">
-                {#each phone.checks as check, i (i)}
-                    <div
-                        class="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-2"
-                    >
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
+                    {#each phone.checks as check, i (i)}
+                        <div
+                            class="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_2fr] border-b border-border/40 last:border-0 transition-colors
+                            {i % 2 === 0
+                                ? 'bg-card/40'
+                                : 'bg-card/20'} hover:bg-primary/5"
+                        >
+                            <div class="px-4 py-4 flex items-center gap-2">
                                 <div
-                                    class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0"
+                                    class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary"
                                 >
                                     {check.user.charAt(0)}
                                 </div>
-                                <div>
-                                    <div class="font-semibold text-base">
-                                        {check.user}
-                                    </div>
+                                <span class="text-sm font-medium truncate"
+                                    >{check.user}</span
+                                >
+                            </div>
+                            <div class="px-4 py-4 flex items-center">
+                                <span
+                                    class="font-mono text-sm text-muted-foreground"
+                                    >{check.nik}</span
+                                >
+                            </div>
+                            <div class="px-4 py-4 flex items-center">
+                                <span
+                                    class="inline-flex items-center gap-1.5 text-sm px-2.5 py-1 rounded-full font-medium border
+                                    {check.status === 'ok'
+                                        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                                        : 'bg-destructive/10 text-destructive border-destructive/20'}"
+                                >
+                                    {#if check.status === 'ok'}
+                                        <CheckCircle2 class="size-3.5" />
+                                    {:else}
+                                        <XCircle class="size-3.5" />
+                                    {/if}
+                                    {check.status === 'ok' ? 'OK' : 'Gagal'}
+                                </span>
+                            </div>
+                            <div
+                                class="px-4 py-4 flex items-center text-sm text-muted-foreground"
+                            >
+                                {check.date}
+                            </div>
+                            <div
+                                class="px-4 py-4 flex items-center text-sm text-muted-foreground"
+                            >
+                                {check.note}
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+
+                <!-- Mobile cards -->
+                <div class="md:hidden space-y-3">
+                    {#each phone.checks as check, i (i)}
+                        <div
+                            class="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-2"
+                        >
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
                                     <div
-                                        class="font-mono text-xs text-muted-foreground"
+                                        class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0"
                                     >
-                                        {check.nik}
+                                        {check.user.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-base">
+                                            {check.user}
+                                        </div>
+                                        <div
+                                            class="font-mono text-xs text-muted-foreground"
+                                        >
+                                            {check.nik}
+                                        </div>
                                     </div>
                                 </div>
+                                <span
+                                    class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border
+                                    {check.status === 'ok'
+                                        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                                        : 'bg-destructive/10 text-destructive border-destructive/20'}"
+                                >
+                                    {#if check.status === 'ok'}
+                                        <CheckCircle2 class="size-3.5" />
+                                    {:else}
+                                        <XCircle class="size-3.5" />
+                                    {/if}
+                                    {check.status === 'ok' ? 'OK' : 'Gagal'}
+                                </span>
                             </div>
-                            <span
-                                class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border
-                                {check.status === 'ok'
-                                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                                    : 'bg-destructive/10 text-destructive border-destructive/20'}"
+                            <div class="text-xs text-muted-foreground font-medium">
+                                {check.date}
+                            </div>
+                            <div
+                                class="text-sm text-muted-foreground flex items-start gap-1.5"
                             >
-                                {#if check.status === 'ok'}
-                                    <CheckCircle2 class="size-3.5" />
-                                {:else}
-                                    <XCircle class="size-3.5" />
-                                {/if}
-                                {check.status === 'ok' ? 'OK' : 'Gagal'}
-                            </span>
+                                <FileText class="size-4 shrink-0 mt-0.5" />
+                                {check.note}
+                            </div>
                         </div>
-                        <div class="text-xs text-muted-foreground font-medium">
-                            {check.date}
-                        </div>
-                        <div
-                            class="text-sm text-muted-foreground flex items-start gap-1.5"
-                        >
-                            <FileText class="size-4 shrink-0 mt-0.5" />
-                            {check.note}
-                        </div>
-                    </div>
-                {/each}
-            </div>
+                    {/each}
+                </div>
+            {:else}
+                <p class="text-sm text-muted-foreground">Belum ada riwayat pengecekan.</p>
+            {/if}
         </div>
     </div>
 </LayoutBG>

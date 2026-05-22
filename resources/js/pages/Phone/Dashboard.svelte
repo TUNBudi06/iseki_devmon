@@ -6,6 +6,7 @@
     import * as InputGroup from '$shadcn/components/ui/input-group';
     import * as Card from '$shadcn/components/ui/card';
     import * as Carousel from '$shadcn/components/ui/carousel';
+    import storage from '$routes/storage';
     import {
         ArrowRightCircle,
         SearchIcon,
@@ -38,165 +39,57 @@
         status: 'active' | 'inactive';
         registered: boolean;
         type: DeviceType;
+        brand: { name: string } | null;
     };
 
-    // ─── Data ───────────────────────────────────────────────────
-    const devices: Device[] = [
-        {
-            id: 'DEV-001',
-            name: 'Samsung Galaxy A54',
-            photo: 'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+A54&font=roboto',
-            photos: [
-                'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+A54+1&font=roboto',
-                'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+A54+2&font=roboto',
-                'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+A54+3&font=roboto',
-            ],
-            battery: 85,
-            user: 'Budi Santoso',
-            ram: '8GB',
-            storage: '256GB',
-            status: 'active',
-            registered: true,
-            type: 'phone',
-        },
-        {
-            id: 'DEV-002',
-            name: 'Xiaomi Redmi Note 12',
-            photo: 'https://placehold.co/400x600/16213e/eee?text=Redmi+Note+12&font=roboto',
-            photos: [
-                'https://placehold.co/400x600/16213e/eee?text=Redmi+Note+12+1&font=roboto',
-                'https://placehold.co/400x600/16213e/eee?text=Redmi+Note+12+2&font=roboto',
-            ],
-            battery: 23,
-            user: 'Siti Rahayu',
-            ram: '6GB',
-            storage: '128GB',
-            status: 'active',
-            registered: true,
-            type: 'phone',
-        },
-        {
-            id: 'DEV-003',
-            name: 'OPPO A78',
-            photo: 'https://placehold.co/400x600/0f3460/eee?text=OPPO+A78&font=roboto',
-            photos: [
-                'https://placehold.co/400x600/0f3460/eee?text=OPPO+A78+1&font=roboto',
-                'https://placehold.co/400x600/0f3460/eee?text=OPPO+A78+2&font=roboto',
-                'https://placehold.co/400x600/0f3460/eee?text=OPPO+A78+3&font=roboto',
-            ],
-            battery: 60,
+    // ─── Props ──────────────────────────────────────────────────
+    let { devices: rawDevices }: { devices: PhoneListItem[] } = $props();
+
+    type PhoneListItem = {
+        id: number;
+        brand_id: string;
+        model_id: string;
+        model_name: string;
+        model_type: string;
+        buy_date: string;
+        price: string;
+        ram: string;
+        storage: string;
+        thumbnail: string | null;
+        list_photos: string[] | null;
+        registered: boolean;
+        hash_token: string | null;
+        created_at: string;
+        updated_at: string;
+        deleted_at: string | null;
+        brand: { id: string; name: string } | null;
+    };
+
+    // ─── Asset URL helper ───────────────────────────────────────
+    function assetUrl(path: string | null): string | null {
+        if (!path) return null;
+        // Strip 'storage/' prefix if present (backward compat with old stored paths)
+        const clean = path.replace(/^storage\//, '');
+        return storage.local({ path: clean }).url;
+    }
+
+    // ─── Map PhoneList data to Device ───────────────────────────
+    const devices: Device[] = $derived(
+        rawDevices.map((p): Device => ({
+            id: p.model_id,
+            name: p.model_name,
+            photo: assetUrl(p.thumbnail) ?? (p.list_photos?.[0] ? assetUrl(p.list_photos[0]) : undefined) ?? undefined,
+            photos: p.list_photos?.map((photo) => assetUrl(photo)).filter(Boolean) as string[] | undefined,
+            battery: 0,
             user: null,
-            ram: '8GB',
-            storage: '128GB',
-            status: 'inactive',
-            registered: true,
-            type: 'phone',
-        },
-        {
-            id: 'DEV-004',
-            name: 'Realme C55',
-            photo: 'https://placehold.co/400x600/1a1a2e/eee?text=Realme+C55&font=roboto',
-            battery: 12,
-            user: null,
-            ram: '6GB',
-            storage: '128GB',
-            status: 'inactive',
-            registered: false,
-            type: 'phone',
-        },
-        {
-            id: 'DEV-005',
-            name: 'iPhone 13',
-            photo: 'https://placehold.co/400x600/16213e/eee?text=iPhone+13&font=roboto',
-            photos: [
-                'https://placehold.co/400x600/16213e/eee?text=iPhone+13+1&font=roboto',
-                'https://placehold.co/400x600/16213e/eee?text=iPhone+13+2&font=roboto',
-                'https://placehold.co/400x600/16213e/eee?text=iPhone+13+3&font=roboto',
-                'https://placehold.co/400x600/16213e/eee?text=iPhone+13+4&font=roboto',
-            ],
-            battery: 95,
-            user: 'Ahmad Fauzi',
-            ram: '4GB',
-            storage: '128GB',
-            status: 'active',
-            registered: true,
-            type: 'phone',
-        },
-        {
-            id: 'DEV-006',
-            name: 'Vivo Y35',
-            photo: 'https://placehold.co/400x600/0f3460/eee?text=Vivo+Y35&font=roboto',
-            battery: 47,
-            user: null,
-            ram: '8GB',
-            storage: '128GB',
-            status: 'inactive',
-            registered: false,
-            type: 'phone',
-        },
-        {
-            id: 'DEV-007',
-            name: 'Samsung Galaxy S23',
-            photo: 'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+S23&font=roboto',
-            photos: [
-                'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+S23+1&font=roboto',
-                'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+S23+2&font=roboto',
-                'https://placehold.co/400x600/1a1a2e/eee?text=Galaxy+S23+3&font=roboto',
-            ],
-            battery: 71,
-            user: 'Dewi Kartika',
-            ram: '8GB',
-            storage: '256GB',
-            status: 'active',
-            registered: true,
-            type: 'phone',
-        },
-        {
-            id: 'DEV-008',
-            name: 'Poco X5 Pro',
-            photo: 'https://placehold.co/400x600/16213e/eee?text=Poco+X5+Pro&font=roboto',
-            photos: [
-                'https://placehold.co/400x600/16213e/eee?text=Poco+X5+Pro+1&font=roboto',
-                'https://placehold.co/400x600/16213e/eee?text=Poco+X5+Pro+2&font=roboto',
-            ],
-            battery: 33,
-            user: null,
-            ram: '8GB',
-            storage: '256GB',
-            status: 'inactive',
-            registered: true,
-            type: 'phone',
-        },
-        {
-            id: 'DEV-009',
-            name: 'iPad Air 5th Gen',
-            photo: 'https://placehold.co/600x400/0f3460/eee?text=iPad+Air&font=roboto',
-            photos: [
-                'https://placehold.co/600x400/0f3460/eee?text=iPad+Air+1&font=roboto',
-                'https://placehold.co/600x400/0f3460/eee?text=iPad+Air+2&font=roboto',
-                'https://placehold.co/600x400/0f3460/eee?text=iPad+Air+3&font=roboto',
-            ],
-            battery: 8,
-            user: 'Rina Wijaya',
-            ram: '8GB',
-            storage: '256GB',
-            status: 'active',
-            registered: true,
-            type: 'tablet',
-        },
-        {
-            id: 'DEV-010',
-            name: 'Samsung Galaxy Tab S9',
-            photo: 'https://placehold.co/600x400/1a1a2e/eee?text=Tab+S9&font=roboto',
-            battery: 100,
-            user: null,
-            ram: '12GB',
-            storage: '512GB',
-            status: 'inactive',
-            registered: false,
-            type: 'tablet',
-        },
-    ];
+            ram: p.ram,
+            storage: p.storage,
+            status: p.deleted_at ? 'inactive' : 'active',
+            registered: p.registered,
+            type: p.model_type.toLowerCase() as DeviceType,
+            brand: p.brand ? { name: p.brand.name } : null,
+        })),
+    );
 
     // ─── State ──────────────────────────────────────────────────
     type Filter = 'all' | 'active' | 'inactive' | 'registered' | 'unregistered' | 'tablet' | 'phone';
@@ -212,6 +105,9 @@
     // State untuk carousel API per device
     let currentSlideIndices = $state<Record<string, number>>({});
     let carouselApis: Record<string, any> = {};
+
+    // ─── Inisialisasi Sifter (dilakukan sekali via $derived ref) ─
+    const sifter = new Sifter(devices);
 
     // ─── SEMUA FILTER PAKAI SIFTER ─────────────────────────────
     const filteredDevices = $derived.by(() => {
@@ -256,9 +152,6 @@
 
         return items;
     });
-
-    // Inisialisasi Sifter (dilakukan sekali)
-    const sifter = new Sifter(devices);
 
     function countFilter(filter: Filter): number {
         if (filter === 'all') return devices.length;
@@ -482,10 +375,12 @@
 
 
                             <!-- Battery Badge -->
-                            <div class="absolute top-3 right-3 z-30 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-md border border-white/10 {batteryStyle(device.battery)}">
-                                <BattIcon class="size-3" />
-                                <span>{device.battery}%</span>
-                            </div>
+                            {#if device.battery > 0}
+                                <div class="absolute top-3 right-3 z-30 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-md border border-white/10 {batteryStyle(device.battery)}">
+                                    <BattIcon class="size-3" />
+                                    <span>{device.battery}%</span>
+                                </div>
+                            {/if}
 
                             <!-- Status Badge -->
                             {#if !isRegistered}
@@ -508,6 +403,9 @@
                         <!-- Info -->
                         <div class="space-y-4 p-4">
                             <div class="space-y-2">
+                                {#if device.brand}
+                                    <div class="text-[11px] font-medium text-pink-500/80 uppercase tracking-wider">{device.brand.name}</div>
+                                {/if}
                                 <div class="line-clamp-2 text-[15px] font-semibold tracking-tight text-card-foreground">{device.name}</div>
                                 <div class="inline-flex items-center rounded-full border border-border bg-muted/60 px-2.5 py-1 font-mono text-[11px] text-muted-foreground">
                                     {device.ram} / {device.storage}

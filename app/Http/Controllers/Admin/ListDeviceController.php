@@ -69,12 +69,13 @@ class ListDeviceController extends Controller
     /**
      * Save an uploaded photo under public/storage/device/{phoneId}/
      * Uses CRC32 of file content for the filename to avoid duplicates.
-     * Returns the public URL path like "storage/device/{id}/{hash}.{ext}"
+     * Returns a path like "device/{id}/{hash}.{ext}" (no storage/ prefix —
+     * the Wayfinder storage.local route adds it).
      */
     private function savePhoto(UploadedFile $file, int $phoneId): string
     {
-        $basePath = 'storage/device/'.$phoneId;
-        $directory = public_path($basePath);
+        $relativePath = 'device/'.$phoneId;
+        $directory = public_path('storage/'.$relativePath);
 
         if (! is_dir($directory)) {
             mkdir($directory, 0755, true);
@@ -88,20 +89,22 @@ class ListDeviceController extends Controller
 
         // If file with same hash already exists, return existing URL
         if (file_exists($fullPath)) {
-            return $basePath.'/'.$filename;
+            return $relativePath.'/'.$filename;
         }
 
         $file->move($directory, $filename);
 
-        return $basePath.'/'.$filename;
+        return $relativePath.'/'.$filename;
     }
 
     /**
-     * Delete a photo file given its public path (e.g. "storage/device/1/abc123.jpg")
+     * Delete a photo file given its public path.
+     * Handles both old ("storage/device/...") and new ("device/...") formats.
      */
     private function deletePhotoByPath(string $path): void
     {
-        $full = public_path($path);
+        $clean = preg_replace('/^storage\//', '', $path);
+        $full = public_path('storage/'.$clean);
         if (file_exists($full)) {
             unlink($full);
         }
@@ -176,13 +179,17 @@ class ListDeviceController extends Controller
             unset($data['thumbnail']);
         }
 
-        // Append new photos
+        // Append new photos — first uploaded photo becomes thumbnail
+        // (frontend reorders so the picked thumbnail is first)
         if ($request->hasFile('list_photos')) {
             $existing = (array) ($phone->list_photos ?? []);
-            foreach ($request->file('list_photos') as $photo) {
+            foreach ($request->file('list_photos') as $i => $photo) {
                 $url = $this->savePhoto($photo, $phone->id);
                 if (! in_array($url, $existing, true)) {
                     $existing[] = $url;
+                }
+                if ($i === 0) {
+                    $data['thumbnail'] = $url;
                 }
             }
             $data['list_photos'] = $existing;

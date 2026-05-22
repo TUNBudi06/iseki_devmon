@@ -361,21 +361,23 @@
     async function handleEditPhone() {
         if (!editPhoneTarget) return;
 
-        // Always send the selected thumbnail from existing photos
         const existingPhotos = editPhoneTarget.list_photos ?? [];
-        if (existingPhotos.length > 0) {
-            editPhoneForm.thumbnail = existingPhotos[editExistingThumbnailIdx];
-        }
 
-        // Only send list_photos if there are new file uploads
         if (editPhotos.length > 0) {
+            // New photos uploaded — reorder so picked thumbnail is first
             const reordered = [...editPhotos];
             if (editThumbnailIdx > 0 && editThumbnailIdx < reordered.length) {
                 const [thumb] = reordered.splice(editThumbnailIdx, 1);
                 reordered.unshift(thumb);
             }
             editPhoneForm.list_photos = reordered;
+            // Clear thumbnail so backend uses the first new photo
+            editPhoneForm.thumbnail = '';
         } else {
+            // No new photos — use existing photo as thumbnail
+            if (existingPhotos.length > 0) {
+                editPhoneForm.thumbnail = existingPhotos[editExistingThumbnailIdx];
+            }
             // Clear list_photos to avoid sending old URL strings as files
             editPhoneForm.setStore('list_photos', [] as unknown);
         }
@@ -663,6 +665,17 @@
                                                     />
                                                     <div class="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-pink-500/80 text-[9px] font-bold text-white flex items-center justify-center shadow-sm">
                                                         {phone.list_photos?.length ?? 0}
+                                                    </div>
+                                                </div>
+                                            {:else if phone.list_photos && phone.list_photos.length > 0}
+                                                <div class="relative group">
+                                                    <img
+                                                        src={assetUrl(phone.list_photos[0])}
+                                                        alt={phone.model_name}
+                                                        class="size-10 rounded-lg object-cover ring-1 ring-pink-300/30 shrink-0"
+                                                    />
+                                                    <div class="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-pink-500/80 text-[9px] font-bold text-white flex items-center justify-center shadow-sm">
+                                                        {phone.list_photos.length}
                                                     </div>
                                                 </div>
                                             {:else}
