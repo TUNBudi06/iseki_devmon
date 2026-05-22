@@ -61,6 +61,7 @@
         hash_token: string | null;
         created_at: string;
         updated_at: string;
+        deleted_at: string | null;
         brand: Brand | null;
     };
 
@@ -635,7 +636,7 @@
                             </Table.Header>
                             <Table.Body>
                                 {#each filteredPhones as phone (phone.id)}
-                                    <Table.Row class="border-border/30 hover:bg-gradient-to-r hover:from-pink-500/5 hover:to-violet-500/5 transition-all duration-150">
+                                    <Table.Row class="border-border/30 hover:bg-gradient-to-r hover:from-pink-500/5 hover:to-violet-500/5 transition-all duration-150 {phone.deleted_at ? 'opacity-50' : ''}">
                                         <!-- Thumbnail -->
                                         <Table.Cell>
                                             {#if phone.thumbnail}
@@ -656,9 +657,17 @@
                                             {/if}
                                         </Table.Cell>
                                         <Table.Cell>
-                                            <Badge variant="outline" class="text-xs bg-violet-500/10 border-violet-300/30 text-violet-600 dark:text-violet-300 font-medium">
-                                                {phone.brand?.name ?? phone.brand_id}
-                                            </Badge>
+                                            <div class="flex items-center gap-2">
+                                                {#if phone.deleted_at}
+                                                    <Badge variant="outline" class="text-xs bg-red-500/10 border-red-300/30 text-red-500 font-medium gap-1">
+                                                        <X class="size-3" />
+                                                        Deleted
+                                                    </Badge>
+                                                {/if}
+                                                <Badge variant="outline" class="text-xs bg-violet-500/10 border-violet-300/30 text-violet-600 dark:text-violet-300 font-medium">
+                                                    {phone.brand?.name ?? phone.brand_id}
+                                                </Badge>
+                                            </div>
                                         </Table.Cell>
                                         <Table.Cell>
                                             <span class="font-mono text-xs font-medium text-foreground/80">{phone.model_id}</span>
@@ -712,35 +721,37 @@
                                             {/if}
                                         </Table.Cell>
                                         <Table.Cell class="text-right">
-                                            <div class="flex items-center justify-end gap-1">
-                                                {#if !phone.registered}
+                                            {#if !phone.deleted_at}
+                                                <div class="flex items-center justify-end gap-1">
+                                                    {#if !phone.registered}
+                                                        <Button
+                                                            size="icon"
+                                                            variant="ghost"
+                                                            class="size-8 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10"
+                                                            onclick={() => openQr(phone)}
+                                                            title="Tampilkan QR Code"
+                                                        >
+                                                            <QrCode class="size-3.5" />
+                                                        </Button>
+                                                    {/if}
                                                     <Button
                                                         size="icon"
                                                         variant="ghost"
-                                                        class="size-8 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10"
-                                                        onclick={() => openQr(phone)}
-                                                        title="Tampilkan QR Code"
+                                                        class="size-8 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10"
+                                                        onclick={() => openEditPhone(phone)}
                                                     >
-                                                        <QrCode class="size-3.5" />
+                                                        <Edit class="size-3.5" />
                                                     </Button>
-                                                {/if}
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    class="size-8 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10"
-                                                    onclick={() => openEditPhone(phone)}
-                                                >
-                                                    <Edit class="size-3.5" />
-                                                </Button>
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
-                                                    onclick={() => openDeletePhone(phone)}
-                                                >
-                                                    <Trash2 class="size-3.5" />
-                                                </Button>
-                                            </div>
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
+                                                        onclick={() => openDeletePhone(phone)}
+                                                    >
+                                                        <Trash2 class="size-3.5" />
+                                                    </Button>
+                                                </div>
+                                            {/if}
                                         </Table.Cell>
                                     </Table.Row>
                                 {/each}

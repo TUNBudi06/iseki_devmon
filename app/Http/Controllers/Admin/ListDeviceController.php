@@ -17,7 +17,11 @@ class ListDeviceController extends Controller
     public function index(): Response
     {
         $brands = Brand::orderBy('created_at', 'desc')->get();
-        $phoneLists = PhoneList::with('brand')->orderBy('created_at', 'desc')->get();
+        $phoneLists = PhoneList::with('brand')
+            ->orderByRaw('deleted_at IS NOT NULL')
+            ->orderBy('created_at', 'desc')
+            ->withTrashed()
+            ->get();
 
         return Inertia::render('Admin/ListDevice', [
             'brands' => $brands,
@@ -219,25 +223,15 @@ class ListDeviceController extends Controller
 
     public function destroyPhone(string $id): JsonResponse
     {
-        $phone = PhoneList::findOrFail($id);
+        $phone = PhoneList::withTrashed()->findOrFail($id);
 
-        // Delete all photo files
-        foreach ((array) ($phone->list_photos ?? []) as $photo) {
-            $this->deletePhotoByPath($photo);
+        if ($phone->trashed()) {
+            // Already soft deleted - force delete (cleanup)
+            $phone->forceDelete();
+        } else {
+            // Soft delete (keep files and data for logs)
+            $phone->delete();
         }
-        // Also delete thumbnail if not in list_photos
-        if ($phone->thumbnail && ! in_array($phone->thumbnail, (array) ($phone->list_photos ?? []), true)) {
-            $this->deletePhotoByPath($phone->thumbnail);
-        }
-
-        // Remove entire device folder
-        $dir = public_path('storage/device/'.$phone->id);
-        if (is_dir($dir)) {
-            array_map('unlink', glob($dir.'/*.*'));
-            rmdir($dir);
-        }
-
-        $phone->delete();
 
         return response()->json(['message' => 'Phone berhasil dihapus']);
     }
