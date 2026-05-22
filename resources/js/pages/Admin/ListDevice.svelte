@@ -70,7 +70,7 @@
     // ─── Active Tab ──────────────────────────────────────────────
     const tabs = [
         { id: 'brands', label: 'Brand / Perangkat', icon: Smartphone },
-        { id: 'phones', label: 'Phone List', icon: AppWindow },
+        { id: 'phones', label: 'List Devices', icon: AppWindow },
     ] as const;
     type TabId = (typeof tabs)[number]['id'];
     let activeTab: TabId = $state('brands');
@@ -191,6 +191,8 @@
     const totalBudgetFormatted = $derived(
         new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalBudget),
     );
+
+    const removedDevices = $derived(phoneLists.filter((p) => p.deleted_at !== null).length);
 
     function formatDate(dateStr: string): string {
         return new Date(dateStr).toLocaleDateString('id-ID', {
@@ -453,7 +455,7 @@
                         <h1 class="text-xl font-bold tracking-tight">List Device</h1>
                     </div>
                     <p class="text-xs text-muted-foreground ml-0.5 mt-0.5">
-                        {brands.length} brand &middot; {phoneLists.length} phone
+                        {brands.length} brand &middot; {phoneLists.length} device
                     </p>
                 </div>
             </div>
@@ -478,14 +480,27 @@
         {/each}
     </div>
 
-    <!-- ──────── Total Budget Card ──────── -->
-    <div class="flex items-center gap-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20 px-5 py-2.5 shadow-sm w-fit">
-        <div class="size-9 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-            <Banknote class="size-4 text-emerald-400" />
+    <!-- ──────── Summary Cards ──────── -->
+    <div class="flex items-center gap-3 flex-wrap">
+        <!-- Total Budget -->
+        <div class="flex items-center gap-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20 px-5 py-2.5 shadow-sm w-fit">
+            <div class="size-9 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                <Banknote class="size-4 text-emerald-400" />
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-emerald-500/70 font-medium uppercase tracking-wider">Total Budget</p>
+                <p class="text-base font-bold text-emerald-600 dark:text-emerald-300">{totalBudgetFormatted}</p>
+            </div>
         </div>
-        <div class="text-right">
-            <p class="text-xs text-emerald-500/70 font-medium uppercase tracking-wider">Total Budget</p>
-            <p class="text-base font-bold text-emerald-600 dark:text-emerald-300">{totalBudgetFormatted}</p>
+        <!-- Removed Devices -->
+        <div class="flex items-center gap-3 rounded-xl bg-gradient-to-r from-red-500/10 to-rose-600/5 border border-red-500/20 px-5 py-2.5 shadow-sm w-fit">
+            <div class="size-9 rounded-lg bg-red-500/20 flex items-center justify-center">
+                <Trash2 class="size-4 text-red-400" />
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-red-500/70 font-medium uppercase tracking-wider">Removed Device</p>
+                <p class="text-base font-bold text-red-600 dark:text-red-300">{removedDevices}</p>
+            </div>
         </div>
     </div>
 
