@@ -16,7 +16,7 @@
         SortAsc,
         SortDesc
     } from '@lucide/svelte';
-    import { routeUrl } from '@tunbudi06/inertia-route-helper';
+
     import { home } from '$routes';
     import { detailPhone } from '$routes/phone';
     import Autoplay from 'embla-carousel-autoplay';
@@ -293,7 +293,7 @@
 
     function handleCardClick(device: Device) {
         if (!device.registered) return;
-        router.visit(routeUrl(detailPhone({ id: device.id })));
+        router.visit(detailPhone({ id: device.id }).url);
     }
 
     function handleImageError(deviceId: string) {
@@ -341,7 +341,7 @@
             size="sm"
             variant="ghost"
             class="border border-border/60 bg-card/40 backdrop-blur-xl hover:bg-primary/10 gap-2"
-            onclick={() => router.visit(routeUrl(home()))}
+            onclick={() => router.visit(home().url)}
         >
             Kembali
             <ArrowRightCircle class="size-4" />

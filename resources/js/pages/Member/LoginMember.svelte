@@ -2,7 +2,7 @@
     import { router } from '@inertiajs/svelte';
     import { User, Lock, ArrowRight, ArrowLeft } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
-    import { routeUrl } from '@tunbudi06/inertia-route-helper';
+
     import LayoutBG from '$/components/LayoutBG.svelte';
     import { Button } from '$shadcn/components/ui/button';
     import { Input } from '$shadcn/components/ui/input';
@@ -28,7 +28,7 @@
             await new Promise((resolve) => setTimeout(resolve, 1500));
 
             if (username === 'member' && password === 'member123') {
-                router.visit(routeUrl('member.dashboard'));
+                router.visit('/iseki_devmon/public/member/dashboard');
             } else {
                 error = 'Username atau password salah';
             }
@@ -53,7 +53,7 @@
 
     <div class="w-full max-w-md relative z-10">
         <button
-            onclick={() => router.visit(routeUrl(home()))}
+            onclick={() => router.visit(home().url)}
             class="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
         >
             <ArrowLeft class="size-4" />

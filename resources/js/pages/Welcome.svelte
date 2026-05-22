@@ -8,7 +8,7 @@
         Loader2,
     } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
-    import { routeUrl } from '@tunbudi06/inertia-route-helper';
+
     import { listPhone } from '$routes/phone';
     import LayoutBG from '$/components/LayoutBG.svelte';
     import SpotlightCard from '$shadcn/components/svelte-bits/SpotlightCard.svelte';
@@ -44,7 +44,7 @@
             label: 'Semua Perangkat',
             description: 'Lihat seluruh daftar perangkat',
             badge: 'Publik',
-            route: routeUrl(listPhone()),
+            route: listPhone().url,
             routeLabel: 'listPhone',
             accentClass: 'from-card to-blue-500/20 hover:border-blue-500/40',
         },
@@ -53,7 +53,7 @@
             label: 'Daily Absence Checks',
             description: 'Cek absensi harian pengguna',
             badge: 'Pengguna',
-            route: routeUrl(deviceNotRegister()),
+            route: deviceNotRegister().url,
             routeLabel: 'deviceNotRegister',
             accentClass:
                 'from-card to-emerald-520/10 hover:border-emerald-500/40',
@@ -63,7 +63,7 @@
             label: 'Device Control Sheet',
             description: 'Kelola dan kendalikan perangkat',
             badge: 'Admin',
-            route: routeUrl(loginAdmin()),
+            route: loginAdmin().url,
             routeLabel: 'loginAdmin',
             accentClass: 'from-card to-amber-500210 hover:border-amber-500/40',
         },

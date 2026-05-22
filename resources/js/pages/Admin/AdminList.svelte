@@ -1,6 +1,5 @@
 <script lang="ts">
     import { router, useHttp } from '@inertiajs/svelte';
-    import { routeUrl } from '@tunbudi06/inertia-route-helper';
     import { Button } from '$shadcn/components/ui/button';
     import * as Card from '$shadcn/components/ui/card';
     import * as Table from '$shadcn/components/ui/table';
@@ -61,7 +60,7 @@
     });
 
     function goBack() {
-        router.visit(routeUrl(dashboard()));
+        router.visit(dashboard().url);
     }
 
     function formatDate(dateStr: string): string {
@@ -84,7 +83,7 @@
     }
 
     function handleAdd() {
-        addForm.post(routeUrl(adminList()), {
+        addForm.post(adminList().url, {
             onSuccess: () => {
                 closeAdd();
                 router.reload();
@@ -110,7 +109,7 @@
 
     function handleEdit() {
         if (!editTarget) return;
-        editForm.put(routeUrl(adminList.update({ id: editTarget.id })), {
+        editForm.put(adminList.update({ id: editTarget.id }).url, {
             onSuccess: () => {
                 closeEdit();
                 router.reload();
@@ -134,7 +133,7 @@
 
     function handleDelete() {
         if (!deleteTarget) return;
-        deleteForm.delete(routeUrl(adminList.destroy({ id: deleteTarget.id })), {
+        deleteForm.delete(adminList.destroy({ id: deleteTarget.id }).url, {
             onSuccess: () => {
                 closeDelete();
                 router.reload();

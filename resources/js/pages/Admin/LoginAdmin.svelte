@@ -1,6 +1,5 @@
 <script lang="ts">
     import { router, useHttp } from '@inertiajs/svelte';
-    import { routeUrl } from '@tunbudi06/inertia-route-helper';
     import { Button } from '$shadcn/components/ui/button';
     import * as Card from '$shadcn/components/ui/card';
     import { Input } from '$shadcn/components/ui/input';
@@ -20,11 +19,11 @@
 
     function handleSubmit(e: Event) {
         e.preventDefault()
-        form.post(routeUrl(loginAdmin.authenticate()), {
+        form.post(loginAdmin.authenticate().url, {
             onSuccess:async () => {
                 await toast.success('Login berhasil! Mengalihkan ke dashboard...')
                 setTimeout(() => {
-                router.visit(routeUrl(dashboard()));
+                router.visit(dashboard().url);
                 }, 1000) // Beri jeda agar toast terlihat
             },
         });
@@ -44,7 +43,7 @@
 
     <div class="w-full max-w-md relative z-10">
         <button
-            onclick={() => router.visit(routeUrl(home()))}
+            onclick={() => router.visit(home().url)}
             class="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
         >
             <ArrowLeft class="size-4" />

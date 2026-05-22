@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\PhoneList;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Inertia\Inertia;
@@ -104,7 +105,7 @@ class ListDeviceController extends Controller
 
     // ─── Phone List CRUD ───────────────────────────────────────
 
-    public function storePhone(Request $request): JsonResponse
+    public function storePhone(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'brand_id' => ['required', 'exists:brands,id'],
@@ -140,10 +141,10 @@ class ListDeviceController extends Controller
 
         $phone->update($data);
 
-        return response()->json(['message' => 'Phone berhasil ditambahkan']);
+        return to_route('admin.listDevice')->with('success', 'Phone berhasil ditambahkan');
     }
 
-    public function updatePhone(Request $request, string $id): JsonResponse
+    public function updatePhone(Request $request, string $id): RedirectResponse
     {
         $validated = $request->validate([
             'brand_id' => ['required', 'exists:brands,id'],
@@ -166,6 +167,9 @@ class ListDeviceController extends Controller
         // Handle thumbnail selection (URL string from existing photos)
         if ($request->filled('thumbnail') && ! $request->hasFile('thumbnail')) {
             $data['thumbnail'] = $request->input('thumbnail');
+        } elseif (! $request->has('thumbnail') || ! $request->filled('thumbnail')) {
+            // If thumbnail is not sent or empty, keep the existing DB value
+            unset($data['thumbnail']);
         }
 
         // Append new photos
@@ -182,7 +186,7 @@ class ListDeviceController extends Controller
 
         $phone->update($data);
 
-        return response()->json(['message' => 'Phone berhasil diperbarui']);
+        return to_route('admin.listDevice')->with('success', 'Phone berhasil diperbarui');
     }
 
     /**

@@ -2,7 +2,6 @@
     import LayoutBG from '$/components/LayoutBG.svelte';
     import Navbar from '$/components/wrapper/Navbar.svelte';
     import { router } from '@inertiajs/svelte';
-    import { routeUrl } from '@tunbudi06/inertia-route-helper';
     import { home } from '$routes';
     import { Button } from '$shadcn/components/ui/button';
     import {
@@ -270,7 +269,7 @@
                 size="sm"
                 variant="ghost"
                 class="border border-border/60 bg-card/40 backdrop-blur-xl hover:bg-primary/10 gap-2"
-                onclick={() => router.visit(routeUrl(home()))}
+                onclick={() => router.visit(home().url)}
             >
                 <LucideHome class="size-4" />
                 <span class="hidden sm:inline">Home</span>
@@ -279,7 +278,7 @@
                 size="sm"
                 variant="ghost"
                 class="border border-border/60 bg-card/40 backdrop-blur-xl hover:bg-primary/10 gap-2"
-                onclick={() => router.visit(routeUrl(listPhone()))}
+                onclick={() => router.visit(listPhone().url)}
             >
                 <span class="hidden sm:inline">Kembali</span>
                 <ArrowRightCircle class="size-4" />

@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { router, useHttp } from '@inertiajs/svelte';
-    import { routeUrl, assetUrl } from '@tunbudi06/inertia-route-helper';
+    import { router, useHttp, useForm } from '@inertiajs/svelte';
+    import { assetUrl } from '@tunbudi06/inertia-route-helper';
     import { Button } from '$shadcn/components/ui/button';
     import * as Card from '$shadcn/components/ui/card';
     import * as Table from '$shadcn/components/ui/table';
@@ -10,6 +10,7 @@
     import { Separator } from '$shadcn/components/ui/separator';
     import * as FileDropZone from '$shadcn/components/ui/file-drop-zone';
     import { QRCode } from '$shadcn/components/spell/qrcode';
+    import { Toaster } from '$shadcn/components/ui/sonner';
     import {
         Smartphone,
         ArrowLeft,
@@ -64,8 +65,6 @@
     };
 
     let { brands, phoneLists }: { brands: Brand[]; phoneLists: PhoneList[] } = $props();
-    // console.log(brands,phoneLists)
-    console.log(assetUrl('/testing',{absolute:true}))
 
     // ─── Active Tab ──────────────────────────────────────────────
     const tabs = [
@@ -88,7 +87,7 @@
     let deleteBrandTarget = $state<Brand | null>(null);
 
     // ─── Add Phone Form ──────────────────────────────────────────
-    const addPhoneForm = useHttp({
+    const addPhoneForm = useForm({
         brand_id: '',
         model_id: '',
         model_name: '',
@@ -105,7 +104,7 @@
     let addThumbnailIdx = $state(0);
 
     // ─── Edit Phone Form ─────────────────────────────────────────
-    const editPhoneForm = useHttp({
+    const editPhoneForm = useForm({
         brand_id: '',
         model_id: '',
         model_name: '',
@@ -144,6 +143,10 @@
     // ─── Delete Phone ────────────────────────────────────────────
     const deletePhoneForm = useHttp({});
     let deletePhoneTarget = $state<PhoneList | null>(null);
+
+    // ─── Delete Photo ────────────────────────────────────────────
+    const deletePhotoForm = useHttp({});
+    let deletingPhotoUrl = $state<string | null>(null);
 
     // ─── Search ──────────────────────────────────────────────────
     let brandSearch = $state('');
@@ -200,7 +203,7 @@
 
     // ─── Navigation ──────────────────────────────────────────────
     function goBack() {
-        router.visit(routeUrl(dashboard()));
+        router.visit(dashboard().url);
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -218,7 +221,7 @@
     }
 
     function handleAddBrand() {
-        addBrandForm.post(routeUrl(listDevice()), {
+        addBrandForm.post(listDevice().url, {
             onSuccess: () => {
                 closeAddBrand();
                 router.reload();
@@ -242,7 +245,7 @@
 
     function handleEditBrand() {
         if (!editBrandTarget) return;
-        editBrandForm.put(routeUrl(listDevice.update({ id: editBrandTarget.id })), {
+        editBrandForm.put(listDevice.update({ id: editBrandTarget.id }).url, {
             onSuccess: () => {
                 closeEditBrand();
                 router.reload();
@@ -264,7 +267,7 @@
 
     function handleDeleteBrand() {
         if (!deleteBrandTarget) return;
-        deleteBrandForm.delete(routeUrl(listDevice.destroy({ id: deleteBrandTarget.id })), {
+        deleteBrandForm.delete(listDevice.destroy({ id: deleteBrandTarget.id }).url, {
             onSuccess: () => {
                 closeDeleteBrand();
                 router.reload();
@@ -308,11 +311,10 @@
             addPhoneForm.list_photos = addPhotos;
         }
 
-        addPhoneForm.post(routeUrl(listDevice.phone.store()), {
+        addPhoneForm.post(listDevice.phone.store().url, {
             forceFormData: true,
             onSuccess: () => {
                 closeAddPhone();
-                router.reload();
                 toast.success('Phone berhasil ditambahkan');
             },
             onError: (errors: Record<string, string>) => {
@@ -333,6 +335,8 @@
                 price: phone.price,
                 ram: phone.ram,
                 storage: phone.storage,
+                thumbnail: phone.thumbnail ?? '',
+                list_photos: phone.list_photos ?? [] as unknown,
             })
             .reset();
         editPhotos = [];
@@ -354,13 +358,13 @@
     async function handleEditPhone() {
         if (!editPhoneTarget) return;
 
-        // If thumbnail selection changed on existing photos, send the URL
+        // Always send the selected thumbnail from existing photos
         const existingPhotos = editPhoneTarget.list_photos ?? [];
-        if (existingPhotos.length > 0 && editExistingThumbnailIdx !== 0) {
+        if (existingPhotos.length > 0) {
             editPhoneForm.thumbnail = existingPhotos[editExistingThumbnailIdx];
         }
 
-        // Reorder new photos so chosen thumbnail is first
+        // Only send list_photos if there are new file uploads
         if (editPhotos.length > 0) {
             const reordered = [...editPhotos];
             if (editThumbnailIdx > 0 && editThumbnailIdx < reordered.length) {
@@ -368,16 +372,18 @@
                 reordered.unshift(thumb);
             }
             editPhoneForm.list_photos = reordered;
+        } else {
+            // Clear list_photos to avoid sending old URL strings as files
+            editPhoneForm.setStore('list_photos', [] as unknown);
         }
 
         // POST with _method spoofing for multipart file upload support
         editPhoneForm
             .transform((data: Record<string, unknown>) => ({ ...data, _method: 'put' }))
-            .post(routeUrl(listDevice.phone.update({ id: editPhoneTarget.id })), {
+            .post(listDevice.phone.update({ id: editPhoneTarget.id }).url, {
                 forceFormData: true,
                 onSuccess: () => {
                     closeEditPhone();
-                    router.reload();
                     toast.success('Phone berhasil diperbarui');
                 },
                 onError: (errors: Record<string, string>) => {
@@ -397,7 +403,7 @@
 
     function handleDeletePhone() {
         if (!deletePhoneTarget) return;
-        deletePhoneForm.delete(routeUrl(listDevice.phone.destroy({ id: deletePhoneTarget.id })), {
+        deletePhoneForm.delete(listDevice.phone.destroy({ id: deletePhoneTarget.id }).url, {
             onSuccess: () => {
                 closeDeletePhone();
                 router.reload();
@@ -405,6 +411,26 @@
             },
             onError: () => {
                 toast.error('Gagal menghapus phone');
+            },
+        });
+    }
+
+    function handleDeletePhoto(photoUrl: string) {
+        if (!editPhoneTarget) return;
+        deletingPhotoUrl = photoUrl;
+        router.post(listDevice.phone.photo.destroy({ id: editPhoneTarget.id }).url, {
+            _method: 'delete',
+            photo_url: photoUrl,
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                deletingPhotoUrl = null;
+                router.reload();
+                toast.success('Foto berhasil dihapus');
+            },
+            onError: () => {
+                deletingPhotoUrl = null;
+                toast.error('Gagal menghapus foto');
             },
         });
     }
@@ -1139,15 +1165,29 @@
                     {#if editPhoneTarget.list_photos && editPhoneTarget.list_photos.length > 0 && editPhotosPreview.length === 0}
                         <div class="flex flex-wrap gap-2 mb-2">
                             {#each editPhoneTarget.list_photos as photo, i}
-                                <div class="relative group" onclick={() => editExistingThumbnailIdx = i}>
-                                    <img src={assetUrl(photo)} alt="Gallery {i + 1}"
-                                        class="size-16 rounded-lg object-cover transition-all duration-200 cursor-pointer
-                                            {i === editExistingThumbnailIdx
-                                                ? 'ring-2 ring-emerald-500 ring-offset-2 ring-offset-background scale-110'
-                                                : 'ring-1 ring-emerald-300/30 hover:ring-emerald-400/60'}" />
-                                    {#if i === editExistingThumbnailIdx}
-                                        <span class="absolute -top-2 -left-2 size-5 rounded-full bg-emerald-500 text-[9px] font-bold text-white flex items-center justify-center shadow-lg">T</span>
-                                    {/if}
+                                <div class="relative group">
+                                    <div onclick={() => editExistingThumbnailIdx = i} class="cursor-pointer">
+                                        <img src={assetUrl(photo)} alt="Gallery {i + 1}"
+                                            class="size-16 rounded-lg object-cover transition-all duration-200
+                                                {i === editExistingThumbnailIdx
+                                                    ? 'ring-2 ring-emerald-500 ring-offset-2 ring-offset-background scale-110'
+                                                    : 'ring-1 ring-emerald-300/30 hover:ring-emerald-400/60'}" />
+                                        {#if i === editExistingThumbnailIdx}
+                                            <span class="absolute -top-2 -left-2 size-5 rounded-full bg-emerald-500 text-[9px] font-bold text-white flex items-center justify-center shadow-lg">T</span>
+                                        {/if}
+                                    </div>
+                                    <button
+                                        onclick={() => handleDeletePhoto(photo)}
+                                        disabled={deletingPhotoUrl === photo}
+                                        class="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 shadow-sm"
+                                        title="Hapus foto"
+                                    >
+                                        {#if deletingPhotoUrl === photo}
+                                            <div class="size-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        {:else}
+                                            <X class="size-3" />
+                                        {/if}
+                                    </button>
                                 </div>
                             {/each}
                         </div>
@@ -1296,3 +1336,5 @@
         </Card.Root>
     </div>
 {/if}
+
+<Toaster richColors position="top-right" duration={3000} />

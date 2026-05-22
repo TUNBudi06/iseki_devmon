@@ -14,7 +14,7 @@
         Zap,
     } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
-    import { routeUrl } from '@tunbudi06/inertia-route-helper';
+
     import LayoutBG from '$/components/LayoutBG.svelte';
     import { Button } from '$shadcn/components/ui/button';
     import { Input } from '$shadcn/components/ui/input';
@@ -165,7 +165,7 @@
     }
 
     function handleRegister() {
-        router.visit(routeUrl('register-device', { deviceId: deviceInfo?.id }));
+        router.visit('/iseki_devmon/public/register-device?deviceId=' + (deviceInfo?.id ?? ''));
     }
 
     function resetScan() {
@@ -200,7 +200,7 @@
     <!-- Back button -->
     <div class="w-full max-w-4xl relative z-10">
         <button
-            onclick={() => router.visit(routeUrl(deviceNotRegister()))}
+            onclick={() => router.visit(deviceNotRegister().url)}
             class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
         >
             <ArrowLeft

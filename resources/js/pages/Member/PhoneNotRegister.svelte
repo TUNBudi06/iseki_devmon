@@ -7,7 +7,6 @@
         ArrowLeft,
     } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
-    import { routeUrl } from '@tunbudi06/inertia-route-helper';
     import { listPhone } from '$routes/phone';
     import LayoutBG from '$/components/LayoutBG.svelte';
     import SpotlightCard from '$shadcn/components/svelte-bits/SpotlightCard.svelte';
@@ -28,7 +27,7 @@
     <!-- Back button -->
     <div class="w-full max-w-4xl pb-3 relative z-10">
         <button
-            onclick={() => router.visit(routeUrl(home()))}
+            onclick={() => router.visit(home().url)}
             class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
         >
             <ArrowLeft
@@ -97,7 +96,7 @@
 
         <!-- QR Register -->
         <SpotlightCard
-            onclick={() => router.visit(routeUrl(deviceRegisterQR()))}
+            onclick={() => router.visit(deviceRegisterQR().url)}
             class="group relative bg-gradient-to-br from-primary/50 to-card/30 backdrop-blur-sm border border-border rounded-2xl p-6 md:p-8 flex flex-col items-center gap-4 text-center cursor-pointer hover:-translate-y-2 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500"
         >
             <!-- Decorative gradient orb -->

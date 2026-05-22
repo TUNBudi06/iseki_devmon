@@ -1,6 +1,5 @@
 <script lang="ts">
     import { router } from '@inertiajs/svelte';
-    import { routeUrl } from '@tunbudi06/inertia-route-helper';
     import { Button } from '$shadcn/components/ui/button';
     import * as Card from '$shadcn/components/ui/card';
     import { Input } from '$shadcn/components/ui/input';
@@ -30,7 +29,7 @@
     let submitting = $state(false);
 
     function goBack() {
-        router.visit(routeUrl(dashboard()));
+        router.visit(dashboard().url);
     }
 
     function startCheck() {
