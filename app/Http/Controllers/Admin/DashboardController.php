@@ -13,10 +13,13 @@ class DashboardController extends Controller
     public function index(): Response
     {
         $stats = [
-            'totalDevices' => DB::table('brands')->count(),
-            'verifiedDevices' => DB::table('brands')->count(),
-            'totalUsers' => User::count(),
+            'totalDevices' => DB::table('phone_lists')->count(),
+            'totalBrands' => DB::table('brands')->count(),
+            'activeToday' => DB::table('phone_lists')->whereDate('created_at', today())->count(),
+            'totalRegistered' => DB::table('phone_lists')->where('registered', true)->count(),
+            'checkedThisMonth' => 0,
             'maintenanceCount' => 0,
+            'totalUsers' => User::count(),
         ];
 
         return Inertia::render('Admin/Dashboard', [

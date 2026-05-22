@@ -5,6 +5,7 @@
     import * as Card from '$shadcn/components/ui/card';
     import { Badge } from '$shadcn/components/ui/badge';
     import { Separator } from '$shadcn/components/ui/separator';
+    import TiltCard from '$shadcn/components/spell/tilt-card/tilt-card.svelte';
     import {
         ShieldCheck,
         Smartphone,
@@ -13,8 +14,6 @@
         LogOut,
         ArrowRight,
         Layers,
-        CheckCircle2,
-        UserCheck,
         AlertTriangle,
         Activity,
 } from '@lucide/svelte';
@@ -22,15 +21,29 @@
 
     type Stat = {
         totalDevices: number;
-        verifiedDevices: number;
-        totalUsers: number;
+        totalBrands: number;
+        activeToday: number;
+        totalRegistered: number;
+        checkedThisMonth: number;
         maintenanceCount: number;
+        totalUsers: number;
     };
 
     let { stats }: { stats: Stat } = $props();
 
+    let isMobile = $state(false);
+
+    $effect(() => {
+        const mq = window.matchMedia('(max-width: 640px)');
+        isMobile = mq.matches;
+        const handler = (e: MediaQueryListEvent) => { isMobile = e.matches; };
+        mq.addEventListener('change', handler);
+        return () => { mq.removeEventListener('change', handler); };
+    });
+
     const menuCards = [
         {
+            key: 'check-device',
             icon: ShieldCheck,
             label: 'Check Device',
             description: 'Verifikasi dan periksa perangkat',
@@ -42,8 +55,10 @@
             iconHover: 'group-hover:bg-emerald-500/30',
             glow: 'shadow-emerald-500/20',
             badge: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300',
+            spotlightColor: 'rgba(16, 185, 129, 0.2)',
         },
         {
+            key: 'list-device',
             icon: Smartphone,
             label: 'List Device',
             description: 'Daftar, tambah, dan hapus perangkat',
@@ -55,8 +70,10 @@
             iconHover: 'group-hover:bg-pink-500/30',
             glow: 'shadow-pink-500/20',
             badge: 'bg-pink-500/15 text-pink-600 dark:text-pink-300',
+            spotlightColor: 'rgba(236, 72, 153, 0.2)',
         },
         {
+            key: 'admin-list',
             icon: Users,
             label: 'Admin List',
             description: 'Kelola pengguna admin',
@@ -68,8 +85,10 @@
             iconHover: 'group-hover:bg-violet-500/30',
             glow: 'shadow-violet-500/20',
             badge: 'bg-violet-500/15 text-violet-600 dark:text-violet-300',
+            spotlightColor: 'rgba(139, 92, 246, 0.2)',
         },
         {
+            key: 'maintenance',
             icon: Wrench,
             label: 'Maintenance',
             description: 'Perawatan perangkat (fisik, layar, kamera, body)',
@@ -81,45 +100,56 @@
             iconHover: 'group-hover:bg-amber-500/30',
             glow: 'shadow-amber-500/20',
             badge: 'bg-amber-500/15 text-amber-600 dark:text-amber-300',
+            spotlightColor: 'rgba(245, 158, 11, 0.2)',
         },
     ] as const;
 
     const overviewCards = [
         {
-            label: 'Total Devices',
+            key: 'total-devices',
+            label: 'Total Device',
             value: stats.totalDevices,
             icon: Layers,
             gradient: 'from-pink-500/20 to-pink-600/5',
             iconBg: 'bg-pink-500/20 text-pink-400',
             border: 'border-pink-500/20',
-            badge: 'Semua perangkat',
+            badge: 'All devices',
+            spotlightColor: 'rgba(236, 72, 153, 0.18)',
         },
         {
-            label: 'Verified Devices',
-            value: stats.verifiedDevices,
-            icon: CheckCircle2,
+            key: 'active-today',
+            label: 'Device Aktif Hari Ini',
+            value: stats.activeToday,
+            subValue: stats.totalRegistered,
+            subLabel: 'registered',
+            icon: Activity,
             gradient: 'from-emerald-500/20 to-emerald-600/5',
             iconBg: 'bg-emerald-500/20 text-emerald-400',
             border: 'border-emerald-500/20',
-            badge: 'Terverifikasi',
+            badge: 'Today',
+            spotlightColor: 'rgba(16, 185, 129, 0.18)',
         },
         {
-            label: 'Total Users',
-            value: stats.totalUsers,
-            icon: UserCheck,
+            key: 'checked-month',
+            label: 'Checked This Month',
+            value: stats.checkedThisMonth,
+            icon: ShieldCheck,
             gradient: 'from-violet-500/20 to-violet-600/5',
             iconBg: 'bg-violet-500/20 text-violet-400',
             border: 'border-violet-500/20',
-            badge: 'Pengguna terdaftar',
+            badge: 'Bulan Ini',
+            spotlightColor: 'rgba(139, 92, 246, 0.18)',
         },
         {
-            label: 'In Maintenance',
+            key: 'in-maintenance',
+            label: 'Dalam Perbaikan',
             value: stats.maintenanceCount,
-            icon: AlertTriangle,
+            icon: Wrench,
             gradient: 'from-amber-500/20 to-amber-600/5',
             iconBg: 'bg-amber-500/20 text-amber-400',
             border: 'border-amber-500/20',
-            badge: stats.maintenanceCount === 0 ? 'Tidak ada' : 'Butuh perhatian',
+            badge: stats.maintenanceCount === 0 ? 'None' : 'Needs attention',
+            spotlightColor: 'rgba(245, 158, 11, 0.18)',
         },
     ] as const;
 
@@ -197,29 +227,55 @@
         <!-- ──────── Stat Overview Cards ──────── -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {#each overviewCards as card, i}
-                <Card.Root
-                    class="relative overflow-hidden border {card.border} bg-card/70 backdrop-blur-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 {card.gradient} animate-fade-up"
+                <TiltCard
+                    tiltLimit={8}
+                    scale={1.02}
+                    perspective={1000}
+                    forceActive={isMobile}
+                    spotlightColor={card.spotlightColor}
+                    class="animate-fade-up"
                     style="animation-delay: {i * 75}ms"
                 >
-                    <!-- Decorative gradient bar on top -->
-                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r {card.gradient}" />
+                    <Card.Root
+                        class="relative overflow-hidden border {card.border} bg-card/70 backdrop-blur-xl shadow-lg transition-all duration-300 hover:shadow-xl {isMobile ? '' : 'hover:-translate-y-0.5'}"
+                    >
+                        <!-- Decorative gradient bar on top -->
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r {card.gradient}" />
 
-                    <Card.Header class="flex flex-row items-center justify-between pb-2">
-                        <Card.Title class="text-sm font-medium text-muted-foreground tracking-wide uppercase">
-                            {card.label}
-                        </Card.Title>
-                        <div class="size-9 rounded-lg {card.iconBg} flex items-center justify-center">
-                            <card.icon class="size-4" />
-                        </div>
-                    </Card.Header>
-                    <Card.Content>
-                        <div class="text-4xl font-bold tracking-tight">{card.value}</div>
-                        <p class="text-xs text-muted-foreground/70 mt-1.5 flex items-center gap-1">
-                            <span class="size-1.5 rounded-full bg-current opacity-40" />
-                            {card.badge}
-                        </p>
-                    </Card.Content>
-                </Card.Root>
+                        <Card.Header class="flex flex-row items-center justify-between pb-2">
+                            <Card.Title class="text-sm font-medium text-muted-foreground tracking-wide uppercase">
+                                {card.label}
+                            </Card.Title>
+                            <div class="size-9 rounded-lg {card.iconBg} flex items-center justify-center">
+                                <card.icon class="size-4" />
+                            </div>
+                        </Card.Header>
+                        <Card.Content>
+                            {#if 'subValue' in card}
+                                <!-- Card 2: Active Today with sub-info -->
+                                <div class="flex items-baseline gap-1.5">
+                                    <span class="text-4xl font-bold tracking-tight">{card.value}</span>
+                                    <span class="text-sm text-muted-foreground/60 font-medium">/ device active</span>
+                                </div>
+                                <div class="mt-2 flex items-center gap-1.5 text-xs">
+                                    <span class="font-semibold text-emerald-400">{card.subValue}</span>
+                                    <span class="text-muted-foreground/60">{card.subLabel}</span>
+                                    <span class="size-1 rounded-full bg-muted-foreground/20" />
+                                    <span class="text-xs text-muted-foreground/70 flex items-center gap-1">
+                                        <span class="size-1.5 rounded-full bg-current opacity-40" />
+                                        {card.badge}
+                                    </span>
+                                </div>
+                            {:else}
+                                <div class="text-4xl font-bold tracking-tight">{card.value}</div>
+                                <p class="text-xs text-muted-foreground/70 mt-1.5 flex items-center gap-1">
+                                    <span class="size-1.5 rounded-full bg-current opacity-40" />
+                                    {card.badge}
+                                </p>
+                            {/if}
+                        </Card.Content>
+                    </Card.Root>
+                </TiltCard>
             {/each}
         </div>
 
@@ -233,43 +289,53 @@
         <!-- ──────── Menu Cards ──────── -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {#each menuCards as card, i}
-                <!-- svelte-ignore a11y_click_events_have_key_events -->
-                <div
-                    role="button"
-                    tabindex="0"
-                    onclick={() => navigate(card.route)}
-                    onkeydown={(e) => e.key === 'Enter' && navigate(card.route)}
-                    class="group relative cursor-pointer rounded-2xl border-2 {card.border} bg-card/70 backdrop-blur-xl p-7 flex flex-col items-center gap-4 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl {card.glow} animate-fade-up overflow-hidden"
+                <TiltCard
+                    tiltLimit={12}
+                    scale={1.03}
+                    perspective={1000}
+                    effect="gravitate"
+                    forceActive={isMobile}
+                    spotlightColor={card.spotlightColor}
+                    class="animate-fade-up"
                     style="animation-delay: {i * 100}ms"
                 >
-                    <!-- Hover gradient overlay -->
-                    <div class="absolute inset-0 bg-gradient-to-b {card.gradientLight} opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <div
+                        role="button"
+                        tabindex="0"
+                        onclick={() => navigate(card.route)}
+                        onkeydown={(e) => e.key === 'Enter' && navigate(card.route)}
+                        class="group relative cursor-pointer rounded-2xl border-2 {card.border} bg-card/70 backdrop-blur-xl p-7 flex flex-col items-center gap-4 text-center transition-all duration-300 {isMobile ? '' : 'hover:-translate-y-2 hover:shadow-2xl'} {card.glow} overflow-hidden"
+                    >
+                        <!-- Hover gradient overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-b {card.gradientLight} {isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity duration-300" />
 
-                    <!-- Corner accent -->
-                    <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl {card.gradientLight} rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <!-- Corner accent -->
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl {card.gradientLight} rounded-bl-full {isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity duration-300" />
 
-                    <div class="relative z-10 flex flex-col items-center gap-4">
-                        <!-- Icon -->
-                        <div class="size-16 rounded-2xl flex items-center justify-center {card.iconBg} {card.iconHover} group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
-                            <card.icon class="size-7" />
-                        </div>
+                        <div class="relative z-10 flex flex-col items-center gap-4">
+                            <!-- Icon -->
+                            <div class="size-16 rounded-2xl flex items-center justify-center {card.iconBg} {isMobile ? 'bg-opacity-40 shadow-lg scale-110' : card.iconHover} {isMobile ? 'scale-110 shadow-lg' : 'group-hover:scale-110 group-hover:shadow-lg'} transition-all duration-300">
+                                <card.icon class="size-7" />
+                            </div>
 
-                        <!-- Label & Description -->
-                        <div>
-                            <div class="font-semibold text-lg">{card.label}</div>
-                            <p class="text-xs text-muted-foreground/70 mt-1 leading-relaxed">
-                                {card.description}
-                            </p>
-                        </div>
+                            <!-- Label & Description -->
+                            <div>
+                                <div class="font-semibold text-lg">{card.label}</div>
+                                <p class="text-xs text-muted-foreground/70 mt-1 leading-relaxed">
+                                    {card.description}
+                                </p>
+                            </div>
 
-                        <!-- Action indicator -->
-                        <div class="mt-auto pt-2 relative z-10">
-                            <div class="p-2.5 rounded-full bg-muted/30 group-hover:bg-background/40 transition-colors duration-300 ring-1 ring-border/30 group-hover:ring-0">
-                                <ArrowRight class="size-5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1.5 group-hover:-translate-y-0.5 transition-all duration-300" />
+                            <!-- Action indicator -->
+                            <div class="mt-auto pt-2 relative z-10">
+                                <div class="p-2.5 rounded-full bg-muted/30 {isMobile ? 'bg-background/40' : 'group-hover:bg-background/40'} transition-colors duration-300 ring-1 ring-border/30 {isMobile ? 'ring-0' : 'group-hover:ring-0'}">
+                                    <ArrowRight class="size-5 {isMobile ? 'text-foreground translate-x-1.5 -translate-y-0.5' : 'text-muted-foreground group-hover:text-foreground group-hover:translate-x-1.5 group-hover:-translate-y-0.5'} transition-all duration-300" />
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </TiltCard>
             {/each}
         </div>
 
@@ -277,16 +343,16 @@
         <div class="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl p-6 animate-fade-up delay-375">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-pink-400">{stats.totalDevices}</div>
-                    <p class="text-xs text-muted-foreground mt-1">Brand Terdaftar</p>
+                    <div class="text-2xl font-bold text-pink-400">{stats.totalBrands}</div>
+                    <p class="text-xs text-muted-foreground mt-1">Total Brands</p>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-emerald-400">{stats.verifiedDevices}</div>
-                    <p class="text-xs text-muted-foreground mt-1">Perangkat Aktif</p>
+                    <div class="text-2xl font-bold text-emerald-400">{stats.activeToday}</div>
+                    <p class="text-xs text-muted-foreground mt-1">Aktif Hari Ini</p>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-violet-400">{stats.totalUsers}</div>
-                    <p class="text-xs text-muted-foreground mt-1">Pengguna</p>
+                    <div class="text-2xl font-bold text-violet-400">{stats.checkedThisMonth}</div>
+                    <p class="text-xs text-muted-foreground mt-1">Checked This Month</p>
                 </div>
                 <div class="text-center">
                     <div class="text-2xl font-bold text-amber-400">{stats.maintenanceCount}</div>

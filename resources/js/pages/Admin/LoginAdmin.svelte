@@ -25,7 +25,7 @@
                 await toast.success('Login berhasil! Mengalihkan ke dashboard...')
                 setTimeout(() => {
                 router.visit(routeUrl(dashboard()));
-                }, 2000) // Beri jeda agar toast terlihat
+                }, 1000) // Beri jeda agar toast terlihat
             },
         });
     }
