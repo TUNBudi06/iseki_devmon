@@ -703,15 +703,19 @@
     }
 
     @media (max-width: 640px) {
-        :global(.svelte-simple-datatable table),
-        :global(.svelte-simple-datatable thead),
+        :global(.svelte-simple-datatable) { height: auto !important; }
+        :global(.svelte-simple-datatable article) {
+            overflow: visible !important;
+            height: auto !important;
+        }
+        :global(.svelte-simple-datatable table) { display: block !important; }
+        :global(.svelte-simple-datatable thead) { display: none !important; }
         :global(.svelte-simple-datatable tbody),
         :global(.svelte-simple-datatable tr),
         :global(.svelte-simple-datatable th),
         :global(.svelte-simple-datatable td) {
             display: block;
         }
-        :global(.svelte-simple-datatable thead) { display: none; }
         :global(.svelte-simple-datatable tbody tr) {
             margin-bottom: 12px;
             padding: 12px;

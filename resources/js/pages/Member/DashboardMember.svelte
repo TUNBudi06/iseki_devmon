@@ -137,20 +137,20 @@
                         <CheckCircle2 class="size-5 text-emerald-500" />
                         <span class="font-semibold text-emerald-600 dark:text-emerald-400 text-sm">Terakhir Absen</span>
                     </div>
-                    <div class="grid grid-cols-3 gap-x-4 gap-y-2 text-sm">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
                         <div class="flex items-center gap-2">
                             <User class="size-4 text-muted-foreground shrink-0" />
-                            <span class="text-muted-foreground">Nama:</span>
-                            <span class="font-medium">{deviceLatest.name}</span>
+                            <span class="text-muted-foreground shrink-0">Nama:</span>
+                            <span class="font-medium truncate">{deviceLatest.name}</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <IdCard class="size-4 text-muted-foreground shrink-0" />
-                            <span class="text-muted-foreground">NIK:</span>
+                            <span class="text-muted-foreground shrink-0">NIK:</span>
                             <span class="font-medium font-mono">{deviceLatest.nik}</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <Clock class="size-4 text-muted-foreground shrink-0" />
-                            <span class="text-muted-foreground">Jam:</span>
+                            <span class="text-muted-foreground shrink-0">Jam:</span>
                             <span class="font-medium font-mono">{deviceLatest.time_absence}</span>
                         </div>
                     </div>
@@ -416,15 +416,19 @@
     }
 
     @media (max-width: 640px) {
-        :global(.svelte-simple-datatable table),
-        :global(.svelte-simple-datatable thead),
+        :global(.svelte-simple-datatable) { height: auto !important; }
+        :global(.svelte-simple-datatable article) {
+            overflow: visible !important;
+            height: auto !important;
+        }
+        :global(.svelte-simple-datatable table) { display: block !important; }
+        :global(.svelte-simple-datatable thead) { display: none !important; }
         :global(.svelte-simple-datatable tbody),
         :global(.svelte-simple-datatable tr),
         :global(.svelte-simple-datatable th),
         :global(.svelte-simple-datatable td) {
             display: block;
         }
-        :global(.svelte-simple-datatable thead) { display: none; }
         :global(.svelte-simple-datatable tbody tr) {
             margin-bottom: 12px;
             padding: 12px;
