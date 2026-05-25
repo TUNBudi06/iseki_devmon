@@ -233,12 +233,12 @@
                         <tbody>
                             {#each adminTable.rows as row (row.id)}
                                 <tr>
-                                    <td class="text-muted-foreground font-mono text-xs">
+                                    <td data-label="#" class="text-muted-foreground font-mono text-xs">
                                         <span class="inline-flex items-center justify-center size-7 rounded-md bg-muted/40 text-xs font-medium">
                                             {filteredUsers.indexOf(row) + 1}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label="#">
                                         <div class="flex items-center gap-3">
                                             <div class="size-10 rounded-full bg-gradient-to-br from-violet-500/20 to-pink-500/20 flex items-center justify-center shrink-0 ring-1 ring-violet-500/20">
                                                 <User class="size-4 text-violet-400" />
@@ -249,19 +249,19 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-label="Username">
                                         <Badge variant="outline" class="font-mono text-xs bg-violet-500/10 border-violet-300/30 text-violet-600 gap-1.5">
                                             <Fingerprint class="size-3" />
                                             @{row.username}
                                         </Badge>
                                     </td>
-                                    <td class="text-sm text-muted-foreground">
+                                    <td data-label="Created" class="text-sm text-muted-foreground">
                                         <span class="inline-flex items-center gap-1.5">
                                             <CalendarDays class="size-3.5 text-muted-foreground/60 shrink-0" />
                                             {formatDate(row.created_at)}
                                         </span>
                                     </td>
-                                    <td class="text-right">
+                                    <td data-label="Actions" class="text-right">
                                         <div class="flex items-center justify-end gap-1">
                                             <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-violet-500 hover:bg-violet-500/10" onclick={() => openEdit(row)}>
                                                 <Edit class="size-3.5" />
@@ -462,4 +462,40 @@
     :global(.svelte-simple-datatable tbody td:last-child) { border-right: none; }
     :global(.svelte-simple-datatable u.highlight) { text-decoration: none; background: rgba(251, 192, 45, 0.6); border-radius: 2px; }
     :global(.svelte-simple-datatable footer.divider) { border-top: 1px solid var(--grey, #e0e0e0); }
+
+    @media (max-width: 640px) {
+        :global(.svelte-simple-datatable table),
+        :global(.svelte-simple-datatable thead),
+        :global(.svelte-simple-datatable tbody),
+        :global(.svelte-simple-datatable tr),
+        :global(.svelte-simple-datatable th),
+        :global(.svelte-simple-datatable td) {
+            display: block;
+        }
+        :global(.svelte-simple-datatable thead) { display: none; }
+        :global(.svelte-simple-datatable tbody tr) {
+            margin-bottom: 12px;
+            padding: 12px;
+            border: 1px solid var(--grey-lighten, #eee);
+            border-radius: 12px;
+            background: inherit;
+        }
+        :global(.svelte-simple-datatable tbody td) {
+            padding: 6px 4px;
+            border: none !important;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        :global(.svelte-simple-datatable tbody td:before) {
+            content: attr(data-label);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--font-grey, #9e9e9e);
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+    }
 </style>

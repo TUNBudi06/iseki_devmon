@@ -1386,4 +1386,40 @@
     :global(.svelte-simple-datatable tbody td:last-child) { border-right: none; }
     :global(.svelte-simple-datatable u.highlight) { text-decoration: none; background: rgba(251, 192, 45, 0.6); border-radius: 2px; }
     :global(.svelte-simple-datatable footer.divider) { border-top: 1px solid var(--grey, #e0e0e0); }
+
+    @media (max-width: 640px) {
+        :global(.svelte-simple-datatable table),
+        :global(.svelte-simple-datatable thead),
+        :global(.svelte-simple-datatable tbody),
+        :global(.svelte-simple-datatable tr),
+        :global(.svelte-simple-datatable th),
+        :global(.svelte-simple-datatable td) {
+            display: block;
+        }
+        :global(.svelte-simple-datatable thead) { display: none; }
+        :global(.svelte-simple-datatable tbody tr) {
+            margin-bottom: 12px;
+            padding: 12px;
+            border: 1px solid var(--grey-lighten, #eee);
+            border-radius: 12px;
+            background: inherit;
+        }
+        :global(.svelte-simple-datatable tbody td) {
+            padding: 6px 4px;
+            border: none !important;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        :global(.svelte-simple-datatable tbody td:before) {
+            content: attr(data-label);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--font-grey, #9e9e9e);
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+    }
 </style>
