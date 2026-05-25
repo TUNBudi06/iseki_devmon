@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { router } from '@inertiajs/svelte';
+    import { router, useHttp } from '@inertiajs/svelte';
     import { Fingerprint, Smartphone, ArrowRight, ArrowLeft, AlertCircle, IdCard, Lock, CheckCircle2 } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
+    import { toast } from 'svelte-sonner';
 
     import LayoutBG from '$/components/LayoutBG.svelte';
     import { Button } from '$shadcn/components/ui/button';
@@ -11,8 +12,8 @@
     import * as Alert from '$shadcn/components/ui/alert';
     import { Badge } from '$shadcn/components/ui/badge';
     import { home } from '$routes';
-    import { dashboard } from '$routes/user';
     import loginMember from '$routes/user/loginMember';
+    import { dashboard } from '$routes/user';
 
     type DeviceInfo = {
         model_id: string;
@@ -23,9 +24,8 @@
 
     let { device, error: serverError }: { device: DeviceInfo | null; error: string | null } = $props();
 
-    let nik = $state('');
-    let password = $state('');
-    let isLoading = $state(false);
+    const http = useHttp({ nik: '', password: '' });
+
     let localError = $state('');
 
     let blocked = $derived(!device || !device.approved || !device.registered || !!serverError);
@@ -33,32 +33,29 @@
 
     function handleNIKInput(e: Event) {
         const input = e.target as HTMLInputElement;
-        nik = input.value.replace(/\D/g, '').slice(0, 6);
+        http.nik = input.value.replace(/\D/g, '').slice(0, 6);
     }
 
-    async function handleSubmit() {
-        if (nik.length !== 6 || !password) {
+    function handleSubmit(e:Event) {
+        e.preventDefault() // just because forgot this this page is automaticly reloading fuck
+        if (http.nik.length !== 6 || !http.password) {
             localError = 'Harap isi NIK (6 digit) dan password';
             return;
         }
 
-        isLoading = true;
         localError = '';
 
-        router.post(loginMember.store(deviceId).url, {
-            nik: nik,
-            password: password,
-        }, {
+        http.post(loginMember.store(deviceId).url, {
             onSuccess: () => {
-                router.visit(dashboard(deviceId).url);
+                toast.success('Absensi berhasil! Terima kasih telah melakukan absensi hari ini.');
+                setTimeout(() => {
+                    router.visit(dashboard(deviceId).url);
+                }, 1000);
             },
             onError: (errors) => {
                 localError = errors.error || errors.message || 'Terjadi kesalahan';
-                isLoading = false;
+                console.error((errors))
             },
-            onFinish: () => {
-                isLoading = false;
-            }
         });
     }
 
@@ -120,12 +117,12 @@
                                 id="nik"
                                 type="text"
                                 inputmode="numeric"
-                                bind:value={nik}
+                                value={http.nik}
                                 oninput={handleNIKInput}
                                 placeholder="6 digit NIK"
                                 maxlength={6}
                                 class="pl-10 font-mono tracking-widest text-center"
-                                disabled={blocked}
+                                disabled={blocked || http.processing}
                             />
                         </div>
                     </div>
@@ -134,12 +131,12 @@
                         <Label for="password">Password</Label>
                         <div class="relative">
                             <Lock class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                            <Input id="password" type="password" bind:value={password} placeholder="Password" class="pl-10" disabled={blocked} />
+                            <Input id="password" type="password" bind:value={http.password} placeholder="Password" class="pl-10" disabled={blocked || http.processing} />
                         </div>
                     </div>
 
-                    <Button type="submit" class="w-full gap-2" disabled={isLoading || blocked}>
-                        {#if isLoading}
+                    <Button type="submit" class="w-full gap-2" disabled={http.processing || blocked}>
+                        {#if http.processing}
                             <div class="size-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Memproses...
                         {:else}
                             <CheckCircle2 class="size-4" />

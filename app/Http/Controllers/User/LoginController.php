@@ -59,15 +59,6 @@ class LoginController extends Controller
             return response()->json(['message' => 'Password salah.'], 422);
         }
 
-        $alreadyAbsent = Absence::where('nik', $validated['nik'])
-            ->where('device_id', $deviceId)
-            ->whereDate('time_absence', today())
-            ->exists();
-
-        if ($alreadyAbsent) {
-            return response()->json(['message' => 'Anda sudah melakukan absensi hari ini.'], 422);
-        }
-
         Absence::create([
             'device_id' => $deviceId,
             'nik' => $validated['nik'],
@@ -75,7 +66,7 @@ class LoginController extends Controller
             'time_absence' => now(),
         ]);
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'device_id' => $deviceId]);
     }
 
     public function dashboard(string $deviceId)
@@ -83,7 +74,7 @@ class LoginController extends Controller
         $device = PhoneList::where('model_id', $deviceId)->first();
 
         if (! $device || ! $device->approved || ! $device->registered) {
-            return redirect()->route('home');
+            return redirect()->route('user.deviceNotRegister');
         }
 
         // Latest absence on THIS device today
