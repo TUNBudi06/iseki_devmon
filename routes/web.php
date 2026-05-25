@@ -32,6 +32,7 @@ Route::prefix('user')->group(function () {
     Route::prefix('absence/{device_id}')->group(function () {
         Route::get('/', [LoginController::class, 'index'])->name('user.loginMember');
         Route::post('/', [LoginController::class, 'store'])->name('user.loginMember.store');
+        Route::get('input', [LoginController::class, 'inputForm'])->name('user.loginMember.input');
     });
     Route::prefix('dashboard/{device_id}')->group(function () {
         Route::get('/', [LoginController::class, 'dashboard'])->name('user.dashboard');

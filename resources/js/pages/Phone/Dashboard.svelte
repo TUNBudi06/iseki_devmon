@@ -43,7 +43,7 @@
     };
 
     // ─── Props ──────────────────────────────────────────────────
-    let { devices: rawDevices }: { devices: PhoneListItem[] } = $props();
+    let { devices: rawDevices, latestAbsences, todayActiveDeviceIds }: { devices: PhoneListItem[]; latestAbsences: Record<string, { latest_user: string; latest_user_nik: string; latest_time: string }>; todayActiveDeviceIds: string[] } = $props();
 
     type PhoneListItem = {
         id: number;
@@ -74,21 +74,26 @@
     }
 
     // ─── Map PhoneList data to Device ───────────────────────────
+    const todayActiveSet = $derived(new Set(todayActiveDeviceIds));
+
     const devices: Device[] = $derived(
-        rawDevices.map((p): Device => ({
-            id: p.model_id,
-            name: p.model_name,
-            photo: assetUrl(p.thumbnail) ?? (p.list_photos?.[0] ? assetUrl(p.list_photos[0]) : undefined) ?? undefined,
-            photos: p.list_photos?.map((photo) => assetUrl(photo)).filter(Boolean) as string[] | undefined,
-            battery: 0,
-            user: null,
-            ram: p.ram,
-            storage: p.storage,
-            status: p.deleted_at ? 'inactive' : 'active',
-            registered: p.registered,
-            type: p.model_type.toLowerCase() as DeviceType,
-            brand: p.brand ? { name: p.brand.name } : null,
-        })),
+        rawDevices.map((p): Device => {
+            const abs = latestAbsences?.[p.model_id];
+            return {
+                id: p.model_id,
+                name: p.model_name,
+                photo: assetUrl(p.thumbnail) ?? (p.list_photos?.[0] ? assetUrl(p.list_photos[0]) : undefined) ?? undefined,
+                photos: p.list_photos?.map((photo) => assetUrl(photo)).filter(Boolean) as string[] | undefined,
+                battery: 0,
+                user: abs?.latest_user ?? null,
+                ram: p.ram,
+                storage: p.storage,
+                status: p.deleted_at || !todayActiveSet.has(p.model_id) ? 'inactive' : 'active',
+                registered: p.registered,
+                type: p.model_type.toLowerCase() as DeviceType,
+                brand: p.brand ? { name: p.brand.name } : null,
+            };
+        }),
     );
 
     // ─── State ──────────────────────────────────────────────────

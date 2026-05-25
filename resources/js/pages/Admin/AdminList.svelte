@@ -1,8 +1,8 @@
 <script lang="ts">
     import { router, useHttp } from '@inertiajs/svelte';
+    import { TableHandler, Datatable, ThSort, ThFilter, Th } from '@vincjo/datatables';
     import { Button } from '$shadcn/components/ui/button';
     import * as Card from '$shadcn/components/ui/card';
-    import * as Table from '$shadcn/components/ui/table';
     import { Input } from '$shadcn/components/ui/input';
     import { Label } from '$shadcn/components/ui/label';
     import { Badge } from '$shadcn/components/ui/badge';
@@ -57,6 +57,10 @@
                 u.name.toLowerCase().includes(q) ||
                 u.username.toLowerCase().includes(q),
         );
+    });
+
+    const adminTable = $derived.by(() => {
+        return filteredUsers.length > 0 ? new TableHandler(filteredUsers, { rowsPerPage: 10 }) : null;
     });
 
     function goBack() {
@@ -207,87 +211,71 @@
                         </Button>
                     {/if}
                 </div>
-            {:else}
-                <div class="overflow-x-auto">
-                    <Table.Root>
-                        <Table.Header>
-                            <Table.Row class="border-border/40 bg-gradient-to-r from-violet-500/5 to-pink-500/5">
-                                <Table.Head class="font-semibold text-xs uppercase tracking-wider text-violet-600/80 w-12">#</Table.Head>
-                                <Table.Head class="font-semibold text-xs uppercase tracking-wider text-violet-600/80">Name</Table.Head>
-                                <Table.Head class="font-semibold text-xs uppercase tracking-wider text-violet-600/80">Username</Table.Head>
-                                <Table.Head class="font-semibold text-xs uppercase tracking-wider text-violet-600/80">Created At</Table.Head>
-                                <Table.Head class="text-right font-semibold text-xs uppercase tracking-wider text-violet-600/80">Actions</Table.Head>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {#each filteredUsers as user, idx (user.id)}
-                                <Table.Row class="border-border/30 hover:bg-gradient-to-r hover:from-violet-500/5 hover:to-pink-500/5 transition-all duration-150">
-                                    <Table.Cell class="text-muted-foreground text-sm font-mono">
+            {:else if adminTable}
+                <Datatable basic table={adminTable}>
+                    <table>
+                        <thead>
+                            <tr>
+                                <Th>#</Th>
+                                <ThSort table={adminTable} field="name">Name</ThSort>
+                                <ThSort table={adminTable} field="username">Username</ThSort>
+                                <ThSort table={adminTable} field="created_at">Created At</ThSort>
+                                <Th>Actions</Th>
+                            </tr>
+                            <tr>
+                                <Th></Th>
+                                <ThFilter table={adminTable} field="name" />
+                                <ThFilter table={adminTable} field="username" />
+                                <ThFilter table={adminTable} field="created_at" />
+                                <Th></Th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#each adminTable.rows as row (row.id)}
+                                <tr>
+                                    <td class="text-muted-foreground font-mono text-xs">
                                         <span class="inline-flex items-center justify-center size-7 rounded-md bg-muted/40 text-xs font-medium">
-                                            {idx + 1}
+                                            {filteredUsers.indexOf(row) + 1}
                                         </span>
-                                    </Table.Cell>
-                                    <Table.Cell>
+                                    </td>
+                                    <td>
                                         <div class="flex items-center gap-3">
                                             <div class="size-10 rounded-full bg-gradient-to-br from-violet-500/20 to-pink-500/20 flex items-center justify-center shrink-0 ring-1 ring-violet-500/20">
                                                 <User class="size-4 text-violet-400" />
                                             </div>
                                             <div>
-                                                <span class="font-medium">{user.name}</span>
-                                                <p class="text-xs text-muted-foreground/60 mt-0.5">
-                                                    ID: #{user.id}
-                                                </p>
+                                                <span class="font-medium">{row.name}</span>
+                                                <p class="text-xs text-muted-foreground/60 mt-0.5">ID: #{row.id}</p>
                                             </div>
                                         </div>
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        <Badge variant="outline" class="font-mono text-xs bg-violet-500/10 border-violet-300/30 text-violet-600 dark:text-violet-300 gap-1.5">
+                                    </td>
+                                    <td>
+                                        <Badge variant="outline" class="font-mono text-xs bg-violet-500/10 border-violet-300/30 text-violet-600 gap-1.5">
                                             <Fingerprint class="size-3" />
-                                            @{user.username}
+                                            @{row.username}
                                         </Badge>
-                                    </Table.Cell>
-                                    <Table.Cell class="text-sm text-muted-foreground">
+                                    </td>
+                                    <td class="text-sm text-muted-foreground">
                                         <span class="inline-flex items-center gap-1.5">
                                             <CalendarDays class="size-3.5 text-muted-foreground/60 shrink-0" />
-                                            {formatDate(user.created_at)}
+                                            {formatDate(row.created_at)}
                                         </span>
-                                    </Table.Cell>
-                                    <Table.Cell class="text-right">
+                                    </td>
+                                    <td class="text-right">
                                         <div class="flex items-center justify-end gap-1">
-                                            <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                class="size-8 text-muted-foreground hover:text-violet-500 hover:bg-violet-500/10"
-                                                onclick={() => openEdit(user)}
-                                            >
+                                            <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-violet-500 hover:bg-violet-500/10" onclick={() => openEdit(row)}>
                                                 <Edit class="size-3.5" />
                                             </Button>
-                                            <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
-                                                onclick={() => openDelete(user)}
-                                            >
+                                            <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10" onclick={() => openDelete(row)}>
                                                 <Trash2 class="size-3.5" />
                                             </Button>
                                         </div>
-                                    </Table.Cell>
-                                </Table.Row>
+                                    </td>
+                                </tr>
                             {/each}
-                        </Table.Body>
-                    </Table.Root>
-                </div>
-
-                <!-- Table footer with count -->
-                <div class="px-6 py-3 border-t border-border/30 bg-muted/10 flex items-center justify-between">
-                    <p class="text-xs text-muted-foreground">
-                        Menampilkan {filteredUsers.length} dari {users.length} admin
-                    </p>
-                    <Badge variant="outline" class="text-xs bg-violet-500/8 border-violet-300/30 text-violet-600 dark:text-violet-300">
-                        <ShieldCheck class="size-3 mr-1" />
-                        Admin
-                    </Badge>
-                </div>
+                        </tbody>
+                    </table>
+                </Datatable>
             {/if}
         </Card.Root>
     </div>
@@ -460,3 +448,18 @@
         </Card.Root>
     </div>
 {/if}
+
+<style>
+    :global(.svelte-simple-datatable table) { border-collapse: separate; border-spacing: 0; width: 100%; background: inherit; }
+    :global(.svelte-simple-datatable table thead) { position: sticky; inset-block-start: 0; background: inherit; z-index: 1; }
+    :global(.svelte-simple-datatable thead tr) { background: inherit; }
+    :global(.svelte-simple-datatable thead tr th) { background: inherit; }
+    :global(.svelte-simple-datatable thead tr:first-child th) { padding: 8px 20px; background: inherit; }
+    :global(.svelte-simple-datatable tbody) { background: inherit; }
+    :global(.svelte-simple-datatable tbody tr) { transition: background, 0.2s; background: inherit; }
+    :global(.svelte-simple-datatable tbody tr:hover) { background: var(--grey-lighten-3, #fafafa); }
+    :global(.svelte-simple-datatable tbody td) { padding: 4px 20px; border-right: 1px solid var(--grey-lighten, #eee); border-bottom: 1px solid var(--grey-lighten, #eee); background: inherit; }
+    :global(.svelte-simple-datatable tbody td:last-child) { border-right: none; }
+    :global(.svelte-simple-datatable u.highlight) { text-decoration: none; background: rgba(251, 192, 45, 0.6); border-radius: 2px; }
+    :global(.svelte-simple-datatable footer.divider) { border-top: 1px solid var(--grey, #e0e0e0); }
+</style>

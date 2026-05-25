@@ -3,7 +3,7 @@
     import storage from '$routes/storage';
     import { Button } from '$shadcn/components/ui/button';
     import * as Card from '$shadcn/components/ui/card';
-    import * as Table from '$shadcn/components/ui/table';
+    import { TableHandler, Datatable, ThSort, ThFilter, Th } from '@vincjo/datatables';
     import { Input } from '$shadcn/components/ui/input';
     import { Label } from '$shadcn/components/ui/label';
     import { Badge } from '$shadcn/components/ui/badge';
@@ -191,6 +191,9 @@
                 p.model_type.toLowerCase().includes(q),
         );
     });
+
+    const brandsTable = $derived(filteredBrands.length > 0 ? new TableHandler(filteredBrands, { rowsPerPage: 10 }) : null);
+    const phonesTable = $derived(filteredPhones.length > 0 ? new TableHandler(filteredPhones, { rowsPerPage: 10 }) : null);
 
     // ─── Helpers ─────────────────────────────────────────────────
     function formatPrice(val: string): string {
@@ -580,59 +583,53 @@
                             </Button>
                         {/if}
                     </div>
-                {:else}
-                    <div class="overflow-x-auto">
-                        <Table.Root>
-                            <Table.Header>
-                                <Table.Row class="border-border/40 bg-pink-500/5">
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">Device ID</Table.Head>
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">Name</Table.Head>
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">Created</Table.Head>
-                                    <Table.Head class="text-right font-semibold text-xs uppercase tracking-wider text-pink-600/80">Actions</Table.Head>
-                                </Table.Row>
-                            </Table.Header>
-                            <Table.Body>
-                                {#each filteredBrands as brand (brand.id)}
-                                    <Table.Row class="border-border/30 hover:bg-pink-500/5 transition-colors duration-150">
-                                        <Table.Cell>
-                                            <Badge variant="outline" class="font-mono text-xs bg-pink-500/8 border-pink-300/30 text-pink-600 dark:text-pink-300">
+                {:else if brandsTable}
+                    <Datatable basic table={brandsTable}>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <ThSort table={brandsTable} field="id">Device ID</ThSort>
+                                    <ThSort table={brandsTable} field="name">Name</ThSort>
+                                    <ThSort table={brandsTable} field="created_at">Created</ThSort>
+                                    <Th>Actions</Th>
+                                </tr>
+                                <tr>
+                                    <ThFilter table={brandsTable} field="id" />
+                                    <ThFilter table={brandsTable} field="name" />
+                                    <ThFilter table={brandsTable} field="created_at" />
+                                    <Th></Th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {#each brandsTable.rows as brand (brand.id)}
+                                    <tr>
+                                        <td>
+                                            <Badge variant="outline" class="font-mono text-xs bg-pink-500/8 border-pink-300/30 text-pink-600">
                                                 {brand.id}
                                             </Badge>
-                                        </Table.Cell>
-                                        <Table.Cell>
-                                            <span class="font-medium">{brand.name}</span>
-                                        </Table.Cell>
-                                        <Table.Cell class="text-sm text-muted-foreground">
+                                        </td>
+                                        <td><span class="font-medium">{brand.name}</span></td>
+                                        <td class="text-sm text-muted-foreground">
                                             <span class="inline-flex items-center gap-1.5">
                                                 <CalendarDays class="size-3.5 text-muted-foreground/60" />
                                                 {formatDate(brand.created_at)}
                                             </span>
-                                        </Table.Cell>
-                                        <Table.Cell class="text-right">
+                                        </td>
+                                        <td class="text-right">
                                             <div class="flex items-center justify-end gap-1">
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    class="size-8 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10"
-                                                    onclick={() => openEditBrand(brand)}
-                                                >
+                                                <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10" onclick={() => openEditBrand(brand)}>
                                                     <Edit class="size-3.5" />
                                                 </Button>
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
-                                                    onclick={() => openDeleteBrand(brand)}
-                                                >
+                                                <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10" onclick={() => openDeleteBrand(brand)}>
                                                     <Trash2 class="size-3.5" />
                                                 </Button>
                                             </div>
-                                        </Table.Cell>
-                                    </Table.Row>
+                                        </td>
+                                    </tr>
                                 {/each}
-                            </Table.Body>
-                        </Table.Root>
-                    </div>
+                            </tbody>
+                        </table>
+                    </Datatable>
                 {/if}
             </Card.Root>
         {/if}
@@ -672,156 +669,97 @@
                             </Button>
                         {/if}
                     </div>
-                {:else}
-                    <div class="overflow-x-auto">
-                        <Table.Root>
-                            <Table.Header>
-                                <Table.Row class="border-border/40 bg-gradient-to-r from-pink-500/5 to-violet-500/5">
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">Photo</Table.Head>
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">Brand</Table.Head>
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">Model ID</Table.Head>
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">Name</Table.Head>
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">Type</Table.Head>
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">Buy Date</Table.Head>
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">Price</Table.Head>
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">RAM</Table.Head>
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">Storage</Table.Head>
-                                    <Table.Head class="font-semibold text-xs uppercase tracking-wider text-pink-600/80">Status</Table.Head>
-                                    <Table.Head class="text-right font-semibold text-xs uppercase tracking-wider text-pink-600/80">Actions</Table.Head>
-                                </Table.Row>
-                            </Table.Header>
-                            <Table.Body>
-                                {#each filteredPhones as phone (phone.id)}
-                                    <Table.Row class="border-border/30 hover:bg-gradient-to-r hover:from-pink-500/5 hover:to-violet-500/5 transition-all duration-150 {phone.deleted_at ? 'opacity-50' : ''}">
-                                        <!-- Thumbnail -->
-                                        <Table.Cell>
+                {:else if phonesTable}
+                    <Datatable basic table={phonesTable}>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <Th>Photo</Th>
+                                    <ThSort table={phonesTable} field="brand_id">Brand</ThSort>
+                                    <ThSort table={phonesTable} field="model_id">Model ID</ThSort>
+                                    <ThSort table={phonesTable} field="model_name">Name</ThSort>
+                                    <ThSort table={phonesTable} field="model_type">Type</ThSort>
+                                    <ThSort table={phonesTable} field="buy_date">Buy Date</ThSort>
+                                    <ThSort table={phonesTable} field="price">Price</ThSort>
+                                    <ThSort table={phonesTable} field="ram">RAM</ThSort>
+                                    <ThSort table={phonesTable} field="storage">Storage</ThSort>
+                                    <Th>Status</Th>
+                                    <Th>Actions</Th>
+                                </tr>
+                                <tr>
+                                    <Th></Th>
+                                    <ThFilter table={phonesTable} field="brand_id" />
+                                    <ThFilter table={phonesTable} field="model_id" />
+                                    <ThFilter table={phonesTable} field="model_name" />
+                                    <ThFilter table={phonesTable} field="model_type" />
+                                    <ThFilter table={phonesTable} field="buy_date" />
+                                    <ThFilter table={phonesTable} field="price" />
+                                    <ThFilter table={phonesTable} field="ram" />
+                                    <ThFilter table={phonesTable} field="storage" />
+                                    <Th></Th>
+                                    <Th></Th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {#each phonesTable.rows as phone (phone.id)}
+                                    <tr>
+                                        <td>
                                             {#if phone.thumbnail}
-                                                <div class="relative group">
-                                                    <img
-                                                        src={storageUrl(phone.thumbnail)}
-                                                        alt={phone.model_name}
-                                                        class="size-10 rounded-lg object-cover ring-1 ring-pink-300/30 shrink-0"
-                                                    />
-                                                    <div class="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-pink-500/80 text-[9px] font-bold text-white flex items-center justify-center shadow-sm">
-                                                        {phone.list_photos?.length ?? 0}
-                                                    </div>
-                                                </div>
+                                                <img src={storageUrl(phone.thumbnail)} alt={phone.model_name} class="size-10 rounded-lg object-cover ring-1 ring-pink-300/30" />
                                             {:else if phone.list_photos && phone.list_photos.length > 0}
-                                                <div class="relative group">
-                                                    <img
-                                                        src={storageUrl(phone.list_photos[0])}
-                                                        alt={phone.model_name}
-                                                        class="size-10 rounded-lg object-cover ring-1 ring-pink-300/30 shrink-0"
-                                                    />
-                                                    <div class="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-pink-500/80 text-[9px] font-bold text-white flex items-center justify-center shadow-sm">
-                                                        {phone.list_photos.length}
-                                                    </div>
-                                                </div>
+                                                <img src={storageUrl(phone.list_photos[0])} alt={phone.model_name} class="size-10 rounded-lg object-cover ring-1 ring-pink-300/30" />
                                             {:else}
                                                 <div class="size-10 rounded-lg bg-pink-500/10 flex items-center justify-center ring-1 ring-pink-300/20">
                                                     <Image class="size-4 text-pink-400/60" />
                                                 </div>
                                             {/if}
-                                        </Table.Cell>
-                                        <Table.Cell>
-                                            <div class="flex items-center gap-2">
-                                                {#if phone.deleted_at}
-                                                    <Badge variant="outline" class="text-xs bg-red-500/10 border-red-300/30 text-red-500 font-medium gap-1">
-                                                        <X class="size-3" />
-                                                        Deleted
-                                                    </Badge>
-                                                {/if}
-                                                <Badge variant="outline" class="text-xs bg-violet-500/10 border-violet-300/30 text-violet-600 dark:text-violet-300 font-medium">
-                                                    {phone.brand?.name ?? phone.brand_id}
-                                                </Badge>
-                                            </div>
-                                        </Table.Cell>
-                                        <Table.Cell>
-                                            <span class="font-mono text-xs font-medium text-foreground/80">{phone.model_id}</span>
-                                        </Table.Cell>
-                                        <Table.Cell class="font-medium whitespace-nowrap">{phone.model_name}</Table.Cell>
-                                        <Table.Cell>
+                                        </td>
+                                        <td>
+                                            <Badge variant="outline" class="text-xs bg-violet-500/10 border-violet-300/30 text-violet-600 font-medium">
+                                                {phone.brand?.name ?? phone.brand_id}
+                                            </Badge>
+                                        </td>
+                                        <td><span class="font-mono text-xs">{phone.model_id}</span></td>
+                                        <td class="font-medium">{phone.model_name}</td>
+                                        <td>
                                             {#if phone.model_type === 'Phone'}
-                                                <Badge class="bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-300/30 gap-1">
-                                                    <Smartphone class="size-3" />
-                                                    Phone
+                                                <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 gap-1">
+                                                    <Smartphone class="size-3" /> Phone
                                                 </Badge>
                                             {:else}
-                                                <Badge class="bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-300/30 gap-1">
-                                                    <Tablet class="size-3" />
-                                                    Tablet
+                                                <Badge class="bg-amber-500/15 text-amber-600 border-amber-300/30 gap-1">
+                                                    <Tablet class="size-3" /> Tablet
                                                 </Badge>
                                             {/if}
-                                        </Table.Cell>
-                                        <Table.Cell class="text-sm text-muted-foreground whitespace-nowrap">
-                                            <span class="inline-flex items-center gap-1.5">
-                                                <CalendarDays class="size-3.5 text-muted-foreground/60 shrink-0" />
-                                                {phone.buy_date}
-                                            </span>
-                                        </Table.Cell>
-                                        <Table.Cell class="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                                            {formatPrice(phone.price)}
-                                        </Table.Cell>
-                                        <Table.Cell>
-                                            <span class="inline-flex items-center gap-1 text-sm">
-                                                <Cpu class="size-3.5 text-muted-foreground/60" />
-                                                {phone.ram}
-                                            </span>
-                                        </Table.Cell>
-                                        <Table.Cell>
-                                            <span class="inline-flex items-center gap-1 text-sm">
-                                                <HardDrive class="size-3.5 text-muted-foreground/60" />
-                                                {phone.storage}
-                                            </span>
-                                        </Table.Cell>
-                                        <Table.Cell>
+                                        </td>
+                                        <td class="text-sm text-muted-foreground whitespace-nowrap">{phone.buy_date}</td>
+                                        <td class="font-mono text-sm font-semibold text-emerald-600 whitespace-nowrap">{formatPrice(phone.price)}</td>
+                                        <td><span class="inline-flex items-center gap-1 text-sm"><Cpu class="size-3.5 text-muted-foreground/60" /> {phone.ram}</span></td>
+                                        <td><span class="inline-flex items-center gap-1 text-sm"><HardDrive class="size-3.5 text-muted-foreground/60" /> {phone.storage}</span></td>
+                                        <td>
                                             <div class="flex flex-wrap gap-1">
                                                 {#if phone.registered}
-                                                    <Badge class="bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-300/30 gap-1">
-                                                        <CircleCheck class="size-3" />
-                                                        Registered
-                                                    </Badge>
+                                                    <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 gap-1"><CircleCheck class="size-3" /> Registered</Badge>
                                                 {:else}
-                                                    <Badge variant="secondary" class="bg-rose-500/10 text-rose-500 border-rose-300/30 gap-1">
-                                                        <CircleX class="size-3" />
-                                                        Unregistered
-                                                    </Badge>
+                                                    <Badge variant="secondary" class="bg-rose-500/10 text-rose-500 border-rose-300/30 gap-1"><CircleX class="size-3" /> Unregistered</Badge>
                                                 {/if}
                                                 {#if !phone.approved}
-                                                    <Badge variant="outline" class="bg-amber-500/10 border-amber-300/30 text-amber-500 gap-1">
-                                                        Pending
-                                                    </Badge>
+                                                    <Badge variant="outline" class="bg-amber-500/10 border-amber-300/30 text-amber-500 gap-1">Pending</Badge>
                                                 {:else}
-                                                    <Badge class="bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-300/30 gap-1">
-                                                        <Check class="size-3" />
-                                                        Disetujui
-                                                    </Badge>
+                                                    <Badge class="bg-sky-500/15 text-sky-600 border-sky-300/30 gap-1"><Check class="size-3" /> Disetujui</Badge>
                                                 {/if}
                                             </div>
-                                        </Table.Cell>
-                                        <Table.Cell class="text-right">
+                                        </td>
+                                        <td class="text-right">
                                             {#if !phone.deleted_at}
                                                 <div class="flex items-center justify-end gap-1">
                                                     {#if !phone.registered}
-                                                        <Button
-                                                            size="icon"
-                                                            variant="ghost"
-                                                            class="size-8 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10"
-                                                            onclick={() => openQr(phone)}
-                                                            title="Tampilkan QR Code"
-                                                        >
+                                                        <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10" onclick={() => openQr(phone)} title="QR Code">
                                                             <QrCode class="size-3.5" />
                                                         </Button>
                                                     {/if}
                                                     {#if !phone.approved}
-                                                        <Button
-                                                            size="icon"
-                                                            variant="ghost"
-                                                            class="size-8 text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10"
-                                                            onclick={() => handleApprovePhone(phone)}
-                                                            title="Setujui perangkat"
-                                                            disabled={approvingId === phone.id}
-                                                        >
+                                                        <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10" onclick={() => handleApprovePhone(phone)} title="Setujui" disabled={approvingId === phone.id}>
                                                             {#if approvingId === phone.id}
                                                                 <div class="size-3.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
                                                             {:else}
@@ -829,30 +767,20 @@
                                                             {/if}
                                                         </Button>
                                                     {/if}
-                                                    <Button
-                                                        size="icon"
-                                                        variant="ghost"
-                                                        class="size-8 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10"
-                                                        onclick={() => openEditPhone(phone)}
-                                                    >
+                                                    <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10" onclick={() => openEditPhone(phone)}>
                                                         <Edit class="size-3.5" />
                                                     </Button>
-                                                    <Button
-                                                        size="icon"
-                                                        variant="ghost"
-                                                        class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
-                                                        onclick={() => openDeletePhone(phone)}
-                                                    >
+                                                    <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10" onclick={() => openDeletePhone(phone)}>
                                                         <Trash2 class="size-3.5" />
                                                     </Button>
                                                 </div>
                                             {/if}
-                                        </Table.Cell>
-                                    </Table.Row>
+                                        </td>
+                                    </tr>
                                 {/each}
-                            </Table.Body>
-                        </Table.Root>
-                    </div>
+                            </tbody>
+                        </table>
+                    </Datatable>
                 {/if}
             </Card.Root>
         {/if}
@@ -1444,3 +1372,18 @@
 {/if}
 
 <Toaster richColors position="top-right" duration={3000} />
+
+<style>
+    :global(.svelte-simple-datatable table) { border-collapse: separate; border-spacing: 0; width: 100%; background: inherit; }
+    :global(.svelte-simple-datatable table thead) { position: sticky; inset-block-start: 0; background: inherit; z-index: 1; }
+    :global(.svelte-simple-datatable thead tr) { background: inherit; }
+    :global(.svelte-simple-datatable thead tr th) { background: inherit; }
+    :global(.svelte-simple-datatable thead tr:first-child th) { padding: 8px 20px; background: inherit; }
+    :global(.svelte-simple-datatable tbody) { background: inherit; }
+    :global(.svelte-simple-datatable tbody tr) { transition: background, 0.2s; background: inherit; }
+    :global(.svelte-simple-datatable tbody tr:hover) { background: var(--grey-lighten-3, #fafafa); }
+    :global(.svelte-simple-datatable tbody td) { padding: 4px 20px; border-right: 1px solid var(--grey-lighten, #eee); border-bottom: 1px solid var(--grey-lighten, #eee); background: inherit; }
+    :global(.svelte-simple-datatable tbody td:last-child) { border-right: none; }
+    :global(.svelte-simple-datatable u.highlight) { text-decoration: none; background: rgba(251, 192, 45, 0.6); border-radius: 2px; }
+    :global(.svelte-simple-datatable footer.divider) { border-top: 1px solid var(--grey, #e0e0e0); }
+</style>

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { router } from '@inertiajs/svelte';
+    import { TableHandler, Datatable, ThSort, ThFilter, Th } from '@vincjo/datatables';
     import {
         Smartphone,
         CheckCircle2,
@@ -9,38 +10,79 @@
         CalendarDays,
         ArrowLeft,
         ArrowRight,
+        FileText,
+        Save,
     } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
+    import { toast } from 'svelte-sonner';
 
     import LayoutBG from '$/components/LayoutBG.svelte';
     import * as Card from '$shadcn/components/ui/card';
-    import * as Table from '$shadcn/components/ui/table';
     import { Badge } from '$shadcn/components/ui/badge';
     import { Button } from '$shadcn/components/ui/button';
+    import { Textarea } from '$shadcn/components/ui/textarea';
     import { home } from '$routes';
-    import { loginMember } from '$routes/user';
+    import { loginMember, dashboard } from '$routes/user';
 
     type DeviceItem = {
         model_id: string;
         model_name: string;
         brand_name: string | null;
+        latest_user_name?: string | null;
+        latest_user_nik?: string | null;
+        latest_time?: string | null;
     };
 
     type UserAbsence = {
+        id?: number;
         nik: string;
         name: string;
         time_absence: string;
         date_absence: string;
+        catatan?: string | null;
     };
 
     let { deviceLatest, currentDevice, hasAbsence, noAbsence }:
         { deviceLatest: UserAbsence | null; currentDevice: { model_id: string; model_name: string }; hasAbsence: DeviceItem[]; noAbsence: DeviceItem[] } = $props();
+
+    const tableHasAbsence = hasAbsence.length > 0 ? new TableHandler(hasAbsence, { rowsPerPage: 10 }) : null;
+    const tableNoAbsence = noAbsence.length > 0 ? new TableHandler(noAbsence, { rowsPerPage: 10 }) : null;
 
     let today = $derived(new Date().toLocaleDateString('id-ID', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     }));
 
     let deviceId = $derived(currentDevice.model_id);
+
+    // ─── Catatan ───────────────────────────────────────────────────
+    let catatan = $state('');
+    let savingCatatan = $state(false);
+
+    function initCatatan() {
+        catatan = deviceLatest?.catatan ?? '';
+    }
+    $effect(() => { initCatatan(); });
+
+    async function saveCatatan() {
+        if (!deviceLatest?.id) return;
+        savingCatatan = true;
+        router.post(dashboard.catatan(deviceId).url, {
+            absence_id: deviceLatest.id,
+            catatan: catatan,
+        }, {
+            onSuccess: () => {
+                toast.success('Catatan berhasil disimpan');
+                savingCatatan = false;
+            },
+            onError: () => {
+                toast.error('Gagal menyimpan catatan');
+                savingCatatan = false;
+            },
+            onFinish: () => {
+                savingCatatan = false;
+            },
+        });
+    }
 </script>
 
 <LayoutBG class="min-h-screen bg-background p-4">
@@ -94,6 +136,35 @@
                             <span class="font-medium font-mono">{deviceLatest.time_absence}</span>
                         </div>
                     </div>
+
+                    <!-- Catatan -->
+                    <div class="mt-4 pt-4 border-t border-emerald-500/20 space-y-2">
+                        <div class="flex items-center gap-1.5 text-sm text-muted-foreground">
+                            <FileText class="size-4" />
+                            <span class="font-medium text-emerald-600 dark:text-emerald-400 text-xs uppercase tracking-wider">Catatan</span>
+                        </div>
+                        <Textarea
+                            bind:value={catatan}
+                            placeholder="Tulis catatan kegiatan..."
+                            class="min-h-[80px] text-sm bg-background/50 border-emerald-500/30 focus:border-emerald-500/50"
+                        />
+                        <div class="flex justify-end">
+                            <Button
+                                size="sm"
+                                onclick={saveCatatan}
+                                disabled={savingCatatan}
+                                class="gap-1.5 text-xs h-8"
+                            >
+                                {#if savingCatatan}
+                                    <div class="size-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    Menyimpan...
+                                {:else}
+                                    <Save class="size-3.5" />
+                                    Simpan Catatan
+                                {/if}
+                            </Button>
+                        </div>
+                    </div>
                 </Card.Content>
             </Card.Root>
         {:else}
@@ -110,7 +181,7 @@
 
         <!-- Button to input another absence -->
         <div class="flex justify-center py-2">
-            <Button onclick={() => router.visit(loginMember(deviceId).url)} class="gap-2" size="lg">
+            <Button onclick={() => router.visit(loginMember.input(deviceId).url)} class="gap-2" size="lg">
                 <ArrowRight class="size-4" />
                 Input Absence Lagi
             </Button>
@@ -131,32 +202,50 @@
                     <div class="text-center py-6 text-muted-foreground text-sm">
                         Belum ada perangkat yang digunakan hari ini
                     </div>
-                {:else}
-                    <Table.Root>
-                        <Table.Header>
-                            <Table.Row class="text-xs">
-                                <Table.Head>Perangkat</Table.Head>
-                                <Table.Head>Brand</Table.Head>
-                                <Table.Head class="w-24 text-right">Status</Table.Head>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {#each hasAbsence as d (d.model_id)}
-                                <Table.Row class="text-sm">
-                                    <Table.Cell>
-                                        <span class="font-medium">{d.model_name}</span>
-                                        <div class="text-xs text-muted-foreground font-mono">{d.model_id}</div>
-                                    </Table.Cell>
-                                    <Table.Cell class="text-muted-foreground">{d.brand_name ?? '-'}</Table.Cell>
-                                    <Table.Cell class="text-right">
-                                        <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 text-xs">
-                                            <CheckCircle2 class="size-3 mr-1" /> Sudah
-                                        </Badge>
-                                    </Table.Cell>
-                                </Table.Row>
-                            {/each}
-                        </Table.Body>
-                    </Table.Root>
+                {:else if tableHasAbsence}
+                    <Datatable basic table={tableHasAbsence}>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <ThSort table={tableHasAbsence} field="model_name">Perangkat</ThSort>
+                                    <ThSort table={tableHasAbsence} field="brand_name">Brand</ThSort>
+                                    <ThSort table={tableHasAbsence} field="latest_user_name">Digunakan Oleh</ThSort>
+                                    <Th>Status</Th>
+                                </tr>
+                                <tr>
+                                    <ThFilter table={tableHasAbsence} field="model_name" />
+                                    <ThFilter table={tableHasAbsence} field="brand_name" />
+                                    <ThFilter table={tableHasAbsence} field="latest_user_name" />
+                                    <Th></Th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {#each tableHasAbsence.rows as row}
+                                    <tr>
+                                        <td>
+                                            <span class="font-medium text-sm">{row.model_name}</span>
+                                            <div class="text-xs text-muted-foreground font-mono">{row.model_id}</div>
+                                        </td>
+                                        <td class="text-sm text-muted-foreground">{row.brand_name ?? '-'}</td>
+                                        <td>
+                                            {#if row.latest_user_name}
+                                                <span class="font-medium text-xs">{row.latest_user_name}</span>
+                                                <br />
+                                                <span class="text-xs text-muted-foreground font-mono">{row.latest_user_nik} · {row.latest_time}</span>
+                                            {:else}
+                                                <span class="text-xs text-muted-foreground">-</span>
+                                            {/if}
+                                        </td>
+                                        <td>
+                                            <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 text-xs whitespace-nowrap">
+                                                <CheckCircle2 class="size-3 mr-1 inline" /> Sudah
+                                            </Badge>
+                                        </td>
+                                    </tr>
+                                {/each}
+                            </tbody>
+                        </table>
+                    </Datatable>
                 {/if}
             </Card.Content>
         </Card.Root>
@@ -176,34 +265,94 @@
                     <div class="text-center py-6 text-muted-foreground text-sm">
                         Semua perangkat sudah digunakan hari ini
                     </div>
-                {:else}
-                    <Table.Root>
-                        <Table.Header>
-                            <Table.Row class="text-xs">
-                                <Table.Head>Perangkat</Table.Head>
-                                <Table.Head>Brand</Table.Head>
-                                <Table.Head class="w-24 text-right">Status</Table.Head>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {#each noAbsence as d (d.model_id)}
-                                <Table.Row class="text-sm">
-                                    <Table.Cell>
-                                        <span class="font-medium">{d.model_name}</span>
-                                        <div class="text-xs text-muted-foreground font-mono">{d.model_id}</div>
-                                    </Table.Cell>
-                                    <Table.Cell class="text-muted-foreground">{d.brand_name ?? '-'}</Table.Cell>
-                                    <Table.Cell class="text-right">
-                                        <Badge variant="outline" class="text-xs text-muted-foreground border-dashed">
-                                            <Clock class="size-3 mr-1" /> Belum
-                                        </Badge>
-                                    </Table.Cell>
-                                </Table.Row>
-                            {/each}
-                        </Table.Body>
-                    </Table.Root>
+                {:else if tableNoAbsence}
+                    <Datatable basic table={tableNoAbsence}>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <ThSort table={tableNoAbsence} field="model_name">Perangkat</ThSort>
+                                    <ThSort table={tableNoAbsence} field="brand_name">Brand</ThSort>
+                                    <Th>Status</Th>
+                                </tr>
+                                <tr>
+                                    <ThFilter table={tableNoAbsence} field="model_name" />
+                                    <ThFilter table={tableNoAbsence} field="brand_name" />
+                                    <Th></Th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {#each tableNoAbsence.rows as row}
+                                    <tr>
+                                        <td>
+                                            <span class="font-medium text-sm">{row.model_name}</span>
+                                            <div class="text-xs text-muted-foreground font-mono">{row.model_id}</div>
+                                        </td>
+                                        <td class="text-sm text-muted-foreground">{row.brand_name ?? '-'}</td>
+                                        <td>
+                                            <Badge variant="outline" class="text-xs text-muted-foreground border-dashed whitespace-nowrap">
+                                                <Clock class="size-3 mr-1 inline" /> Belum
+                                            </Badge>
+                                        </td>
+                                    </tr>
+                                {/each}
+                            </tbody>
+                        </table>
+                    </Datatable>
                 {/if}
             </Card.Content>
         </Card.Root>
     </div>
 </LayoutBG>
+
+<style>
+    :global(.svelte-simple-datatable table) {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        background: inherit;
+    }
+    :global(.svelte-simple-datatable table thead) {
+        position: sticky;
+        inset-block-start: 0;
+        background: inherit;
+        z-index: 1;
+    }
+    :global(.svelte-simple-datatable thead tr) {
+        background: inherit;
+    }
+    :global(.svelte-simple-datatable thead tr th) {
+        background: inherit;
+    }
+    :global(.svelte-simple-datatable thead tr:first-child th) {
+        padding: 8px 20px;
+        background: inherit;
+    }
+    :global(.svelte-simple-datatable tbody) {
+        background: inherit;
+    }
+    :global(.svelte-simple-datatable tbody tr) {
+        transition: background, 0.2s;
+        background: inherit;
+    }
+    :global(.svelte-simple-datatable tbody tr:hover) {
+        background: var(--grey-lighten-3, #fafafa);
+    }
+    :global(.svelte-simple-datatable tbody td) {
+        padding: 4px 20px;
+        border-right: 1px solid var(--grey-lighten, #eee);
+        border-bottom: 1px solid var(--grey-lighten, #eee);
+        background: inherit;
+        vertical-align: middle;
+    }
+    :global(.svelte-simple-datatable tbody td:last-child) {
+        border-right: none;
+    }
+    :global(.svelte-simple-datatable u.highlight) {
+        text-decoration: none;
+        background: rgba(251, 192, 45, 0.6);
+        border-radius: 2px;
+    }
+    :global(.svelte-simple-datatable footer.divider) {
+        border-top: 1px solid var(--grey, #e0e0e0);
+    }
+</style>

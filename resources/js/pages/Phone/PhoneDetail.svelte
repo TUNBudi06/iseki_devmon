@@ -22,6 +22,7 @@
         FileText,
     } from '@lucide/svelte';
     import { listPhone } from '$routes/phone';
+    import { TableHandler, Datatable, ThSort, ThFilter, Th } from '@vincjo/datatables';
     import * as Carousel from '$shadcn/components/ui/carousel';
     import { onMount, onDestroy } from 'svelte';
     import gsap from 'gsap';
@@ -44,7 +45,7 @@
     }
 
     // ─── Props ──────────────────────────────────────────────────
-    let { phone: raw }: { phone: PhoneType } = $props();
+    let { phone: raw, usages: rawUsages, latestUser }: { phone: PhoneType; usages: { name: string; nik: string; login: string; note: string | null }[]; latestUser: { name: string; nik: string; login: string; note: string | null } | null } = $props();
 
     type PhoneType = {
         id: number;
@@ -77,8 +78,11 @@
         photos: raw.list_photos?.map((p) => assetUrl(p)).filter(Boolean) as string[] ?? [],
         buy_date: raw.buy_date,
         checks: [] as { date: string; user: string; nik: string; status: string; note: string }[],
-        usages: [] as { name: string; nik: string; login: string; note: string }[],
+        usages: rawUsages ?? [],
     };
+
+    const usagesTable = $derived(phone.usages.length > 0 ? new TableHandler(phone.usages, { rowsPerPage: 10 }) : null);
+    const checksTable = $derived(phone.checks.length > 0 ? new TableHandler(phone.checks, { rowsPerPage: 10 }) : null);
 
     // ── STATE with runes ──
     let lenis: Lenis | null = $state(null);
@@ -539,109 +543,35 @@
                 </div>
             </div>
 
-            {#if phone.usages.length > 0}
-                <!-- Desktop table -->
-                <div
-                    class="hidden md:block rounded-2xl border border-border/60 overflow-hidden"
-                >
-                    <div
-                        class="grid grid-cols-[1.5fr_1.5fr_2fr_2fr] bg-muted/60 border-b border-border"
-                    >
-                        {#each [{ icon: User, label: 'Nama' }, { icon: CreditCard, label: 'NIK' }, { icon: LogIn, label: 'Absence' }, { icon: FileText, label: 'Keterangan' }] as col}
-                            <div class="flex items-center gap-1.5 px-4 py-3">
-                                <col.icon class="size-4 text-primary shrink-0" />
-                                <span
-                                    class="text-xs font-bold uppercase tracking-widest text-muted-foreground"
-                                    >{col.label}</span
-                                >
-                            </div>
-                        {/each}
-                    </div>
-                    {#each phone.usages as usage, i (i)}
-                        <div
-                            class="grid grid-cols-[1.5fr_1.5fr_2fr_2fr] border-b border-border/40 last:border-0 transition-colors
-                            {i % 2 === 0
-                                ? 'bg-card/40'
-                                : 'bg-card/20'} hover:bg-primary/5"
-                        >
-                            <div class="px-4 py-4 flex items-center gap-2">
-                                <div
-                                    class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary"
-                                >
-                                    {usage.name.charAt(0)}
-                                </div>
-                                <span class="text-base font-medium truncate"
-                                    >{usage.name}</span
-                                >
-                            </div>
-                            <div class="px-4 py-4 flex items-center">
-                                <span
-                                    class="font-mono text-sm text-muted-foreground"
-                                    >{usage.nik}</span
-                                >
-                            </div>
-                            <div class="px-4 py-4 flex items-center gap-1.5">
-                                <LogIn class="size-4 text-emerald-500 shrink-0" />
-                                <span class="text-sm whitespace-nowrap"
-                                    >{usage.login}</span
-                                >
-                            </div>
-                            <div class="px-4 py-4 flex items-center">
-                                <span class="text-sm text-muted-foreground"
-                                    >{usage.note}</span
-                                >
-                            </div>
-                        </div>
-                    {/each}
-                </div>
-
-                <!-- Mobile cards -->
-                <div class="md:hidden space-y-3">
-                    {#each phone.usages as usage, i (i)}
-                        <div
-                            class="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-3"
-                        >
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0"
-                                >
-                                    {usage.name.charAt(0)}
-                                </div>
-                                <div>
-                                    <div class="font-semibold text-base">
-                                        {usage.name}
-                                    </div>
-                                    <div
-                                        class="font-mono text-xs text-muted-foreground"
-                                    >
-                                        {usage.nik}
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                class="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2"
-                            >
-                                <LogIn class="size-4 text-emerald-500 shrink-0" />
-                                <div>
-                                    <div
-                                        class="text-[11px] text-muted-foreground uppercase font-bold tracking-wider"
-                                    >
-                                        Absence
-                                    </div>
-                                    <div class="font-medium text-sm">
-                                        {usage.login}
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                class="flex items-start gap-2 text-sm text-muted-foreground"
-                            >
-                                <FileText class="size-4 shrink-0 mt-0.5" />
-                                <span>{usage.note}</span>
-                            </div>
-                        </div>
-                    {/each}
-                </div>
+            {#if usagesTable}
+                <Datatable basic table={usagesTable}>
+                    <table>
+                        <thead>
+                            <tr>
+                                <ThSort table={usagesTable} field="name">Nama</ThSort>
+                                <ThSort table={usagesTable} field="nik">NIK</ThSort>
+                                <ThSort table={usagesTable} field="login">Absence</ThSort>
+                                <ThSort table={usagesTable} field="note">Keterangan</ThSort>
+                            </tr>
+                            <tr>
+                                <ThFilter table={usagesTable} field="name" />
+                                <ThFilter table={usagesTable} field="nik" />
+                                <ThFilter table={usagesTable} field="login" />
+                                <ThFilter table={usagesTable} field="note" />
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#each usagesTable.rows as row}
+                                <tr>
+                                    <td><span class="font-medium text-sm">{row.name}</span></td>
+                                    <td class="font-mono text-sm text-muted-foreground">{row.nik}</td>
+                                    <td class="text-sm whitespace-nowrap">{row.login}</td>
+                                    <td class="text-sm text-muted-foreground">{row.note ?? '-'}</td>
+                                </tr>
+                            {/each}
+                        </tbody>
+                    </table>
+                </Datatable>
             {:else}
                 <p class="text-sm text-muted-foreground">Belum ada riwayat penggunaan.</p>
             {/if}
@@ -667,129 +597,108 @@
                 </div>
             </div>
 
-            {#if phone.checks.length > 0}
-                <!-- Desktop table -->
-                <div
-                    class="hidden md:block rounded-2xl border border-border/60 overflow-hidden"
-                >
-                    <div
-                        class="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_2fr] bg-muted/60 border-b border-border"
-                    >
-                        {#each [{ icon: User, label: 'Petugas' }, { icon: CreditCard, label: 'NIK' }, { icon: CheckCircle2, label: 'Status' }, { icon: FileText, label: 'Tanggal' }, { icon: FileText, label: 'Catatan' }] as col}
-                            <div class="flex items-center gap-1.5 px-4 py-3">
-                                <col.icon class="size-4 text-primary shrink-0" />
-                                <span
-                                    class="text-xs font-bold uppercase tracking-widest text-muted-foreground"
-                                    >{col.label}</span
-                                >
-                            </div>
-                        {/each}
-                    </div>
-                    {#each phone.checks as check, i (i)}
-                        <div
-                            class="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_2fr] border-b border-border/40 last:border-0 transition-colors
-                            {i % 2 === 0
-                                ? 'bg-card/40'
-                                : 'bg-card/20'} hover:bg-primary/5"
-                        >
-                            <div class="px-4 py-4 flex items-center gap-2">
-                                <div
-                                    class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary"
-                                >
-                                    {check.user.charAt(0)}
-                                </div>
-                                <span class="text-sm font-medium truncate"
-                                    >{check.user}</span
-                                >
-                            </div>
-                            <div class="px-4 py-4 flex items-center">
-                                <span
-                                    class="font-mono text-sm text-muted-foreground"
-                                    >{check.nik}</span
-                                >
-                            </div>
-                            <div class="px-4 py-4 flex items-center">
-                                <span
-                                    class="inline-flex items-center gap-1.5 text-sm px-2.5 py-1 rounded-full font-medium border
-                                    {check.status === 'ok'
-                                        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                                        : 'bg-destructive/10 text-destructive border-destructive/20'}"
-                                >
-                                    {#if check.status === 'ok'}
-                                        <CheckCircle2 class="size-3.5" />
-                                    {:else}
-                                        <XCircle class="size-3.5" />
-                                    {/if}
-                                    {check.status === 'ok' ? 'OK' : 'Gagal'}
-                                </span>
-                            </div>
-                            <div
-                                class="px-4 py-4 flex items-center text-sm text-muted-foreground"
-                            >
-                                {check.date}
-                            </div>
-                            <div
-                                class="px-4 py-4 flex items-center text-sm text-muted-foreground"
-                            >
-                                {check.note}
-                            </div>
-                        </div>
-                    {/each}
-                </div>
-
-                <!-- Mobile cards -->
-                <div class="md:hidden space-y-3">
-                    {#each phone.checks as check, i (i)}
-                        <div
-                            class="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-2"
-                        >
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <div
-                                        class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0"
-                                    >
-                                        {check.user.charAt(0)}
-                                    </div>
-                                    <div>
-                                        <div class="font-semibold text-base">
-                                            {check.user}
-                                        </div>
-                                        <div
-                                            class="font-mono text-xs text-muted-foreground"
+            {#if checksTable}
+                <Datatable basic table={checksTable}>
+                    <table>
+                        <thead>
+                            <tr>
+                                <ThSort table={checksTable} field="user">Petugas</ThSort>
+                                <ThSort table={checksTable} field="nik">NIK</ThSort>
+                                <ThSort table={checksTable} field="status">Status</ThSort>
+                                <ThSort table={checksTable} field="date">Tanggal</ThSort>
+                                <ThSort table={checksTable} field="note">Catatan</ThSort>
+                            </tr>
+                            <tr>
+                                <ThFilter table={checksTable} field="user" />
+                                <ThFilter table={checksTable} field="nik" />
+                                <ThFilter table={checksTable} field="status" />
+                                <ThFilter table={checksTable} field="date" />
+                                <ThFilter table={checksTable} field="note" />
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#each checksTable.rows as row}
+                                <tr>
+                                    <td><span class="font-medium text-sm">{row.user}</span></td>
+                                    <td class="font-mono text-sm text-muted-foreground">{row.nik}</td>
+                                    <td>
+                                        <span
+                                            class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border
+                                            {row.status === 'ok'
+                                                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                                                : 'bg-destructive/10 text-destructive border-destructive/20'}"
                                         >
-                                            {check.nik}
-                                        </div>
-                                    </div>
-                                </div>
-                                <span
-                                    class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border
-                                    {check.status === 'ok'
-                                        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                                        : 'bg-destructive/10 text-destructive border-destructive/20'}"
-                                >
-                                    {#if check.status === 'ok'}
-                                        <CheckCircle2 class="size-3.5" />
-                                    {:else}
-                                        <XCircle class="size-3.5" />
-                                    {/if}
-                                    {check.status === 'ok' ? 'OK' : 'Gagal'}
-                                </span>
-                            </div>
-                            <div class="text-xs text-muted-foreground font-medium">
-                                {check.date}
-                            </div>
-                            <div
-                                class="text-sm text-muted-foreground flex items-start gap-1.5"
-                            >
-                                <FileText class="size-4 shrink-0 mt-0.5" />
-                                {check.note}
-                            </div>
-                        </div>
-                    {/each}
-                </div>
+                                            {#if row.status === 'ok'}
+                                                <CheckCircle2 class="size-3.5" />
+                                            {:else}
+                                                <XCircle class="size-3.5" />
+                                            {/if}
+                                            {row.status === 'ok' ? 'OK' : 'Gagal'}
+                                        </span>
+                                    </td>
+                                    <td class="text-sm text-muted-foreground whitespace-nowrap">{row.date}</td>
+                                    <td class="text-sm text-muted-foreground">{row.note}</td>
+                                </tr>
+                            {/each}
+                        </tbody>
+                    </table>
+                </Datatable>
             {:else}
                 <p class="text-sm text-muted-foreground">Belum ada riwayat pengecekan.</p>
             {/if}
         </div>
     </div>
 </LayoutBG>
+
+<style>
+    :global(.svelte-simple-datatable table) {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        background: inherit;
+    }
+    :global(.svelte-simple-datatable table thead) {
+        position: sticky;
+        inset-block-start: 0;
+        background: inherit;
+        z-index: 1;
+    }
+    :global(.svelte-simple-datatable thead tr) {
+        background: inherit;
+    }
+    :global(.svelte-simple-datatable thead tr th) {
+        background: inherit;
+    }
+    :global(.svelte-simple-datatable thead tr:first-child th) {
+        padding: 8px 20px;
+        background: inherit;
+    }
+    :global(.svelte-simple-datatable tbody) {
+        background: inherit;
+    }
+    :global(.svelte-simple-datatable tbody tr) {
+        transition: background, 0.2s;
+        background: inherit;
+    }
+    :global(.svelte-simple-datatable tbody tr:hover) {
+        background: var(--grey-lighten-3, #fafafa);
+    }
+    :global(.svelte-simple-datatable tbody td) {
+        padding: 4px 20px;
+        border-right: 1px solid var(--grey-lighten, #eee);
+        border-bottom: 1px solid var(--grey-lighten, #eee);
+        background: inherit;
+        vertical-align: middle;
+    }
+    :global(.svelte-simple-datatable tbody td:last-child) {
+        border-right: none;
+    }
+    :global(.svelte-simple-datatable u.highlight) {
+        text-decoration: none;
+        background: rgba(251, 192, 45, 0.6);
+        border-radius: 2px;
+    }
+    :global(.svelte-simple-datatable footer.divider) {
+        border-top: 1px solid var(--grey, #e0e0e0);
+    }
+</style>

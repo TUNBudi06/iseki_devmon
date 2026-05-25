@@ -15,6 +15,34 @@ class LoginController extends Controller
     public function index(string $deviceId)
     {
         $device = PhoneList::where('model_id', $deviceId)->first();
+
+        if (! $device || ! $device->approved || ! $device->registered) {
+            return redirect()->route('home');
+        }
+
+        // Jika sudah ada absensi hari ini, langsung ke dashboard
+        $hasAbsenceToday = Absence::where('device_id', $deviceId)
+            ->whereDate('time_absence', today())
+            ->exists();
+
+        if ($hasAbsenceToday) {
+            return redirect()->route('user.dashboard', ['device_id' => $deviceId]);
+        }
+
+        return Inertia::render('Member/LoginMember', [
+            'device' => [
+                'model_id' => $device->model_id,
+                'model_name' => $device->model_name,
+                'approved' => $device->approved,
+                'registered' => $device->registered,
+            ],
+            'error' => null,
+        ]);
+    }
+
+    public function inputForm(string $deviceId)
+    {
+        $device = PhoneList::where('model_id', $deviceId)->first();
         $error = null;
 
         if (! $device) {
@@ -25,7 +53,7 @@ class LoginController extends Controller
             $error = 'Perangkat belum terdaftar. Silakan daftarkan perangkat terlebih dahulu.';
         }
 
-        return Inertia::render('Member/LoginMember', [
+        return Inertia::render('Member/LoginMemberInput', [
             'device' => $device ? [
                 'model_id' => $device->model_id,
                 'model_name' => $device->model_name,
@@ -89,20 +117,24 @@ class LoginController extends Controller
             ->with('brand')
             ->get();
 
-        $absentDeviceIds = Absence::whereDate('time_absence', today())
-            ->pluck('device_id')
-            ->unique()
-            ->toArray();
+        $todayAbsences = Absence::whereDate('time_absence', today())
+            ->orderByDesc('time_absence')
+            ->get()
+            ->groupBy('device_id');
+
+        $absentDeviceIds = $todayAbsences->keys()->toArray();
 
         $hasAbsence = $allDevices->filter(fn ($d) => in_array($d->model_id, $absentDeviceIds));
         $noAbsence = $allDevices->filter(fn ($d) => ! in_array($d->model_id, $absentDeviceIds));
 
         return Inertia::render('Member/DashboardMember', [
             'deviceLatest' => $deviceLatestAbsence ? [
+                'id' => $deviceLatestAbsence->id,
                 'nik' => $deviceLatestAbsence->nik,
                 'name' => $deviceLatestAbsence->name,
                 'time_absence' => $deviceLatestAbsence->time_absence->format('H:i:s'),
                 'date_absence' => $deviceLatestAbsence->time_absence->format('d F Y'),
+                'catatan' => $deviceLatestAbsence->catatan,
             ] : null,
             'currentDevice' => [
                 'model_id' => $device->model_id,
@@ -112,6 +144,9 @@ class LoginController extends Controller
                 'model_id' => $d->model_id,
                 'model_name' => $d->model_name,
                 'brand_name' => $d->brand?->name,
+                'latest_user_name' => $todayAbsences->get($d->model_id)?->first()?->name,
+                'latest_user_nik' => $todayAbsences->get($d->model_id)?->first()?->nik,
+                'latest_time' => $todayAbsences->get($d->model_id)?->first()?->time_absence?->format('H:i'),
             ]),
             'noAbsence' => $noAbsence->values()->map(fn ($d) => [
                 'model_id' => $d->model_id,
