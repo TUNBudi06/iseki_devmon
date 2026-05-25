@@ -49,6 +49,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::get('check-device', [CheckDeviceController::class, 'index'])->name('checkDevice');
+        Route::post('check-device/verify', [CheckDeviceController::class, 'verifyToken'])->name('checkDevice.verify');
 
         Route::get('list-device', [ListDeviceController::class, 'index'])->name('listDevice');
         Route::post('list-device', [ListDeviceController::class, 'store']);

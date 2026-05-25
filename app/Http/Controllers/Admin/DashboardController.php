@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Absence;
 use App\Models\Brand;
 use App\Models\PhoneList;
 use App\Models\User;
@@ -16,7 +17,9 @@ class DashboardController extends Controller
         $stats = [
             'totalDevices' => PhoneList::withTrashed()->count(),
             'totalBrands' => Brand::count(),
-            'activeToday' => PhoneList::whereDate('created_at', today())->count(),
+            'activeToday' => Absence::whereDate('time_absence', today())
+                ->distinct('device_id')
+                ->count('device_id'),
             'totalRegistered' => PhoneList::where('registered', true)->count(),
             'checkedThisMonth' => 0,
             'maintenanceCount' => 0,
