@@ -17,19 +17,13 @@ class PhoneListFactory extends Factory
     {
         $brandId = Brand::inRandomOrder()->first()?->id ?? 'samsung';
         $modelName = fake()->randomElement(['Galaxy S24', 'iPhone 15', 'Y02', '15C', 'A60', 'Hot 60']);
-
-        // Generate dev-XXX berdasarkan increment terakhir di DB
-        $last = PhoneList::where('model_id', 'like', 'dev-%')
-            ->orderByRaw('CAST(SUBSTRING(model_id, -3) AS UNSIGNED) DESC')
-            ->first();
-        $lastIncrement = $last ? (int) substr($last->model_id, -3) : 0;
-        $nextIncrement = str_pad($lastIncrement + 1, 3, '0', STR_PAD_LEFT);
+        $modelType = fake()->randomElement(['Phone', 'Tablet']);
 
         return [
             'brand_id' => $brandId,
-            'model_id' => 'dev-'.$nextIncrement,
+            'model_id' => PhoneList::generateModelId($modelName, $modelType),
             'model_name' => $modelName,
-            'model_type' => fake()->randomElement(['Phone', 'Tablet']),
+            'model_type' => $modelType,
             'buy_date' => fake()->date(),
             'price' => (string) fake()->numberBetween(1_000_000, 15_000_000),
             'ram' => fake()->randomElement(['4 GB', '6 GB', '8 GB', '12 GB']),

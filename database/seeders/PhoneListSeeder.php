@@ -75,9 +75,9 @@ class PhoneListSeeder extends Seeder
             ['brand_id' => 'samsung', 'model_name' => 'Galaxy Tab S7FE', 'model_type' => 'Tablet', 'buy_date' => 'Awal 2022', 'price' => '9900000', 'ram' => '8 GB', 'storage' => '128 GB'],
         ];
 
-        foreach ($devices as $i => $device) {
-            // Generate model_id sesuai format manual register: dev-001, dev-002, ...
-            $modelId = 'dev-'.str_pad((string) ($i + 1), 3, '0', STR_PAD_LEFT);
+        foreach ($devices as $device) {
+            // Generate model_id sesuai format manual register: dev-py02-001, dev-gs24fe-002, ...
+            $modelId = PhoneList::generateModelId($device['model_name'], $device['model_type']);
 
             $phone = PhoneList::updateOrCreate(
                 ['model_id' => $modelId],

@@ -44,4 +44,30 @@ class PhoneList extends Model
     {
         return $this->belongsTo(Brand::class, 'brand_id');
     }
+
+    /**
+     * Generate model_id following the manual register format: dev-{type}{code}-{next}
+     * Example: dev-py02-001 (Phone Y02, first device)
+     */
+    public static function generateModelId(string $modelName, string $modelType): string
+    {
+        $type = $modelType === 'Tablet' ? 't' : 'p';
+
+        $words = preg_split('/\s+/', trim($modelName));
+        $code = '';
+        foreach ($words as $word) {
+            $first = strtolower($word[0]);
+            preg_match('/\d+/', $word, $matches);
+            $digits = $matches[0] ?? '';
+            $code .= $first.$digits;
+        }
+
+        $last = static::where('model_id', 'like', 'dev-'.$type.$code.'-%')
+            ->orderByRaw('CAST(SUBSTRING(model_id, -3) AS UNSIGNED) DESC')
+            ->first();
+        $lastIncrement = $last ? (int) substr($last->model_id, -3) : 0;
+        $next = str_pad($lastIncrement + 1, 3, '0', STR_PAD_LEFT);
+
+        return "dev-{$type}{$code}-{$next}";
+    }
 }
