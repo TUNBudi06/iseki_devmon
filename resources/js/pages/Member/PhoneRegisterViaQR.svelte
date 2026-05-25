@@ -186,7 +186,7 @@
             await saveDeviceAuth(data.device_id, data.jwt);
 
             // Redirect to login member with device_id
-            router.visit(loginMember({ query: { device_id: data.device_id } }).url);
+            router.visit(loginMember({ device_id: data.device_id }).url);
         } catch {
             error = 'Gagal mendaftarkan perangkat. Silakan coba lagi.';
         } finally {
