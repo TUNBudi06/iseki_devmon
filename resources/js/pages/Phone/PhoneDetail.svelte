@@ -22,7 +22,8 @@
         FileText,
     } from '@lucide/svelte';
     import { listPhone } from '$routes/phone';
-    import { TableHandler, Datatable, ThSort, ThFilter, Th } from '@vincjo/datatables';
+    import { TableHandler, RowsPerPage, RowCount, Pagination } from '@vincjo/datatables';
+    import { Search as DtSearch } from '@vincjo/datatables';
     import * as Carousel from '$shadcn/components/ui/carousel';
     import { onMount, onDestroy } from 'svelte';
     import gsap from 'gsap';
@@ -544,34 +545,37 @@
             </div>
 
             {#if usagesTable}
-                <Datatable basic table={usagesTable}>
-                    <table>
-                        <thead>
-                            <tr>
-                                <ThSort table={usagesTable} field="name">Nama</ThSort>
-                                <ThSort table={usagesTable} field="nik">NIK</ThSort>
-                                <ThSort table={usagesTable} field="login">Absence</ThSort>
-                                <ThSort table={usagesTable} field="note">Keterangan</ThSort>
-                            </tr>
-                            <tr>
-                                <ThFilter table={usagesTable} field="name" />
-                                <ThFilter table={usagesTable} field="nik" />
-                                <ThFilter table={usagesTable} field="login" />
-                                <ThFilter table={usagesTable} field="note" />
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {#each usagesTable.rows as row}
-                                <tr>
-                                    <td><span class="font-medium text-sm">{row.name}</span></td>
-                                    <td class="font-mono text-sm text-muted-foreground">{row.nik}</td>
-                                    <td class="text-sm whitespace-nowrap">{row.login}</td>
-                                    <td class="text-sm text-muted-foreground">{row.note ?? '-'}</td>
-                                </tr>
-                            {/each}
-                        </tbody>
-                    </table>
-                </Datatable>
+                <div class="flex items-center gap-3 px-4 py-2 border-b border-border/30 bg-muted/10 flex-wrap rounded-t-2xl">
+                    <DtSearch table={usagesTable} />
+                    <RowsPerPage table={usagesTable} />
+                </div>
+
+                <div class="p-3 space-y-2">
+                    {#each usagesTable.rows as row}
+                        <div class="rounded-xl border border-border/60 bg-card p-3 flex items-center gap-3">
+                            <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
+                                {row.name.charAt(0)}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-medium text-sm">{row.name}</div>
+                                <div class="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                                    <span class="font-mono">{row.nik}</span>
+                                    <span>·</span>
+                                    <span>{row.login}</span>
+                                    {#if row.note}
+                                        <span>·</span>
+                                        <span>{row.note}</span>
+                                    {/if}
+                                </div>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+
+                <div class="flex items-center justify-between px-4 py-2 border-t border-border/30 bg-muted/10">
+                    <RowCount table={usagesTable} />
+                    <Pagination table={usagesTable} />
+                </div>
             {:else}
                 <p class="text-sm text-muted-foreground">Belum ada riwayat penggunaan.</p>
             {/if}
@@ -598,51 +602,51 @@
             </div>
 
             {#if checksTable}
-                <Datatable basic table={checksTable}>
-                    <table>
-                        <thead>
-                            <tr>
-                                <ThSort table={checksTable} field="user">Petugas</ThSort>
-                                <ThSort table={checksTable} field="nik">NIK</ThSort>
-                                <ThSort table={checksTable} field="status">Status</ThSort>
-                                <ThSort table={checksTable} field="date">Tanggal</ThSort>
-                                <ThSort table={checksTable} field="note">Catatan</ThSort>
-                            </tr>
-                            <tr>
-                                <ThFilter table={checksTable} field="user" />
-                                <ThFilter table={checksTable} field="nik" />
-                                <ThFilter table={checksTable} field="status" />
-                                <ThFilter table={checksTable} field="date" />
-                                <ThFilter table={checksTable} field="note" />
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {#each checksTable.rows as row}
-                                <tr>
-                                    <td><span class="font-medium text-sm">{row.user}</span></td>
-                                    <td class="font-mono text-sm text-muted-foreground">{row.nik}</td>
-                                    <td>
-                                        <span
-                                            class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border
-                                            {row.status === 'ok'
-                                                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                                                : 'bg-destructive/10 text-destructive border-destructive/20'}"
-                                        >
-                                            {#if row.status === 'ok'}
-                                                <CheckCircle2 class="size-3.5" />
-                                            {:else}
-                                                <XCircle class="size-3.5" />
-                                            {/if}
-                                            {row.status === 'ok' ? 'OK' : 'Gagal'}
-                                        </span>
-                                    </td>
-                                    <td class="text-sm text-muted-foreground whitespace-nowrap">{row.date}</td>
-                                    <td class="text-sm text-muted-foreground">{row.note}</td>
-                                </tr>
-                            {/each}
-                        </tbody>
-                    </table>
-                </Datatable>
+                <div class="flex items-center gap-3 px-4 py-2 border-b border-border/30 bg-muted/10 flex-wrap rounded-t-2xl">
+                    <DtSearch table={checksTable} />
+                    <RowsPerPage table={checksTable} />
+                </div>
+
+                <div class="p-3 space-y-2">
+                    {#each checksTable.rows as row}
+                        <div class="rounded-xl border border-border/60 bg-card p-3 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="size-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
+                                        {row.user.charAt(0)}
+                                    </div>
+                                    <span class="font-medium text-sm">{row.user}</span>
+                                    <span class="font-mono text-xs text-muted-foreground">({row.nik})</span>
+                                </div>
+                                <span
+                                    class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border
+                                    {row.status === 'ok'
+                                        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                                        : 'bg-destructive/10 text-destructive border-destructive/20'}"
+                                >
+                                    {#if row.status === 'ok'}
+                                        <CheckCircle2 class="size-3" />
+                                    {:else}
+                                        <XCircle class="size-3" />
+                                    {/if}
+                                    {row.status === 'ok' ? 'OK' : 'Gagal'}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-muted-foreground">
+                                <span>{row.date}</span>
+                                {#if row.note}
+                                    <span>·</span>
+                                    <span>{row.note}</span>
+                                {/if}
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+
+                <div class="flex items-center justify-between px-4 py-2 border-t border-border/30 bg-muted/10">
+                    <RowCount table={checksTable} />
+                    <Pagination table={checksTable} />
+                </div>
             {:else}
                 <p class="text-sm text-muted-foreground">Belum ada riwayat pengecekan.</p>
             {/if}
