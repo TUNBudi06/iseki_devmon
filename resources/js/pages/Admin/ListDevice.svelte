@@ -3,7 +3,8 @@
     import storage from '$routes/storage';
     import { Button } from '$shadcn/components/ui/button';
     import * as Card from '$shadcn/components/ui/card';
-    import { TableHandler, Datatable, ThSort, ThFilter, Th } from '@vincjo/datatables';
+    import { TableHandler, RowsPerPage, RowCount, Pagination } from '@vincjo/datatables';
+    import { Search as DtSearch } from '@vincjo/datatables';
     import { Input } from '$shadcn/components/ui/input';
     import { Label } from '$shadcn/components/ui/label';
     import { Badge } from '$shadcn/components/ui/badge';
@@ -584,52 +585,42 @@
                         {/if}
                     </div>
                 {:else if brandsTable}
-                    <Datatable basic table={brandsTable}>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <ThSort table={brandsTable} field="id">Device ID</ThSort>
-                                    <ThSort table={brandsTable} field="name">Name</ThSort>
-                                    <ThSort table={brandsTable} field="created_at">Created</ThSort>
-                                    <Th>Actions</Th>
-                                </tr>
-                                <tr>
-                                    <ThFilter table={brandsTable} field="id" />
-                                    <ThFilter table={brandsTable} field="name" />
-                                    <ThFilter table={brandsTable} field="created_at" />
-                                    <Th></Th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {#each brandsTable.rows as brand (brand.id)}
-                                    <tr>
-                                        <td>
-                                            <Badge variant="outline" class="font-mono text-xs bg-pink-500/8 border-pink-300/30 text-pink-600">
-                                                {brand.id}
-                                            </Badge>
-                                        </td>
-                                        <td><span class="font-medium">{brand.name}</span></td>
-                                        <td class="text-sm text-muted-foreground">
-                                            <span class="inline-flex items-center gap-1.5">
-                                                <CalendarDays class="size-3.5 text-muted-foreground/60" />
-                                                {formatDate(brand.created_at)}
-                                            </span>
-                                        </td>
-                                        <td class="text-right">
-                                            <div class="flex items-center justify-end gap-1">
-                                                <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10" onclick={() => openEditBrand(brand)}>
-                                                    <Edit class="size-3.5" />
-                                                </Button>
-                                                <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10" onclick={() => openDeleteBrand(brand)}>
-                                                    <Trash2 class="size-3.5" />
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {/each}
-                            </tbody>
-                        </table>
-                    </Datatable>
+                    <!-- Search + Rows per page -->
+                    <div class="flex items-center gap-3 px-6 py-3 border-b border-border/30 bg-muted/10 flex-wrap">
+                        <DtSearch table={brandsTable} />
+                        <RowsPerPage table={brandsTable} />
+                    </div>
+
+                    <!-- Brand Cards -->
+                    <div class="p-4 space-y-3">
+                        {#each brandsTable.rows as brand (brand.id)}
+                            <div class="rounded-xl border border-border/60 bg-card p-4 flex items-center justify-between gap-4">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <Badge variant="outline" class="font-mono text-xs bg-pink-500/8 border-pink-300/30 text-pink-600 shrink-0">
+                                        {brand.id}
+                                    </Badge>
+                                    <div class="min-w-0">
+                                        <span class="font-medium text-sm">{brand.name}</span>
+                                        <p class="text-xs text-muted-foreground">{formatDate(brand.created_at)}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10" onclick={() => openEditBrand(brand)}>
+                                        <Edit class="size-3.5" />
+                                    </Button>
+                                    <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10" onclick={() => openDeleteBrand(brand)}>
+                                        <Trash2 class="size-3.5" />
+                                    </Button>
+                                </div>
+                            </div>
+                        {/each}
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex items-center justify-between px-6 py-3 border-t border-border/30 bg-muted/10">
+                        <RowCount table={brandsTable} />
+                        <Pagination table={brandsTable} />
+                    </div>
                 {/if}
             </Card.Root>
         {/if}
@@ -670,117 +661,108 @@
                         {/if}
                     </div>
                 {:else if phonesTable}
-                    <Datatable basic table={phonesTable}>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <Th>Photo</Th>
-                                    <ThSort table={phonesTable} field="brand_id">Brand</ThSort>
-                                    <ThSort table={phonesTable} field="model_id">Model ID</ThSort>
-                                    <ThSort table={phonesTable} field="model_name">Name</ThSort>
-                                    <ThSort table={phonesTable} field="model_type">Type</ThSort>
-                                    <ThSort table={phonesTable} field="buy_date">Buy Date</ThSort>
-                                    <ThSort table={phonesTable} field="price">Price</ThSort>
-                                    <ThSort table={phonesTable} field="ram">RAM</ThSort>
-                                    <ThSort table={phonesTable} field="storage">Storage</ThSort>
-                                    <Th>Status</Th>
-                                    <Th>Actions</Th>
-                                </tr>
-                                <tr>
-                                    <Th></Th>
-                                    <ThFilter table={phonesTable} field="brand_id" />
-                                    <ThFilter table={phonesTable} field="model_id" />
-                                    <ThFilter table={phonesTable} field="model_name" />
-                                    <ThFilter table={phonesTable} field="model_type" />
-                                    <ThFilter table={phonesTable} field="buy_date" />
-                                    <ThFilter table={phonesTable} field="price" />
-                                    <ThFilter table={phonesTable} field="ram" />
-                                    <ThFilter table={phonesTable} field="storage" />
-                                    <Th></Th>
-                                    <Th></Th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {#each phonesTable.rows as phone (phone.id)}
-                                    <tr>
-                                        <td>
-                                            {#if phone.thumbnail}
-                                                <img src={storageUrl(phone.thumbnail)} alt={phone.model_name} class="size-10 rounded-lg object-cover ring-1 ring-pink-300/30" />
-                                            {:else if phone.list_photos && phone.list_photos.length > 0}
-                                                <img src={storageUrl(phone.list_photos[0])} alt={phone.model_name} class="size-10 rounded-lg object-cover ring-1 ring-pink-300/30" />
-                                            {:else}
-                                                <div class="size-10 rounded-lg bg-pink-500/10 flex items-center justify-center ring-1 ring-pink-300/20">
-                                                    <Image class="size-4 text-pink-400/60" />
-                                                </div>
-                                            {/if}
-                                        </td>
-                                        <td>
-                                            <Badge variant="outline" class="text-xs bg-violet-500/10 border-violet-300/30 text-violet-600 font-medium">
-                                                {phone.brand?.name ?? phone.brand_id}
-                                            </Badge>
-                                        </td>
-                                        <td><span class="font-mono text-xs">{phone.model_id}</span></td>
-                                        <td class="font-medium">{phone.model_name}</td>
-                                        <td>
-                                            {#if phone.model_type === 'Phone'}
-                                                <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 gap-1">
-                                                    <Smartphone class="size-3" /> Phone
-                                                </Badge>
-                                            {:else}
-                                                <Badge class="bg-amber-500/15 text-amber-600 border-amber-300/30 gap-1">
-                                                    <Tablet class="size-3" /> Tablet
-                                                </Badge>
-                                            {/if}
-                                        </td>
-                                        <td class="text-sm text-muted-foreground whitespace-nowrap">{phone.buy_date}</td>
-                                        <td class="font-mono text-sm font-semibold text-emerald-600 whitespace-nowrap">{formatPrice(phone.price)}</td>
-                                        <td><span class="inline-flex items-center gap-1 text-sm"><Cpu class="size-3.5 text-muted-foreground/60" /> {phone.ram}</span></td>
-                                        <td><span class="inline-flex items-center gap-1 text-sm"><HardDrive class="size-3.5 text-muted-foreground/60" /> {phone.storage}</span></td>
-                                        <td>
-                                            <div class="flex flex-wrap gap-1">
-                                                {#if phone.registered}
-                                                    <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 gap-1"><CircleCheck class="size-3" /> Registered</Badge>
-                                                {:else}
-                                                    <Badge variant="secondary" class="bg-rose-500/10 text-rose-500 border-rose-300/30 gap-1"><CircleX class="size-3" /> Unregistered</Badge>
+                    <!-- Search + Rows per page -->
+                    <div class="flex items-center gap-3 px-6 py-3 border-b border-border/30 bg-muted/10 flex-wrap">
+                        <DtSearch table={phonesTable} />
+                        <RowsPerPage table={phonesTable} />
+                    </div>
+
+                    <!-- Phone Cards -->
+                    <div class="p-4 space-y-3">
+                        {#each phonesTable.rows as phone (phone.id)}
+                            <div class="rounded-xl border border-border/60 bg-card p-4 space-y-3 {phone.deleted_at ? 'opacity-50' : ''}">
+                                <!-- Header: Thumbnail + Nama + Status -->
+                                <div class="flex items-start gap-3">
+                                    <!-- Thumbnail -->
+                                    <div class="shrink-0">
+                                        {#if phone.thumbnail}
+                                            <img src={storageUrl(phone.thumbnail)} alt={phone.model_name} class="size-14 rounded-xl object-cover ring-1 ring-pink-300/30" />
+                                        {:else if phone.list_photos && phone.list_photos.length > 0}
+                                            <img src={storageUrl(phone.list_photos[0])} alt={phone.model_name} class="size-14 rounded-xl object-cover ring-1 ring-pink-300/30" />
+                                        {:else}
+                                            <div class="size-14 rounded-xl bg-pink-500/10 flex items-center justify-center ring-1 ring-pink-300/20">
+                                                <Image class="size-6 text-pink-400/60" />
+                                            </div>
+                                        {/if}
+                                    </div>
+
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-start justify-between gap-2">
+                                            <div class="min-w-0">
+                                                <div class="font-semibold text-sm leading-tight">{phone.model_name}</div>
+                                                <code class="text-xs font-mono text-muted-foreground">{phone.model_id}</code>
+                                            </div>
+                                            <div class="flex items-center gap-1 shrink-0">
+                                                {#if !phone.registered}
+                                                    <Button size="icon" variant="ghost" class="size-7 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10" onclick={() => openQr(phone)} title="QR Code">
+                                                        <QrCode class="size-3.5" />
+                                                    </Button>
                                                 {/if}
                                                 {#if !phone.approved}
-                                                    <Badge variant="outline" class="bg-amber-500/10 border-amber-300/30 text-amber-500 gap-1">Pending</Badge>
-                                                {:else}
-                                                    <Badge class="bg-sky-500/15 text-sky-600 border-sky-300/30 gap-1"><Check class="size-3" /> Disetujui</Badge>
+                                                    <Button size="icon" variant="ghost" class="size-7 text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10" onclick={() => handleApprovePhone(phone)} title="Setujui" disabled={approvingId === phone.id}>
+                                                        {#if approvingId === phone.id}
+                                                            <div class="size-3.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                                                        {:else}
+                                                            <Check class="size-3.5" />
+                                                        {/if}
+                                                    </Button>
                                                 {/if}
+                                                <Button size="icon" variant="ghost" class="size-7 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10" onclick={() => openEditPhone(phone)}>
+                                                    <Edit class="size-3.5" />
+                                                </Button>
+                                                <Button size="icon" variant="ghost" class="size-7 text-muted-foreground hover:text-red-400 hover:bg-red-500/10" onclick={() => openDeletePhone(phone)}>
+                                                    <Trash2 class="size-3.5" />
+                                                </Button>
                                             </div>
-                                        </td>
-                                        <td class="text-right">
-                                            {#if !phone.deleted_at}
-                                                <div class="flex items-center justify-end gap-1">
-                                                    {#if !phone.registered}
-                                                        <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10" onclick={() => openQr(phone)} title="QR Code">
-                                                            <QrCode class="size-3.5" />
-                                                        </Button>
-                                                    {/if}
-                                                    {#if !phone.approved}
-                                                        <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10" onclick={() => handleApprovePhone(phone)} title="Setujui" disabled={approvingId === phone.id}>
-                                                            {#if approvingId === phone.id}
-                                                                <div class="size-3.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-                                                            {:else}
-                                                                <Check class="size-3.5" />
-                                                            {/if}
-                                                        </Button>
-                                                    {/if}
-                                                    <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10" onclick={() => openEditPhone(phone)}>
-                                                        <Edit class="size-3.5" />
-                                                    </Button>
-                                                    <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10" onclick={() => openDeletePhone(phone)}>
-                                                        <Trash2 class="size-3.5" />
-                                                    </Button>
-                                                </div>
-                                            {/if}
-                                        </td>
-                                    </tr>
-                                {/each}
-                            </tbody>
-                        </table>
-                    </Datatable>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Detail Info -->
+                                <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                                    <div class="flex items-center gap-1.5">
+                                        <Badge variant="outline" class="text-[10px] bg-violet-500/10 border-violet-300/30 text-violet-600 font-medium px-2 py-0">
+                                            {phone.brand?.name ?? phone.brand_id}
+                                        </Badge>
+                                    </div>
+                                    <div>
+                                        {#if phone.model_type === 'Phone'}
+                                            <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 gap-1 text-[10px] px-2 py-0"><Smartphone class="size-3" /> Phone</Badge>
+                                        {:else}
+                                            <Badge class="bg-amber-500/15 text-amber-600 border-amber-300/30 gap-1 text-[10px] px-2 py-0"><Tablet class="size-3" /> Tablet</Badge>
+                                        {/if}
+                                    </div>
+                                    <div class="flex items-center gap-1"><Cpu class="size-3 text-muted-foreground" /> {phone.ram}</div>
+                                    <div class="flex items-center gap-1"><HardDrive class="size-3 text-muted-foreground" /> {phone.storage}</div>
+                                    <div class="text-muted-foreground">📅 {phone.buy_date}</div>
+                                    <div class="font-semibold text-emerald-600 dark:text-emerald-400">{formatPrice(phone.price)}</div>
+                                </div>
+
+                                <!-- Status badges -->
+                                <div class="flex flex-wrap gap-1.5 pt-1 border-t border-border/30">
+                                    {#if phone.registered}
+                                        <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 gap-1 text-xs"><CircleCheck class="size-3" /> Registered</Badge>
+                                    {:else}
+                                        <Badge variant="secondary" class="bg-rose-500/10 text-rose-500 border-rose-300/30 gap-1 text-xs"><CircleX class="size-3" /> Unregistered</Badge>
+                                    {/if}
+                                    {#if !phone.approved}
+                                        <Badge variant="outline" class="bg-amber-500/10 border-amber-300/30 text-amber-500 gap-1 text-xs">Pending</Badge>
+                                    {:else}
+                                        <Badge class="bg-sky-500/15 text-sky-600 border-sky-300/30 gap-1 text-xs"><Check class="size-3" /> Disetujui</Badge>
+                                    {/if}
+                                    {#if phone.deleted_at}
+                                        <Badge variant="outline" class="bg-red-500/10 border-red-300/30 text-red-500 gap-1 text-xs"><X class="size-3" /> Deleted</Badge>
+                                    {/if}
+                                </div>
+                            </div>
+                        {/each}
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex items-center justify-between px-6 py-3 border-t border-border/30 bg-muted/10">
+                        <RowCount table={phonesTable} />
+                        <Pagination table={phonesTable} />
+                    </div>
                 {/if}
             </Card.Root>
         {/if}
