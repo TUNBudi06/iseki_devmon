@@ -14,20 +14,18 @@ class DashboardController extends Controller
 {
     public function index(): Response
     {
-        $stats = [
-            'totalDevices' => PhoneList::withTrashed()->count(),
-            'totalBrands' => Brand::count(),
-            'activeToday' => Absence::whereDate('time_absence', today())
-                ->distinct('device_id')
-                ->count('device_id'),
-            'totalRegistered' => PhoneList::where('registered', true)->count(),
-            'checkedThisMonth' => 0,
-            'maintenanceCount' => 0,
-            'totalUsers' => User::count(),
-        ];
-
         return Inertia::render('Admin/Dashboard', [
-            'stats' => $stats,
+            'stats' => fn () => [
+                'totalDevices' => PhoneList::withTrashed()->count(),
+                'totalBrands' => Brand::count(),
+                'activeToday' => Absence::whereDate('time_absence', today())
+                    ->distinct('device_id')
+                    ->count('device_id'),
+                'totalRegistered' => PhoneList::where('registered', true)->count(),
+                'checkedThisMonth' => 0,
+                'maintenanceCount' => 0,
+                'totalUsers' => User::count(),
+            ],
         ]);
     }
 }

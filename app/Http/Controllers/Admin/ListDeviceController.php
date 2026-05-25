@@ -16,16 +16,13 @@ class ListDeviceController extends Controller
 {
     public function index(): Response
     {
-        $brands = Brand::orderBy('created_at', 'desc')->get();
-        $phoneLists = PhoneList::with('brand')
-            ->orderByRaw('deleted_at IS NOT NULL')
-            ->orderBy('created_at', 'desc')
-            ->withTrashed()
-            ->get();
-
         return Inertia::render('Admin/ListDevice', [
-            'brands' => $brands,
-            'phoneLists' => $phoneLists,
+            'brands' => fn () => Brand::orderBy('created_at', 'desc')->get(),
+            'phoneLists' => fn () => PhoneList::with('brand')
+                ->orderByRaw('deleted_at IS NOT NULL')
+                ->orderBy('created_at', 'desc')
+                ->withTrashed()
+                ->get(),
         ]);
     }
 

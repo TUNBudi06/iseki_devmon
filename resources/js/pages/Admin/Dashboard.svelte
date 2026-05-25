@@ -1,5 +1,18 @@
 <script lang="ts">
     import { router } from '@inertiajs/svelte';
+    import { onMount, onDestroy } from 'svelte';
+
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
+
+    onMount(() => {
+        pollInterval = setInterval(() => {
+            router.reload({ only: ['stats'] });
+        }, 10000);
+    });
+
+    onDestroy(() => {
+        if (pollInterval) clearInterval(pollInterval);
+    });
 
     import { Button } from '$shadcn/components/ui/button';
     import * as Card from '$shadcn/components/ui/card';

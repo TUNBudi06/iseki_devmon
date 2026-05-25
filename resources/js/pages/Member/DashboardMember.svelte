@@ -1,6 +1,19 @@
 <script lang="ts">
+    import { onMount, onDestroy } from 'svelte';
     import { router } from '@inertiajs/svelte';
     import { TableHandler, Datatable, ThSort, ThFilter, Th } from '@vincjo/datatables';
+
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
+
+    onMount(() => {
+        pollInterval = setInterval(() => {
+            router.reload({ only: ['deviceLatest', 'hasAbsence', 'noAbsence'] });
+        }, 10000);
+    });
+
+    onDestroy(() => {
+        if (pollInterval) clearInterval(pollInterval);
+    });
     import {
         Smartphone,
         CheckCircle2,
@@ -47,8 +60,8 @@
     let { deviceLatest, currentDevice, hasAbsence, noAbsence }:
         { deviceLatest: UserAbsence | null; currentDevice: { model_id: string; model_name: string; hash_token?: string | null }; hasAbsence: DeviceItem[]; noAbsence: DeviceItem[] } = $props();
 
-    const tableHasAbsence = hasAbsence.length > 0 ? new TableHandler(hasAbsence, { rowsPerPage: 10 }) : null;
-    const tableNoAbsence = noAbsence.length > 0 ? new TableHandler(noAbsence, { rowsPerPage: 10 }) : null;
+    const tableHasAbsence = $derived(hasAbsence.length > 0 ? new TableHandler(hasAbsence, { rowsPerPage: 10 }) : null);
+    const tableNoAbsence = $derived(noAbsence.length > 0 ? new TableHandler(noAbsence, { rowsPerPage: 10 }) : null);
 
     let today = $derived(new Date().toLocaleDateString('id-ID', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'

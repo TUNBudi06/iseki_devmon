@@ -1,7 +1,20 @@
 <script lang="ts">
+    import { onMount, onDestroy } from 'svelte';
     import LayoutBG from '$/components/LayoutBG.svelte';
     import Navbar from '$/components/wrapper/Navbar.svelte';
     import { router } from '@inertiajs/svelte';
+
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
+
+    onMount(() => {
+        pollInterval = setInterval(() => {
+            router.reload({ only: ['latestAbsences', 'todayActiveDeviceIds'] });
+        }, 10000);
+    });
+
+    onDestroy(() => {
+        if (pollInterval) clearInterval(pollInterval);
+    });
     import { Button } from '$shadcn/components/ui/button';
     import * as InputGroup from '$shadcn/components/ui/input-group';
     import * as Card from '$shadcn/components/ui/card';

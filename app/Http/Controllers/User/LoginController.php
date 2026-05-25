@@ -105,55 +105,70 @@ class LoginController extends Controller
             return redirect()->route('user.deviceNotRegister');
         }
 
-        // Latest absence on THIS device today
-        $deviceLatestAbsence = Absence::where('device_id', $deviceId)
-            ->whereDate('time_absence', today())
-            ->latest('time_absence')
-            ->first();
-
-        // All devices for the monitoring tables
-        $allDevices = PhoneList::where('approved', true)
-            ->where('registered', true)
-            ->with('brand')
-            ->get();
-
-        $todayAbsences = Absence::whereDate('time_absence', today())
-            ->orderByDesc('time_absence')
-            ->get()
-            ->groupBy('device_id');
-
-        $absentDeviceIds = $todayAbsences->keys()->toArray();
-
-        $hasAbsence = $allDevices->filter(fn ($d) => in_array($d->model_id, $absentDeviceIds));
-        $noAbsence = $allDevices->filter(fn ($d) => ! in_array($d->model_id, $absentDeviceIds));
-
         return Inertia::render('Member/DashboardMember', [
-            'deviceLatest' => $deviceLatestAbsence ? [
-                'id' => $deviceLatestAbsence->id,
-                'nik' => $deviceLatestAbsence->nik,
-                'name' => $deviceLatestAbsence->name,
-                'time_absence' => $deviceLatestAbsence->time_absence->format('H:i:s'),
-                'date_absence' => $deviceLatestAbsence->time_absence->format('d F Y'),
-                'catatan' => $deviceLatestAbsence->catatan,
-            ] : null,
+            'deviceLatest' => function () use ($deviceId) {
+                $abs = Absence::where('device_id', $deviceId)
+                    ->whereDate('time_absence', today())
+                    ->latest('time_absence')
+                    ->first();
+                if (! $abs) {
+                    return null;
+                }
+
+                return [
+                    'id' => $abs->id,
+                    'nik' => $abs->nik,
+                    'name' => $abs->name,
+                    'time_absence' => $abs->time_absence->format('H:i:s'),
+                    'date_absence' => $abs->time_absence->format('d F Y'),
+                    'catatan' => $abs->catatan,
+                ];
+            },
             'currentDevice' => [
                 'model_id' => $device->model_id,
                 'model_name' => $device->model_name,
                 'hash_token' => $device->hash_token,
             ],
-            'hasAbsence' => $hasAbsence->values()->map(fn ($d) => [
-                'model_id' => $d->model_id,
-                'model_name' => $d->model_name,
-                'brand_name' => $d->brand?->name,
-                'latest_user_name' => $todayAbsences->get($d->model_id)?->first()?->name,
-                'latest_user_nik' => $todayAbsences->get($d->model_id)?->first()?->nik,
-                'latest_time' => $todayAbsences->get($d->model_id)?->first()?->time_absence?->format('H:i'),
-            ]),
-            'noAbsence' => $noAbsence->values()->map(fn ($d) => [
-                'model_id' => $d->model_id,
-                'model_name' => $d->model_name,
-                'brand_name' => $d->brand?->name,
-            ]),
+            'hasAbsence' => fn () => PhoneList::where('approved', true)
+                ->where('registered', true)
+                ->with('brand')
+                ->get()
+                ->filter(fn ($d) => Absence::whereDate('time_absence', today())
+                    ->where('device_id', $d->model_id)
+                    ->exists()
+                )
+                ->values()
+                ->map(fn ($d) => [
+                    'model_id' => $d->model_id,
+                    'model_name' => $d->model_name,
+                    'brand_name' => $d->brand?->name,
+                    'latest_user_name' => Absence::whereDate('time_absence', today())
+                        ->where('device_id', $d->model_id)
+                        ->latest('time_absence')
+                        ->first()?->name,
+                    'latest_user_nik' => Absence::whereDate('time_absence', today())
+                        ->where('device_id', $d->model_id)
+                        ->latest('time_absence')
+                        ->first()?->nik,
+                    'latest_time' => Absence::whereDate('time_absence', today())
+                        ->where('device_id', $d->model_id)
+                        ->latest('time_absence')
+                        ->first()?->time_absence?->format('H:i'),
+                ]),
+            'noAbsence' => fn () => PhoneList::where('approved', true)
+                ->where('registered', true)
+                ->with('brand')
+                ->get()
+                ->reject(fn ($d) => Absence::whereDate('time_absence', today())
+                    ->where('device_id', $d->model_id)
+                    ->exists()
+                )
+                ->values()
+                ->map(fn ($d) => [
+                    'model_id' => $d->model_id,
+                    'model_name' => $d->model_name,
+                    'brand_name' => $d->brand?->name,
+                ]),
         ]);
     }
 
