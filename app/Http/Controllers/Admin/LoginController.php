@@ -19,10 +19,10 @@ class LoginController extends Controller
 
     public function authenticate(Request $request): JsonResponse
     {
-        //        $request->validate([
-        //            'username' => ['required', 'string'],
-        //            'password' => ['required', 'string'],
-        //        ]);
+        $request->validate([
+            'username' => ['required', 'string'],
+            'password' => ['required', 'string'],
+        ]);
 
         $user = User::where('username', $request->username)->first();
 
@@ -41,7 +41,7 @@ class LoginController extends Controller
             return response()->json(['success' => true]);
         }
 
-        return response()->json(['message' => 'Invalid credentials'], 422);
+        return response()->json(['errors' => ['password' => 'Username atau password salah.']], 422);
     }
 
     public function logout(Request $request): RedirectResponse

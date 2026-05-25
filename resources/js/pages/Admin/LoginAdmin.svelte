@@ -24,7 +24,10 @@
                 await toast.success('Login berhasil! Mengalihkan ke dashboard...')
                 setTimeout(() => {
                 router.visit(dashboard().url);
-                }, 1000) // Beri jeda agar toast terlihat
+                }, 1000)
+            },
+            onError: (errors) => {
+                toast.error(errors.password || errors.username || 'Login gagal. Periksa username dan password.');
             },
         });
     }
@@ -94,8 +97,10 @@
                         </div>
                     </div>
 
-                    {#if form.errors.username}
-                        <p class="text-sm text-red-500">{form.errors.username}</p>
+                    {#if form.errors.password}
+                        <div class="rounded-lg bg-red-500/10 border border-red-500/20 p-3">
+                            <p class="text-sm text-red-400">{form.errors.password}</p>
+                        </div>
                     {/if}
 
                     <Button
