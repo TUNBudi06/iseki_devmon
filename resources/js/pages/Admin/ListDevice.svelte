@@ -1413,6 +1413,8 @@
             border: none !important;
             display: flex;
             align-items: center;
+            justify-content: flex-start;
+            text-align: left;
             gap: 8px;
         }
         :global(.svelte-simple-datatable tbody td:before) {
