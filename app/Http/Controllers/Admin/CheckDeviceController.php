@@ -24,31 +24,29 @@ class CheckDeviceController extends Controller
 
         $token = $validated['token'];
 
-        // Cari berdasarkan hash_token atau model_id
+        // Cari device berdasarkan hash_token
         $device = PhoneList::where('hash_token', $token)
-            ->orWhere('model_id', $token)
             ->with('brand')
             ->first();
 
         if (! $device) {
             return response()->json([
                 'valid' => false,
-                'message' => 'Token tidak cocok dengan perangkat manapun.',
+                'token_input' => $token,
+                'matched_by' => null,
+                'message' => 'Token tidak cocok dengan hash_token perangkat manapun.',
             ], 404);
         }
 
-        // Verifikasi hash_token cocok
-        if ($device->hash_token !== $token && $device->model_id !== $token) {
-            return response()->json([
-                'valid' => false,
-                'message' => 'Token tidak valid untuk perangkat ini.',
-            ], 422);
-        }
+        // Verifikasi hash_token cocok persis
+        $match = $device->hash_token === $token;
 
         return response()->json([
-            'valid' => true,
-            'message' => 'Perangkat terverifikasi!',
-            'device' => [
+            'valid' => $match,
+            'token_input' => $token,
+            'matched_by' => 'hash_token',
+            'message' => $match ? '✓ Hash token cocok! Perangkat terverifikasi.' : 'Token tidak sesuai dengan hash_token perangkat.',
+            'device' => $match ? [
                 'model_id' => $device->model_id,
                 'model_name' => $device->model_name,
                 'model_type' => $device->model_type,
@@ -59,7 +57,7 @@ class CheckDeviceController extends Controller
                 'storage' => $device->storage,
                 'thumbnail' => $device->thumbnail,
                 'hash_token' => $device->hash_token,
-            ],
+            ] : null,
         ]);
     }
 }

@@ -5,10 +5,10 @@
     import { Input } from '$shadcn/components/ui/input';
     import { Label } from '$shadcn/components/ui/label';
     import { Badge } from '$shadcn/components/ui/badge';
+    import { Separator } from '$shadcn/components/ui/separator';
     import storage from '$routes/storage';
     import {
         ShieldCheck,
-        Search,
         ArrowLeft,
         CheckCircle2,
         XCircle,
@@ -17,6 +17,7 @@
         HardDrive,
         QrCode,
         ScanQrCode,
+        FileKey,
     } from '@lucide/svelte';
     import { dashboard, checkDevice } from '$routes/admin';
 
@@ -33,10 +34,17 @@
         hash_token: string | null;
     };
 
+    type VerifyResult = {
+        valid: boolean;
+        token_input: string;
+        matched_by: string | null;
+        message: string;
+        device: DeviceInfo | null;
+    };
+
     let token = $state('');
     let checking = $state(false);
-    let device = $state<DeviceInfo | null>(null);
-    let errorMsg = $state('');
+    let result = $state<VerifyResult | null>(null);
 
     function assetUrl(path: string | null): string | null {
         if (!path) return null;
@@ -48,8 +56,7 @@
         if (!token.trim()) return;
 
         checking = true;
-        errorMsg = '';
-        device = null;
+        result = null;
 
         try {
             const res = await fetch(checkDevice.verify().url, {
@@ -58,17 +65,10 @@
                 body: JSON.stringify({ token: token.trim() }),
             });
 
-            const data = await res.json();
-
-            if (!res.ok || !data.valid) {
-                errorMsg = data.message ?? 'Token tidak cocok';
-                checking = false;
-                return;
-            }
-
-            device = data.device;
+            const data: VerifyResult = await res.json();
+            result = data;
         } catch {
-            errorMsg = 'Gagal memverifikasi. Coba lagi.';
+            result = { valid: false, token_input: token, matched_by: null, message: 'Gagal memverifikasi. Coba lagi.', device: null };
         } finally {
             checking = false;
         }
@@ -91,7 +91,7 @@
                 <h1 class="text-2xl font-bold">Check Device</h1>
             </div>
             <p class="text-sm text-muted-foreground mt-1">
-                Scan atau masukkan token QR untuk verifikasi perangkat
+                Verifikasi token QR perangkat — cocokkan hash_token dengan database
             </p>
         </div>
     </div>
@@ -100,13 +100,13 @@
     <Card.Root class="max-w-xl border-border/60 bg-card/60 backdrop-blur-xl">
         <Card.Content class="p-6 space-y-4">
             <div class="space-y-2">
-                <Label for="token" class="text-sm font-medium">Token / Kode QR</Label>
+                <Label for="token" class="text-sm font-medium">Token dari QR Code</Label>
                 <div class="relative">
                     <QrCode class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                     <Input
                         id="token"
                         bind:value={token}
-                        placeholder="Masukkan hash_token atau scan QR..."
+                        placeholder="Masukkan hash_token dari QR..."
                         class="pl-10 h-12 font-mono text-sm"
                     />
                 </div>
@@ -122,113 +122,144 @@
                     Memverifikasi...
                 {:else}
                     <ShieldCheck class="size-4" />
-                    Verifikasi Perangkat
+                    Verifikasi Token
                 {/if}
             </Button>
         </Card.Content>
     </Card.Root>
 
-    <!-- ──────── Error Result ──────── -->
-    {#if errorMsg}
-        <Card.Root class="max-w-xl border-red-500/30 bg-card/60 backdrop-blur-xl">
-            <Card.Content class="p-6">
-                <div class="flex items-center gap-3">
-                    <div class="size-12 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
-                        <XCircle class="size-6 text-red-400" />
-                    </div>
-                    <div>
-                        <div class="font-semibold text-lg text-red-400">Tidak Cocok</div>
-                        <p class="text-sm text-muted-foreground">{errorMsg}</p>
-                    </div>
-                </div>
-            </Card.Content>
-        </Card.Root>
-    {/if}
-
-    <!-- ──────── Device Info Result ──────── -->
-    {#if device}
-        <Card.Root class="max-w-xl border-emerald-500/30 bg-card/60 backdrop-blur-xl overflow-hidden">
-            <!-- Top gradient bar -->
-            <div class="h-1.5 bg-gradient-to-r from-emerald-500 to-emerald-400" />
+    <!-- ──────── Result ──────── -->
+    {#if result}
+        <Card.Root class="max-w-xl border-border/60 bg-card/60 backdrop-blur-xl overflow-hidden">
+            <div class="h-1.5 bg-gradient-to-r {result.valid ? 'from-emerald-500 to-emerald-400' : 'from-red-500 to-red-400'}" />
 
             <Card.Content class="p-6 space-y-5">
-                <!-- Header -->
-                <div class="flex items-center gap-4">
-                    <div class="size-14 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 ring-2 ring-emerald-500/30">
-                        <CheckCircle2 class="size-7 text-emerald-400" />
+                <!-- Status Header -->
+                <div class="flex items-center gap-3">
+                    <div class="size-12 rounded-full {result.valid ? 'bg-emerald-500/20 ring-emerald-500/30' : 'bg-red-500/20 ring-red-500/30'} flex items-center justify-center shrink-0 ring-2">
+                        {#if result.valid}
+                            <CheckCircle2 class="size-6 text-emerald-400" />
+                        {:else}
+                            <XCircle class="size-6 text-red-400" />
+                        {/if}
                     </div>
                     <div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-lg">{device.model_name}</span>
-                            <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 text-xs">
-                                <CheckCircle2 class="size-3 mr-1" /> Terverifikasi
-                            </Badge>
+                        <div class="font-bold text-lg {result.valid ? 'text-emerald-400' : 'text-red-400'}">
+                            {result.valid ? '✓ Token Cocok' : '✗ Token Tidak Cocok'}
                         </div>
-                        <div class="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
-                            <Badge variant="outline" class="font-mono text-xs">{device.model_id}</Badge>
-                            {#if device.brand_name}
-                                <span>·</span>
-                                <span>{device.brand_name}</span>
-                            {/if}
-                            <span>·</span>
-                            <span>{device.model_type}</span>
-                        </div>
+                        <p class="text-sm text-muted-foreground">{result.message}</p>
                     </div>
                 </div>
 
-                <!-- Thumbnail + Specs -->
-                <div class="flex gap-4">
-                    {#if device.thumbnail}
-                        <img src={assetUrl(device.thumbnail)} alt={device.model_name} class="size-20 rounded-xl object-cover ring-1 ring-emerald-300/30 shrink-0" />
-                    {:else}
-                        <div class="size-20 rounded-xl bg-emerald-500/10 flex items-center justify-center ring-1 ring-emerald-300/20 shrink-0">
-                            <Smartphone class="size-8 text-emerald-400/60" />
+                <Separator class="opacity-40" />
+
+                <!-- Perbandingan Token -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        <FileKey class="size-3.5" />
+                        Perbandingan Token
+                    </div>
+
+                    <!-- Token Input -->
+                    <div class="rounded-lg bg-muted/30 p-3 space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-muted-foreground">Token Input (dari QR)</span>
+                            {#if result.valid}
+                                <CheckCircle2 class="size-4 text-emerald-400" />
+                            {:else}
+                                <XCircle class="size-4 text-red-400" />
+                            {/if}
+                        </div>
+                        <code class="text-xs font-mono break-all {result.valid ? 'text-emerald-600' : 'text-red-400'}">{result.token_input}</code>
+                    </div>
+
+                    <!-- Hash Token di DB (kalau device ditemukan) -->
+                    {#if result.device?.hash_token}
+                        <div class="rounded-lg bg-muted/30 p-3 space-y-1">
+                            <span class="text-xs text-muted-foreground">Hash Token di Database</span>
+                            <code class="text-xs font-mono break-all text-emerald-600">{result.device.hash_token}</code>
+                        </div>
+                    {:else if !result.valid}
+                        <div class="rounded-lg bg-red-500/10 p-3">
+                            <p class="text-xs text-red-400 font-medium">Tidak ada device dengan hash_token ini</p>
                         </div>
                     {/if}
-
-                    <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm flex-1">
-                        <div>
-                            <span class="text-xs text-muted-foreground">RAM</span>
-                            <div class="font-medium flex items-center gap-1">
-                                <Cpu class="size-3.5 text-muted-foreground/60" />
-                                {device.ram}
-                            </div>
-                        </div>
-                        <div>
-                            <span class="text-xs text-muted-foreground">Storage</span>
-                            <div class="font-medium flex items-center gap-1">
-                                <HardDrive class="size-3.5 text-muted-foreground/60" />
-                                {device.storage}
-                            </div>
-                        </div>
-                        <div>
-                            <span class="text-xs text-muted-foreground">Registered</span>
-                            <div>
-                                {#if device.registered}
-                                    <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 text-xs">Registered</Badge>
-                                {:else}
-                                    <Badge variant="secondary" class="text-xs">Unregistered</Badge>
-                                {/if}
-                            </div>
-                        </div>
-                        <div>
-                            <span class="text-xs text-muted-foreground">Approved</span>
-                            <div>
-                                {#if device.approved}
-                                    <Badge class="bg-sky-500/15 text-sky-600 border-sky-300/30 text-xs">Disetujui</Badge>
-                                {:else}
-                                    <Badge variant="outline" class="text-xs">Pending</Badge>
-                                {/if}
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Hash token -->
-                {#if device.hash_token}
-                    <div class="rounded-lg bg-muted/30 p-3">
-                        <div class="text-xs text-muted-foreground mb-1">Hash Token</div>
-                        <code class="text-xs font-mono break-all text-emerald-600 dark:text-emerald-400">{device.hash_token}</code>
+                <!-- Device Info (hanya kalau valid) -->
+                {#if result.valid && result.device}
+                    <Separator class="opacity-40" />
+
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            <Smartphone class="size-3.5" />
+                            Informasi Perangkat
+                        </div>
+
+                        <!-- Thumbnail + Specs -->
+                        <div class="flex gap-4">
+                            {#if result.device.thumbnail}
+                                <img src={assetUrl(result.device.thumbnail)} alt={result.device.model_name} class="size-20 rounded-xl object-cover ring-1 ring-emerald-300/30 shrink-0" />
+                            {:else}
+                                <div class="size-20 rounded-xl bg-emerald-500/10 flex items-center justify-center ring-1 ring-emerald-300/20 shrink-0">
+                                    <Smartphone class="size-8 text-emerald-400/60" />
+                                </div>
+                            {/if}
+
+                            <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm flex-1">
+                                <div class="col-span-2">
+                                    <span class="text-xs text-muted-foreground">Nama Perangkat</span>
+                                    <div class="font-semibold flex items-center gap-2">
+                                        {result.device.model_name}
+                                        <Badge variant="outline" class="font-mono text-xs">{result.device.model_id}</Badge>
+                                    </div>
+                                </div>
+                                {#if result.device.brand_name}
+                                    <div>
+                                        <span class="text-xs text-muted-foreground">Brand</span>
+                                        <div class="font-medium">{result.device.brand_name}</div>
+                                    </div>
+                                {/if}
+                                <div>
+                                    <span class="text-xs text-muted-foreground">Tipe</span>
+                                    <div class="font-medium">{result.device.model_type}</div>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted-foreground">RAM</span>
+                                    <div class="font-medium flex items-center gap-1">
+                                        <Cpu class="size-3.5 text-muted-foreground/60" />
+                                        {result.device.ram}
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted-foreground">Storage</span>
+                                    <div class="font-medium flex items-center gap-1">
+                                        <HardDrive class="size-3.5 text-muted-foreground/60" />
+                                        {result.device.storage}
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted-foreground">Registered</span>
+                                    <div>
+                                        {#if result.device.registered}
+                                            <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 text-xs">Registered</Badge>
+                                        {:else}
+                                            <Badge variant="secondary" class="text-xs">Unregistered</Badge>
+                                        {/if}
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted-foreground">Approved</span>
+                                    <div>
+                                        {#if result.device.approved}
+                                            <Badge class="bg-sky-500/15 text-sky-600 border-sky-300/30 text-xs">Disetujui</Badge>
+                                        {:else}
+                                            <Badge variant="outline" class="text-xs">Pending</Badge>
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 {/if}
             </Card.Content>
