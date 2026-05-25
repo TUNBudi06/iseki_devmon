@@ -76,7 +76,9 @@ class PhoneListSeeder extends Seeder
         ];
 
         foreach ($devices as $i => $device) {
-            $modelId = $device['model_name'].'-'.str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT);
+            // Generate model_id sesuai format manual register: dev-001, dev-002, ...
+            $modelId = 'dev-'.str_pad((string) ($i + 1), 3, '0', STR_PAD_LEFT);
+
             $phone = PhoneList::updateOrCreate(
                 ['model_id' => $modelId],
                 [

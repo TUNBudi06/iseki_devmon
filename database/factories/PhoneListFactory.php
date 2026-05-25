@@ -18,15 +18,22 @@ class PhoneListFactory extends Factory
         $brandId = Brand::inRandomOrder()->first()?->id ?? 'samsung';
         $modelName = fake()->randomElement(['Galaxy S24', 'iPhone 15', 'Y02', '15C', 'A60', 'Hot 60']);
 
+        // Generate dev-XXX berdasarkan increment terakhir di DB
+        $last = PhoneList::where('model_id', 'like', 'dev-%')
+            ->orderByRaw('CAST(SUBSTRING(model_id, -3) AS UNSIGNED) DESC')
+            ->first();
+        $lastIncrement = $last ? (int) substr($last->model_id, -3) : 0;
+        $nextIncrement = str_pad($lastIncrement + 1, 3, '0', STR_PAD_LEFT);
+
         return [
             'brand_id' => $brandId,
-            'model_id' => fake()->unique()->regexify('[A-Z]{2,4}[0-9]{3,5}'),
+            'model_id' => 'dev-'.$nextIncrement,
             'model_name' => $modelName,
             'model_type' => fake()->randomElement(['Phone', 'Tablet']),
             'buy_date' => fake()->date(),
             'price' => (string) fake()->numberBetween(1_000_000, 15_000_000),
-            'ram' => fake()->randomElement(['4GB', '6GB', '8GB', '12GB']),
-            'storage' => fake()->randomElement(['64GB', '128GB', '256GB', '512GB']),
+            'ram' => fake()->randomElement(['4 GB', '6 GB', '8 GB', '12 GB']),
+            'storage' => fake()->randomElement(['64 GB', '128 GB', '256 GB', '512 GB']),
             'registered' => false,
             'hash_token' => null,
         ];
