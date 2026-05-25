@@ -26,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'admin/list-device/phone/*/photo',
-//            ''
+            'user/check-device-token',
             'user/registerDevice/verify',
             'user/registerDevice/confirm',
             'user/registerDevice/manual',

@@ -1,9 +1,8 @@
 <script lang="ts">
+    import { onDestroy, tick } from 'svelte';
     import { router } from '@inertiajs/svelte';
     import { Button } from '$shadcn/components/ui/button';
     import * as Card from '$shadcn/components/ui/card';
-    import { Input } from '$shadcn/components/ui/input';
-    import { Label } from '$shadcn/components/ui/label';
     import { Badge } from '$shadcn/components/ui/badge';
     import { Separator } from '$shadcn/components/ui/separator';
     import storage from '$routes/storage';
@@ -15,9 +14,9 @@
         Smartphone,
         Cpu,
         HardDrive,
-        QrCode,
         ScanQrCode,
-        FileKey,
+        Camera,
+        CameraOff,
     } from '@lucide/svelte';
     import { dashboard, checkDevice } from '$routes/admin';
 
@@ -42,9 +41,12 @@
         device: DeviceInfo | null;
     };
 
-    let token = $state('');
     let checking = $state(false);
     let result = $state<VerifyResult | null>(null);
+    let scanning = $state(false);
+    let scanningError = $state('');
+    let videoRef = $state<HTMLVideoElement | null>(null);
+    let scannerInst: any = null;
 
     function assetUrl(path: string | null): string | null {
         if (!path) return null;
@@ -52,9 +54,7 @@
         return storage.local({ path: clean }).url;
     }
 
-    async function handleCheck() {
-        if (!token.trim()) return;
-
+    async function verifyToken(token: string) {
         checking = true;
         result = null;
 
@@ -62,7 +62,7 @@
             const res = await fetch(checkDevice.verify().url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ token: token.trim() }),
+                body: JSON.stringify({ token }),
             });
 
             const data: VerifyResult = await res.json();
@@ -73,6 +73,43 @@
             checking = false;
         }
     }
+
+    async function startScanner() {
+        scanningError = '';
+        scanning = true;
+        await tick();
+
+        const video = videoRef;
+        if (!video) return;
+
+        try {
+            const { default: QrScanner } = await import('qr-scanner');
+            scannerInst = new QrScanner(video, (res: any) => {
+                if (res?.data) {
+                    const token = res.data;
+                    stopScanner();
+                    verifyToken(token);
+                }
+            }, { highlightScanRegion: true, highlightCodeOutline: true });
+            await scannerInst.start();
+        } catch {
+            scanningError = 'Kamera tidak tersedia atau izin ditolak.';
+            scanning = false;
+        }
+    }
+
+    function stopScanner() {
+        if (scannerInst) {
+            scannerInst.stop();
+            scannerInst.destroy();
+            scannerInst = null;
+        }
+        scanning = false;
+    }
+
+    onDestroy(() => {
+        stopScanner();
+    });
 
     function goBack() {
         router.visit(dashboard().url);
@@ -91,40 +128,66 @@
                 <h1 class="text-2xl font-bold">Check Device</h1>
             </div>
             <p class="text-sm text-muted-foreground mt-1">
-                Verifikasi token QR perangkat — cocokkan hash_token dengan database
+                Scan QR code dari perangkat untuk verifikasi
             </p>
         </div>
     </div>
 
-    <!-- ──────── Input Card ──────── -->
+    <!-- ──────── Scanner Card ──────── -->
     <Card.Root class="max-w-xl border-border/60 bg-card/60 backdrop-blur-xl">
         <Card.Content class="p-6 space-y-4">
-            <div class="space-y-2">
-                <Label for="token" class="text-sm font-medium">Token dari QR Code</Label>
-                <div class="relative">
-                    <QrCode class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                    <Input
-                        id="token"
-                        bind:value={token}
-                        placeholder="Masukkan hash_token dari QR..."
-                        class="pl-10 h-12 font-mono text-sm"
-                    />
+            {#if !scanning && !result}
+                <div class="text-center py-8 space-y-4">
+                    <div class="size-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto">
+                        <Camera class="size-10 text-emerald-400" />
+                    </div>
+                    <div>
+                        <p class="font-medium">Scan QR Code Perangkat</p>
+                        <p class="text-sm text-muted-foreground mt-1">
+                            Arahkan kamera ke QR code yang ada di halaman dashboard perangkat
+                        </p>
+                    </div>
+                    <Button size="lg" onclick={startScanner} class="gap-2">
+                        <Camera class="size-4" />
+                        Buka Kamera
+                    </Button>
                 </div>
-            </div>
+            {/if}
 
-            <Button
-                class="w-full gap-2 h-11"
-                disabled={checking || !token.trim()}
-                onclick={handleCheck}
-            >
-                {#if checking}
-                    <div class="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Memverifikasi...
-                {:else}
-                    <ShieldCheck class="size-4" />
-                    Verifikasi Token
-                {/if}
-            </Button>
+            {#if scanning}
+                <div class="relative rounded-xl overflow-hidden border border-border/60 bg-black">
+                    <video bind:this={videoRef} class="w-full h-72 object-cover" muted playsinline />
+
+                    {#if checking}
+                        <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <div class="size-8 border-3 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                                <p class="text-sm">Memverifikasi...</p>
+                            </div>
+                        </div>
+                    {/if}
+
+                    <div class="absolute top-3 right-3">
+                        <Button size="sm" variant="secondary" onclick={stopScanner} class="gap-1.5 text-xs">
+                            <CameraOff class="size-3.5" />
+                            Tutup Kamera
+                        </Button>
+                    </div>
+                </div>
+            {/if}
+
+            {#if scanningError}
+                <div class="rounded-lg bg-red-500/10 p-3 text-sm text-red-400 text-center">
+                    {scanningError}
+                </div>
+            {/if}
+
+            {#if checking && !scanning}
+                <div class="flex items-center justify-center gap-2 text-sm text-muted-foreground py-4">
+                    <div class="size-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    Memverifikasi token...
+                </div>
+            {/if}
         </Card.Content>
     </Card.Root>
 
@@ -151,39 +214,11 @@
                     </div>
                 </div>
 
-                <Separator class="opacity-40" />
-
-                <!-- Perbandingan Token -->
-                <div class="space-y-3">
-                    <div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        <FileKey class="size-3.5" />
-                        Perbandingan Token
-                    </div>
-
-                    <!-- Token Input -->
-                    <div class="rounded-lg bg-muted/30 p-3 space-y-1">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs text-muted-foreground">Token Input (dari QR)</span>
-                            {#if result.valid}
-                                <CheckCircle2 class="size-4 text-emerald-400" />
-                            {:else}
-                                <XCircle class="size-4 text-red-400" />
-                            {/if}
-                        </div>
-                        <code class="text-xs font-mono break-all {result.valid ? 'text-emerald-600' : 'text-red-400'}">{result.token_input}</code>
-                    </div>
-
-                    <!-- Hash Token di DB (kalau device ditemukan) -->
-                    {#if result.device?.hash_token}
-                        <div class="rounded-lg bg-muted/30 p-3 space-y-1">
-                            <span class="text-xs text-muted-foreground">Hash Token di Database</span>
-                            <code class="text-xs font-mono break-all text-emerald-600">{result.device.hash_token}</code>
-                        </div>
-                    {:else if !result.valid}
-                        <div class="rounded-lg bg-red-500/10 p-3">
-                            <p class="text-xs text-red-400 font-medium">Tidak ada device dengan hash_token ini</p>
-                        </div>
-                    {/if}
+                <div class="flex gap-2">
+                    <Button variant="outline" size="sm" onclick={startScanner} class="gap-1.5">
+                        <Camera class="size-3.5" />
+                        Scan Lagi
+                    </Button>
                 </div>
 
                 <!-- Device Info (hanya kalau valid) -->
@@ -196,7 +231,6 @@
                             Informasi Perangkat
                         </div>
 
-                        <!-- Thumbnail + Specs -->
                         <div class="flex gap-4">
                             {#if result.device.thumbnail}
                                 <img src={assetUrl(result.device.thumbnail)} alt={result.device.model_name} class="size-20 rounded-xl object-cover ring-1 ring-emerald-300/30 shrink-0" />
@@ -226,37 +260,19 @@
                                 </div>
                                 <div>
                                     <span class="text-xs text-muted-foreground">RAM</span>
-                                    <div class="font-medium flex items-center gap-1">
-                                        <Cpu class="size-3.5 text-muted-foreground/60" />
-                                        {result.device.ram}
-                                    </div>
+                                    <div class="font-medium flex items-center gap-1"><Cpu class="size-3.5 text-muted-foreground/60" /> {result.device.ram}</div>
                                 </div>
                                 <div>
                                     <span class="text-xs text-muted-foreground">Storage</span>
-                                    <div class="font-medium flex items-center gap-1">
-                                        <HardDrive class="size-3.5 text-muted-foreground/60" />
-                                        {result.device.storage}
-                                    </div>
+                                    <div class="font-medium flex items-center gap-1"><HardDrive class="size-3.5 text-muted-foreground/60" /> {result.device.storage}</div>
                                 </div>
                                 <div>
                                     <span class="text-xs text-muted-foreground">Registered</span>
-                                    <div>
-                                        {#if result.device.registered}
-                                            <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 text-xs">Registered</Badge>
-                                        {:else}
-                                            <Badge variant="secondary" class="text-xs">Unregistered</Badge>
-                                        {/if}
-                                    </div>
+                                    <div>{#if result.device.registered}<Badge class="bg-emerald-500/15 text-emerald-600 text-xs">Registered</Badge>{:else}<Badge variant="secondary" class="text-xs">Unregistered</Badge>{/if}</div>
                                 </div>
                                 <div>
                                     <span class="text-xs text-muted-foreground">Approved</span>
-                                    <div>
-                                        {#if result.device.approved}
-                                            <Badge class="bg-sky-500/15 text-sky-600 border-sky-300/30 text-xs">Disetujui</Badge>
-                                        {:else}
-                                            <Badge variant="outline" class="text-xs">Pending</Badge>
-                                        {/if}
-                                    </div>
+                                    <div>{#if result.device.approved}<Badge class="bg-sky-500/15 text-sky-600 text-xs">Disetujui</Badge>{:else}<Badge variant="outline" class="text-xs">Pending</Badge>{/if}</div>
                                 </div>
                             </div>
                         </div>
