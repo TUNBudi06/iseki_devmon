@@ -1,6 +1,0 @@
-DashboardMember refactored successfully:
-- Replaced import: Datatable, ThSort, ThFilter, Th → DtSearch, RowsPerPage, RowCount, Pagination
-- "Sudah Absen" table → card layout with Search/RowsPerPage header + RowCount/Pagination footer
-- "Belum Absen" table → card layout with Search/RowsPerPage header + RowCount/Pagination footer
-- Removed all .svelte-simple-datatable CSS (no longer needed)
-- Build passed
