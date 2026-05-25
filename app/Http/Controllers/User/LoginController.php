@@ -139,6 +139,7 @@ class LoginController extends Controller
             'currentDevice' => [
                 'model_id' => $device->model_id,
                 'model_name' => $device->model_name,
+                'hash_token' => $device->hash_token,
             ],
             'hasAbsence' => $hasAbsence->values()->map(fn ($d) => [
                 'model_id' => $d->model_id,

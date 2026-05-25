@@ -12,8 +12,10 @@
         ArrowRight,
         FileText,
         Save,
+        ScanQrCode,
     } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
+    import { QRCode } from '$shadcn/components/spell/qrcode';
     import { toast } from 'svelte-sonner';
 
     import LayoutBG from '$/components/LayoutBG.svelte';
@@ -43,7 +45,7 @@
     };
 
     let { deviceLatest, currentDevice, hasAbsence, noAbsence }:
-        { deviceLatest: UserAbsence | null; currentDevice: { model_id: string; model_name: string }; hasAbsence: DeviceItem[]; noAbsence: DeviceItem[] } = $props();
+        { deviceLatest: UserAbsence | null; currentDevice: { model_id: string; model_name: string; hash_token?: string | null }; hasAbsence: DeviceItem[]; noAbsence: DeviceItem[] } = $props();
 
     const tableHasAbsence = hasAbsence.length > 0 ? new TableHandler(hasAbsence, { rowsPerPage: 10 }) : null;
     const tableNoAbsence = noAbsence.length > 0 ? new TableHandler(noAbsence, { rowsPerPage: 10 }) : null;
@@ -175,6 +177,27 @@
                         <span class="font-semibold text-amber-600 dark:text-amber-400 text-sm">Belum Ada Absen Hari Ini</span>
                     </div>
                     <p class="text-sm text-muted-foreground mt-1">Gunakan perangkat ini untuk melakukan absensi</p>
+                </Card.Content>
+            </Card.Root>
+        {/if}
+
+        <!-- QR Code untuk verifikasi admin -->
+        {#if currentDevice.hash_token}
+            <Card.Root class="border-violet-500/30 bg-gradient-to-br from-violet-500/10 to-violet-500/5 backdrop-blur-xl overflow-hidden">
+                <Card.Content class="p-4 relative flex items-center gap-4">
+                    <div class="rounded-xl bg-white p-2 shadow-md shrink-0">
+                        <QRCode value={currentDevice.hash_token} size={100} fgColor="#000000" bgColor="#ffffff" />
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5 text-sm font-medium text-violet-600 dark:text-violet-400 mb-1">
+                            <ScanQrCode class="size-4" />
+                            Verifikasi Perangkat
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            Tunjukkan QR ini ke admin untuk verifikasi perangkat.
+                        </p>
+                        <code class="text-[10px] font-mono text-muted-foreground/60 mt-1 block truncate">{currentDevice.hash_token}</code>
+                    </div>
                 </Card.Content>
             </Card.Root>
         {/if}

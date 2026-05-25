@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
     import { router } from '@inertiajs/svelte';
     import {
         Monitor,
@@ -8,19 +7,10 @@
         ArrowLeft,
     } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
-    import { listPhone } from '$routes/phone';
     import LayoutBG from '$/components/LayoutBG.svelte';
     import SpotlightCard from '$shadcn/components/svelte-bits/SpotlightCard.svelte';
-    import { deviceNotRegister, deviceRegisterQR, deviceRegisterManual, loginMember } from '$routes/user';
+    import { deviceNotRegister, deviceRegisterQR, deviceRegisterManual } from '$routes/user';
     import { home } from '$routes';
-    import { getDeviceAuth } from '$lib/indexedDB';
-
-    onMount(async () => {
-        const auth = await getDeviceAuth();
-        if (auth) {
-            router.visit(loginMember(auth.device_id).url);
-        }
-    });
 </script>
 
 <LayoutBG

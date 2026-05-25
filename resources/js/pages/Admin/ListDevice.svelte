@@ -753,9 +753,11 @@
                                         <td class="text-right">
                                             {#if !phone.deleted_at}
                                                 <div class="flex items-center justify-end gap-1">
-                                                    <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10" onclick={() => openQr(phone)} title="QR Code">
-                                                        <QrCode class="size-3.5" />
-                                                    </Button>
+                                                    {#if !phone.registered}
+                                                        <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10" onclick={() => openQr(phone)} title="QR Code">
+                                                            <QrCode class="size-3.5" />
+                                                        </Button>
+                                                    {/if}
                                                     {#if !phone.approved}
                                                         <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10" onclick={() => handleApprovePhone(phone)} title="Setujui" disabled={approvingId === phone.id}>
                                                             {#if approvingId === phone.id}
