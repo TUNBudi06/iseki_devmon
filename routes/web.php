@@ -22,6 +22,7 @@ Route::prefix('device')->group(function () {
 
 Route::prefix('user')->group(function () {
     Route::get('NotRegisterDevice', [DeviceManagement::class, 'index'])->name('user.deviceNotRegister');
+    Route::post('check-device-token', [DeviceManagement::class, 'checkDeviceToken'])->name('user.checkDeviceToken');
     Route::get('registerDevice/Qr', [DeviceManagement::class, 'registerViaQR'])->name('user.deviceRegisterQR');
 
     Route::post('registerDevice/verify', [DeviceManagement::class, 'verifyDevice'])->name('user.deviceVerify');

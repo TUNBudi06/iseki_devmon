@@ -1,16 +1,62 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
     import { router } from '@inertiajs/svelte';
     import {
         Monitor,
         QrCode,
         ArrowRightCircle,
         ArrowLeft,
+        AlertTriangle,
+        Trash2,
     } from '@lucide/svelte';
     import Particles from '$shadcn/components/Particles.svelte';
     import LayoutBG from '$/components/LayoutBG.svelte';
+    import * as Card from '$shadcn/components/ui/card';
+    import { Button } from '$shadcn/components/ui/button';
     import SpotlightCard from '$shadcn/components/svelte-bits/SpotlightCard.svelte';
-    import { deviceNotRegister, deviceRegisterQR, deviceRegisterManual } from '$routes/user';
+    import { deviceNotRegister, deviceRegisterQR, deviceRegisterManual, loginMember, checkDeviceToken } from '$routes/user';
     import { home } from '$routes';
+    import { getDeviceAuth, clearDeviceAuth } from '$lib/indexedDB';
+
+    let tokenError = $state(false);
+    let tokenChecking = $state(true);
+
+    onMount(async () => {
+        const auth = await getDeviceAuth();
+        if (!auth) {
+            tokenChecking = false;
+            return;
+        }
+
+        // Validasi device_id ke server
+        try {
+            const res = await fetch(checkDeviceToken().url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ device_id: auth.device_id }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.valid) {
+                tokenError = true;
+                tokenChecking = false;
+                return;
+            }
+
+            // Device valid, redirect ke login
+            router.visit(loginMember({ device_id: auth.device_id }).url);
+        } catch {
+            tokenError = true;
+            tokenChecking = false;
+        }
+    });
+
+    async function handleClearToken() {
+        await clearDeviceAuth();
+        tokenError = false;
+        tokenChecking = false;
+    }
 </script>
 
 <LayoutBG
@@ -35,6 +81,38 @@
             Kembali ke Beranda
         </button>
     </div>
+
+    <!-- Token Error Banner -->
+    {#if tokenError}
+        <div class="w-full max-w-lg relative z-10">
+            <Card.Root class="border-red-500/30 bg-card/80 backdrop-blur-xl">
+                <Card.Content class="p-4 flex items-center gap-3">
+                    <div class="size-10 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
+                        <AlertTriangle class="size-5 text-red-400" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-red-400">Token tidak valid</p>
+                        <p class="text-xs text-muted-foreground mt-0.5">
+                            Token perangkat lama tidak ditemukan atau sudah tidak berlaku.
+                            Hapus token untuk melanjutkan registrasi baru.
+                        </p>
+                    </div>
+                    <Button size="sm" variant="destructive" onclick={handleClearToken} class="gap-1.5 shrink-0">
+                        <Trash2 class="size-3.5" />
+                        Hapus Token
+                    </Button>
+                </Card.Content>
+            </Card.Root>
+        </div>
+    {/if}
+
+    <!-- Loading state -->
+    {#if tokenChecking}
+        <div class="flex items-center gap-2 text-sm text-muted-foreground relative z-10">
+            <div class="size-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            Memeriksa sesi perangkat...
+        </div>
+    {/if}
 
     <!-- Hero section -->
     <div

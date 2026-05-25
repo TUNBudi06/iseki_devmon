@@ -17,6 +17,21 @@ class DeviceManagement extends Controller
         return Inertia::render('Member/PhoneNotRegister');
     }
 
+    public function checkDeviceToken(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'device_id' => ['required', 'string'],
+        ]);
+
+        $device = PhoneList::where('model_id', $validated['device_id'])->first();
+
+        if (! $device || ! $device->approved || ! $device->registered) {
+            return response()->json(['valid' => false], 404);
+        }
+
+        return response()->json(['valid' => true]);
+    }
+
     public function registerViaQR()
     {
         return Inertia::render('Member/PhoneRegisterViaQR');
