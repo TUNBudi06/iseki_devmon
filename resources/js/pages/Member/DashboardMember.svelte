@@ -1,7 +1,8 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { router } from '@inertiajs/svelte';
-    import { TableHandler, Datatable, ThSort, ThFilter, Th } from '@vincjo/datatables';
+    import { TableHandler, RowsPerPage, RowCount, Pagination } from '@vincjo/datatables';
+    import { Search as DtSearch } from '@vincjo/datatables';
 
     let pollInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -227,49 +228,38 @@
                         Belum ada perangkat yang digunakan hari ini
                     </div>
                 {:else if tableHasAbsence}
-                    <Datatable basic table={tableHasAbsence}>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <ThSort table={tableHasAbsence} field="model_name">Perangkat</ThSort>
-                                    <ThSort table={tableHasAbsence} field="brand_name">Brand</ThSort>
-                                    <ThSort table={tableHasAbsence} field="latest_user_name">Digunakan Oleh</ThSort>
-                                    <Th>Status</Th>
-                                </tr>
-                                <tr>
-                                    <ThFilter table={tableHasAbsence} field="model_name" />
-                                    <ThFilter table={tableHasAbsence} field="brand_name" />
-                                    <ThFilter table={tableHasAbsence} field="latest_user_name" />
-                                    <Th></Th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {#each tableHasAbsence.rows as row}
-                                    <tr>
-                                        <td>
-                                            <span class="font-medium text-sm">{row.model_name}</span>
-                                            <div class="text-xs text-muted-foreground font-mono">{row.model_id}</div>
-                                        </td>
-                                        <td class="text-sm text-muted-foreground">{row.brand_name ?? '-'}</td>
-                                        <td>
-                                            {#if row.latest_user_name}
-                                                <span class="font-medium text-xs">{row.latest_user_name}</span>
-                                                <br />
-                                                <span class="text-xs text-muted-foreground font-mono">{row.latest_user_nik} · {row.latest_time}</span>
-                                            {:else}
-                                                <span class="text-xs text-muted-foreground">-</span>
-                                            {/if}
-                                        </td>
-                                        <td>
-                                            <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 text-xs whitespace-nowrap">
-                                                <CheckCircle2 class="size-3 mr-1 inline" /> Sudah
-                                            </Badge>
-                                        </td>
-                                    </tr>
-                                {/each}
-                            </tbody>
-                        </table>
-                    </Datatable>
+                    <div class="flex items-center gap-3 px-4 py-2 border-b border-border/30 bg-muted/10 flex-wrap">
+                        <DtSearch table={tableHasAbsence} />
+                        <RowsPerPage table={tableHasAbsence} />
+                    </div>
+                    <div class="p-3 space-y-2">
+                        {#each tableHasAbsence.rows as row}
+                            <div class="rounded-xl border border-border/60 bg-card p-3 flex items-center justify-between gap-3">
+                                <div class="min-w-0 flex-1">
+                                    <div class="font-medium text-sm">{row.model_name}</div>
+                                    <div class="text-xs text-muted-foreground font-mono">{row.model_id}</div>
+                                    <div class="text-xs text-muted-foreground mt-0.5">{row.brand_name ?? '-'}</div>
+                                    {#if row.latest_user_name}
+                                        <div class="mt-1 flex items-center gap-1.5 text-xs">
+                                            <User class="size-3 text-emerald-500 shrink-0" />
+                                            <span class="font-medium">{row.latest_user_name}</span>
+                                            <span class="text-muted-foreground font-mono">· {row.latest_user_nik}</span>
+                                            <span class="text-muted-foreground">· {row.latest_time}</span>
+                                        </div>
+                                    {:else}
+                                        <div class="text-xs text-muted-foreground mt-1">Tidak ada pengguna</div>
+                                    {/if}
+                                </div>
+                                <Badge class="bg-emerald-500/15 text-emerald-600 border-emerald-300/30 text-xs whitespace-nowrap shrink-0">
+                                    <CheckCircle2 class="size-3 mr-1 inline" /> Sudah
+                                </Badge>
+                            </div>
+                        {/each}
+                    </div>
+                    <div class="flex items-center justify-between px-4 py-2 border-t border-border/30 bg-muted/10">
+                        <RowCount table={tableHasAbsence} />
+                        <Pagination table={tableHasAbsence} />
+                    </div>
                 {/if}
             </Card.Content>
         </Card.Root>
@@ -290,38 +280,28 @@
                         Semua perangkat sudah digunakan hari ini
                     </div>
                 {:else if tableNoAbsence}
-                    <Datatable basic table={tableNoAbsence}>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <ThSort table={tableNoAbsence} field="model_name">Perangkat</ThSort>
-                                    <ThSort table={tableNoAbsence} field="brand_name">Brand</ThSort>
-                                    <Th>Status</Th>
-                                </tr>
-                                <tr>
-                                    <ThFilter table={tableNoAbsence} field="model_name" />
-                                    <ThFilter table={tableNoAbsence} field="brand_name" />
-                                    <Th></Th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {#each tableNoAbsence.rows as row}
-                                    <tr>
-                                        <td>
-                                            <span class="font-medium text-sm">{row.model_name}</span>
-                                            <div class="text-xs text-muted-foreground font-mono">{row.model_id}</div>
-                                        </td>
-                                        <td class="text-sm text-muted-foreground">{row.brand_name ?? '-'}</td>
-                                        <td>
-                                            <Badge variant="outline" class="text-xs text-muted-foreground border-dashed whitespace-nowrap">
-                                                <Clock class="size-3 mr-1 inline" /> Belum
-                                            </Badge>
-                                        </td>
-                                    </tr>
-                                {/each}
-                            </tbody>
-                        </table>
-                    </Datatable>
+                    <div class="flex items-center gap-3 px-4 py-2 border-b border-border/30 bg-muted/10 flex-wrap">
+                        <DtSearch table={tableNoAbsence} />
+                        <RowsPerPage table={tableNoAbsence} />
+                    </div>
+                    <div class="p-3 space-y-2">
+                        {#each tableNoAbsence.rows as row}
+                            <div class="rounded-xl border border-border/60 bg-card p-3 flex items-center justify-between gap-3">
+                                <div class="min-w-0 flex-1">
+                                    <div class="font-medium text-sm">{row.model_name}</div>
+                                    <div class="text-xs text-muted-foreground font-mono">{row.model_id}</div>
+                                    <div class="text-xs text-muted-foreground mt-0.5">{row.brand_name ?? '-'}</div>
+                                </div>
+                                <Badge variant="outline" class="text-xs text-muted-foreground border-dashed whitespace-nowrap shrink-0">
+                                    <Clock class="size-3 mr-1 inline" /> Belum
+                                </Badge>
+                            </div>
+                        {/each}
+                    </div>
+                    <div class="flex items-center justify-between px-4 py-2 border-t border-border/30 bg-muted/10">
+                        <RowCount table={tableNoAbsence} />
+                        <Pagination table={tableNoAbsence} />
+                    </div>
                 {/if}
             </Card.Content>
         </Card.Root>
@@ -364,96 +344,4 @@
 {/if}
 
 <style>
-    :global(.svelte-simple-datatable table) {
-        border-collapse: separate;
-        border-spacing: 0;
-        width: 100%;
-        background: inherit;
-    }
-    :global(.svelte-simple-datatable table thead) {
-        position: sticky;
-        inset-block-start: 0;
-        background: inherit;
-        z-index: 1;
-    }
-    :global(.svelte-simple-datatable thead tr) {
-        background: inherit;
-    }
-    :global(.svelte-simple-datatable thead tr th) {
-        background: inherit;
-    }
-    :global(.svelte-simple-datatable thead tr:first-child th) {
-        padding: 8px 20px;
-        background: inherit;
-    }
-    :global(.svelte-simple-datatable tbody) {
-        background: inherit;
-    }
-    :global(.svelte-simple-datatable tbody tr) {
-        transition: background, 0.2s;
-        background: inherit;
-    }
-    :global(.svelte-simple-datatable tbody tr:hover) {
-        background: var(--grey-lighten-3, #fafafa);
-    }
-    :global(.svelte-simple-datatable tbody td) {
-        padding: 4px 20px;
-        border-right: 1px solid var(--grey-lighten, #eee);
-        border-bottom: 1px solid var(--grey-lighten, #eee);
-        background: inherit;
-        vertical-align: middle;
-    }
-    :global(.svelte-simple-datatable tbody td:last-child) {
-        border-right: none;
-    }
-    :global(.svelte-simple-datatable u.highlight) {
-        text-decoration: none;
-        background: rgba(251, 192, 45, 0.6);
-        border-radius: 2px;
-    }
-    :global(.svelte-simple-datatable footer.divider) {
-        border-top: 1px solid var(--grey, #e0e0e0);
-    }
-
-    @media (max-width: 640px) {
-        :global(.svelte-simple-datatable) { height: auto !important; }
-        :global(.svelte-simple-datatable article) {
-            overflow: visible !important;
-            height: auto !important;
-        }
-        :global(.svelte-simple-datatable table) { display: block !important; }
-        :global(.svelte-simple-datatable thead) { display: none !important; }
-        :global(.svelte-simple-datatable tbody),
-        :global(.svelte-simple-datatable tr),
-        :global(.svelte-simple-datatable th),
-        :global(.svelte-simple-datatable td) {
-            display: block;
-        }
-        :global(.svelte-simple-datatable tbody tr) {
-            margin-bottom: 12px;
-            padding: 12px;
-            border: 1px solid var(--grey-lighten, #eee);
-            border-radius: 12px;
-            background: inherit;
-        }
-        :global(.svelte-simple-datatable tbody td) {
-            padding: 6px 4px;
-            border: none !important;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            text-align: left;
-            gap: 8px;
-        }
-        :global(.svelte-simple-datatable tbody td:before) {
-            content: attr(data-label);
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--font-grey, #9e9e9e);
-            min-width: 80px;
-            flex-shrink: 0;
-        }
-    }
 </style>
