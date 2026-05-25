@@ -73,6 +73,9 @@
     let catatan = $state('');
     let savingCatatan = $state(false);
 
+    // ─── QR Modal ──────────────────────────────────────────────────
+    let showQrModal = $state(false);
+
     function initCatatan() {
         catatan = deviceLatest?.catatan ?? '';
     }
@@ -194,29 +197,14 @@
             </Card.Root>
         {/if}
 
-        <!-- QR Code untuk verifikasi admin -->
-        {#if currentDevice.hash_token}
-            <Card.Root class="border-violet-500/30 bg-gradient-to-br from-violet-500/10 to-violet-500/5 backdrop-blur-xl overflow-hidden">
-                <Card.Content class="p-4 relative flex items-center gap-4">
-                    <div class="rounded-xl bg-white p-2 shadow-md shrink-0">
-                        <QRCode value={currentDevice.hash_token} size={100} fgColor="#000000" bgColor="#ffffff" />
-                    </div>
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-1.5 text-sm font-medium text-violet-600 dark:text-violet-400 mb-1">
-                            <ScanQrCode class="size-4" />
-                            Verifikasi Perangkat
-                        </div>
-                        <p class="text-xs text-muted-foreground">
-                            Tunjukkan QR ini ke admin untuk verifikasi perangkat.
-                        </p>
-                        <code class="text-[10px] font-mono text-muted-foreground/60 mt-1 block truncate">{currentDevice.hash_token}</code>
-                    </div>
-                </Card.Content>
-            </Card.Root>
-        {/if}
-
-        <!-- Button to input another absence -->
-        <div class="flex justify-center py-2">
+        <!-- Action Buttons -->
+        <div class="flex justify-center gap-3 py-2 flex-wrap">
+            {#if currentDevice.hash_token}
+                <Button onclick={() => showQrModal = true} variant="outline" class="gap-2" size="lg">
+                    <ScanQrCode class="size-4" />
+                    Tampilkan QR
+                </Button>
+            {/if}
             <Button onclick={() => router.visit(loginMember.input(deviceId).url)} class="gap-2" size="lg">
                 <ArrowRight class="size-4" />
                 Input Absence Lagi
@@ -339,6 +327,41 @@
         </Card.Root>
     </div>
 </LayoutBG>
+
+<!-- QR Modal -->
+{#if showQrModal && currentDevice.hash_token}
+    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+    <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm" role="dialog" aria-modal="true" onclick={() => showQrModal = false}>
+        <Card.Root class="w-full max-w-sm border-violet-500/30 bg-card shadow-2xl animate-in zoom-in-95 duration-200" onclick={(e) => e.stopPropagation()}>
+            <Card.Header class="text-center">
+                <div class="flex items-center justify-center gap-3 mb-1">
+                    <div class="size-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                        <ScanQrCode class="size-5 text-violet-400" />
+                    </div>
+                    <div class="text-left">
+                        <Card.Title class="text-lg">Verifikasi Perangkat</Card.Title>
+                        <Card.Description>
+                            Tunjukkan QR ini ke admin
+                        </Card.Description>
+                    </div>
+                </div>
+            </Card.Header>
+            <Card.Content class="pt-4 pb-2 flex flex-col items-center gap-4">
+                <div class="rounded-2xl bg-white p-4 shadow-lg ring-1 ring-violet-500/20">
+                    <QRCode value={currentDevice.hash_token} size={220} fgColor="#000000" bgColor="#ffffff" />
+                </div>
+                <div class="text-center space-y-1">
+                    <code class="text-xs font-mono break-all text-violet-600 dark:text-violet-400">{currentDevice.hash_token}</code>
+                </div>
+            </Card.Content>
+            <Card.Footer class="flex justify-center pt-2">
+                <Button variant="outline" onclick={() => showQrModal = false} class="gap-2">
+                    Tutup
+                </Button>
+            </Card.Footer>
+        </Card.Root>
+    </div>
+{/if}
 
 <style>
     :global(.svelte-simple-datatable table) {
