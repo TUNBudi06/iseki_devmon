@@ -480,7 +480,7 @@
                         </div>
                     </div>
 
-                    {#if raw.registered}
+                    {#if phone.checks.length > 0}
                     <!-- ④ Riwayat Pengecekan singkat -->
                     <div
                         class="border-t border-border/60 pt-5 space-y-3 transition-all duration-700 delay-200"
@@ -492,7 +492,6 @@
                                 <ClipboardList class="size-4" /> Riwayat Pengecekan
                             </div>
                         </div>
-                        {#if phone.checks.length > 0}
                             <div class="space-y-1.5">
                                 {#each phone.checks.slice(0, 4) as check}
                                     <div
@@ -517,9 +516,6 @@
                                     </div>
                                 {/each}
                             </div>
-                        {:else}
-                            <p class="text-sm text-muted-foreground">Belum ada riwayat pengecekan.</p>
-                        {/if}
                     </div>
                     {/if}
                 </div>
@@ -527,7 +523,7 @@
         </div>
     {/if}
 
-    {#if raw.registered}
+    {#if phone.usages.length > 0}
     <!-- ══ SECTION: RIWAYAT PENGGUNAAN ══ -->
     <div class="bg-background border-t-2 border-border" id="usage">
         <div class="px-4 sm:px-12 py-10 sm:py-16 space-y-6">
@@ -547,46 +543,42 @@
                 </div>
             </div>
 
-            {#if usagesTable}
-                <div class="flex items-center gap-3 px-4 py-2 border-b border-border/30 bg-muted/10 flex-wrap rounded-t-2xl">
-                    <DtSearch table={usagesTable} />
-                    <RowsPerPage table={usagesTable} />
-                </div>
+            <div class="flex items-center gap-3 px-4 py-2 border-b border-border/30 bg-muted/10 flex-wrap rounded-t-2xl">
+                <DtSearch table={usagesTable} />
+                <RowsPerPage table={usagesTable} />
+            </div>
 
-                <div class="p-3 space-y-2">
-                    {#each usagesTable.rows as row}
-                        <div class="rounded-xl border border-border/60 bg-card p-3 flex items-center gap-3">
-                            <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
-                                {row.name.charAt(0)}
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="font-medium text-sm">{row.name}</div>
-                                <div class="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                                    <span class="font-mono">{row.nik}</span>
+            <div class="p-3 space-y-2">
+                {#each usagesTable!.rows as row}
+                    <div class="rounded-xl border border-border/60 bg-card p-3 flex items-center gap-3">
+                        <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
+                            {row.name.charAt(0)}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium text-sm">{row.name}</div>
+                            <div class="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                                <span class="font-mono">{row.nik}</span>
+                                <span>·</span>
+                                <span>{row.login}</span>
+                                {#if row.note}
                                     <span>·</span>
-                                    <span>{row.login}</span>
-                                    {#if row.note}
-                                        <span>·</span>
-                                        <span>{row.note}</span>
-                                    {/if}
-                                </div>
+                                    <span>{row.note}</span>
+                                {/if}
                             </div>
                         </div>
-                    {/each}
-                </div>
+                    </div>
+                {/each}
+            </div>
 
-                <div class="flex items-center justify-between px-4 py-2 border-t border-border/30 bg-muted/10">
-                    <RowCount table={usagesTable} />
-                    <Pagination table={usagesTable} />
-                </div>
-            {:else}
-                <p class="text-sm text-muted-foreground">Belum ada riwayat penggunaan.</p>
-            {/if}
+            <div class="flex items-center justify-between px-4 py-2 border-t border-border/30 bg-muted/10">
+                <RowCount table={usagesTable} />
+                <Pagination table={usagesTable} />
+            </div>
         </div>
     </div>
     {/if}
 
-    {#if raw.registered}
+    {#if phone.checks.length > 0}
     <!-- ══ SECTION: RIWAYAT PENGECEKAN ══ -->
     <div class="bg-muted/20 border-t border-border" id="checks">
         <div class="px-4 sm:px-12 py-10 sm:py-16 space-y-6">
@@ -606,55 +598,51 @@
                 </div>
             </div>
 
-            {#if checksTable}
-                <div class="flex items-center gap-3 px-4 py-2 border-b border-border/30 bg-muted/10 flex-wrap rounded-t-2xl">
-                    <DtSearch table={checksTable} />
-                    <RowsPerPage table={checksTable} />
-                </div>
+            <div class="flex items-center gap-3 px-4 py-2 border-b border-border/30 bg-muted/10 flex-wrap rounded-t-2xl">
+                <DtSearch table={checksTable!} />
+                <RowsPerPage table={checksTable!} />
+            </div>
 
-                <div class="p-3 space-y-2">
-                    {#each checksTable.rows as row}
-                        <div class="rounded-xl border border-border/60 bg-card p-3 space-y-2">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <div class="size-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
-                                        {row.user.charAt(0)}
-                                    </div>
-                                    <span class="font-medium text-sm">{row.user}</span>
-                                    <span class="font-mono text-xs text-muted-foreground">({row.nik})</span>
+            <div class="p-3 space-y-2">
+                {#each checksTable!.rows as row}
+                    <div class="rounded-xl border border-border/60 bg-card p-3 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="size-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
+                                    {row.user.charAt(0)}
                                 </div>
-                                <span
-                                    class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border
-                                    {row.status === 'ok'
-                                        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                                        : 'bg-destructive/10 text-destructive border-destructive/20'}"
-                                >
-                                    {#if row.status === 'ok'}
-                                        <CheckCircle2 class="size-3" />
-                                    {:else}
-                                        <XCircle class="size-3" />
-                                    {/if}
-                                    {row.status === 'ok' ? 'OK' : 'Gagal'}
-                                </span>
+                                <span class="font-medium text-sm">{row.user}</span>
+                                <span class="font-mono text-xs text-muted-foreground">({row.nik})</span>
                             </div>
-                            <div class="flex items-center gap-2 text-xs text-muted-foreground">
-                                <span>{row.date}</span>
-                                {#if row.note}
-                                    <span>·</span>
-                                    <span>{row.note}</span>
+                            <span
+                                class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border
+                                {row.status === 'ok'
+                                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                                    : 'bg-destructive/10 text-destructive border-destructive/20'}"
+                            >
+                                {#if row.status === 'ok'}
+                                    <CheckCircle2 class="size-3" />
+                                {:else}
+                                    <XCircle class="size-3" />
                                 {/if}
-                            </div>
+                                {row.status === 'ok' ? 'OK' : 'Gagal'}
+                            </span>
                         </div>
-                    {/each}
-                </div>
+                        <div class="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{row.date}</span>
+                            {#if row.note}
+                                <span>·</span>
+                                <span>{row.note}</span>
+                            {/if}
+                        </div>
+                    </div>
+                {/each}
+            </div>
 
-                <div class="flex items-center justify-between px-4 py-2 border-t border-border/30 bg-muted/10">
-                    <RowCount table={checksTable} />
-                    <Pagination table={checksTable} />
-                </div>
-            {:else}
-                <p class="text-sm text-muted-foreground">Belum ada riwayat pengecekan.</p>
-            {/if}
+            <div class="flex items-center justify-between px-4 py-2 border-t border-border/30 bg-muted/10">
+                <RowCount table={checksTable!} />
+                <Pagination table={checksTable!} />
+            </div>
         </div>
     </div>
     {/if}
