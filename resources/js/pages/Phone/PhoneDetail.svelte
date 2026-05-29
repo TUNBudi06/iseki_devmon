@@ -480,6 +480,7 @@
                         </div>
                     </div>
 
+                    {#if raw.registered}
                     <!-- ④ Riwayat Pengecekan singkat -->
                     <div
                         class="border-t border-border/60 pt-5 space-y-3 transition-all duration-700 delay-200"
@@ -520,11 +521,13 @@
                             <p class="text-sm text-muted-foreground">Belum ada riwayat pengecekan.</p>
                         {/if}
                     </div>
+                    {/if}
                 </div>
             </div>
         </div>
     {/if}
 
+    {#if raw.registered}
     <!-- ══ SECTION: RIWAYAT PENGGUNAAN ══ -->
     <div class="bg-background border-t-2 border-border" id="usage">
         <div class="px-4 sm:px-12 py-10 sm:py-16 space-y-6">
@@ -581,7 +584,9 @@
             {/if}
         </div>
     </div>
+    {/if}
 
+    {#if raw.registered}
     <!-- ══ SECTION: RIWAYAT PENGECEKAN ══ -->
     <div class="bg-muted/20 border-t border-border" id="checks">
         <div class="px-4 sm:px-12 py-10 sm:py-16 space-y-6">
@@ -652,6 +657,7 @@
             {/if}
         </div>
     </div>
+    {/if}
 </LayoutBG>
 
 <style>

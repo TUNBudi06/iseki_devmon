@@ -209,7 +209,6 @@
     }
 
     function handleCardClick(device: Device) {
-        if (!device.registered) return;
         router.visit(detailPhone({ id: device.id }).url);
     }
 
@@ -356,20 +355,18 @@
                 {#each filteredDevices as device (device.id)}
                     {@const isRegistered = device.registered}
                     {@const BattIcon = batteryIcon(device.battery)}
-                    {@const hasCarousel = isRegistered && device.photos && device.photos.length > 1}
+                    {@const hasCarousel = device.photos && device.photos.length > 1}
                     {@const isHovered = hoveredDeviceId === device.id}
 
                     <div
                         role="button"
-                        tabindex={isRegistered ? 0 : -1}
-                        aria-disabled={!isRegistered}
+                        tabindex="0"
                         onclick={() => handleCardClick(device)}
                         onkeydown={(e) => e.key === 'Enter' && handleCardClick(device)}
                         onmouseenter={() => hoveredDeviceId = device.id}
                         onmouseleave={() => hoveredDeviceId = null}
-                        class="group overflow-hidden rounded-xl border border-border/60 bg-card/70 backdrop-blur-xl transition-all duration-500
-                        {isRegistered ? 'cursor-pointer hover:-translate-y-1.5 hover:border-primary/40' : 'cursor-not-allowed opacity-50 grayscale-[50%] saturate-50'}"
-                        style={isRegistered ? cardGlowStyle(device.status) : ''}
+                        class="group overflow-hidden rounded-xl border border-border/60 bg-card/70 backdrop-blur-xl transition-all duration-500 cursor-pointer hover:-translate-y-1.5 hover:border-primary/40"
+                        style={cardGlowStyle(device.status)}
                     >
                         <!-- Photo Area -->
                         <div class="relative aspect-[3/4] overflow-hidden bg-muted [&_[data-slot='carousel-content']]:h-full">
@@ -394,7 +391,7 @@
                                     <Carousel.Next class="absolute right-2 top-1/2 -translate-y-1/2 size-7 bg-black/50 hover:bg-black/70 text-white border-none opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </Carousel.Root>
                             {:else}
-                                <img src={device.photo} alt={device.name} onerror={() => handleImageError(device.id)} class="h-full w-full object-cover transition-transform duration-700 {isRegistered ? 'group-hover:scale-105' : ''}" />
+                                <img src={device.photo} alt={device.name} onerror={() => handleImageError(device.id)} class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                             {/if}
 
 
@@ -407,22 +404,22 @@
                             {/if}
 
                             <!-- Status Badge -->
-                            {#if !isRegistered}
-                                <div class="absolute bottom-3 left-3 z-30 flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/15 px-3 py-1.5 text-xs font-medium backdrop-blur-lg text-orange-400">
-                                    <span class="size-2 rounded-full bg-current" />
-                                    Belum Terdaftar
-                                </div>
-                            {:else}
-                                <div class="absolute bottom-3 left-3 z-30 flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur-lg {device.status === 'active' ? 'bg-primary/90 text-primary-foreground border-primary/30' : 'bg-muted/80 text-muted-foreground border-border'}">
-                                    <span class="relative flex size-2 rounded-full bg-current">
-                                        {#if device.status === 'active'}
-                                            <span class="animate-ping absolute inline-flex size-full rounded-full bg-current opacity-75" />
-                                        {/if}
-                                    </span>
-                                    {device.status === 'active' ? 'Aktif' : 'Non-Aktif'}
-                                </div>
-                            {/if}
-                        </div>
+                        {#if !isRegistered}
+                            <div class="absolute bottom-3 left-3 z-30 flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/15 px-3 py-1.5 text-xs font-medium backdrop-blur-lg text-orange-400">
+                                <span class="size-2 rounded-full bg-current" />
+                                Belum Terdaftar
+                            </div>
+                        {:else}
+                            <div class="absolute bottom-3 left-3 z-30 flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur-lg {device.status === 'active' ? 'bg-primary/90 text-primary-foreground border-primary/30' : 'bg-muted/80 text-muted-foreground border-border'}">
+                                <span class="relative flex size-2 rounded-full bg-current">
+                                    {#if device.status === 'active'}
+                                        <span class="animate-ping absolute inline-flex size-full rounded-full bg-current opacity-75" />
+                                    {/if}
+                                </span>
+                                {device.status === 'active' ? 'Aktif' : 'Non-Aktif'}
+                            </div>
+                        {/if}
+                    </div>
 
                         <!-- Info -->
                         <div class="space-y-4 p-4">
