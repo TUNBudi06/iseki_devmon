@@ -90,7 +90,17 @@ class DeviceManagement extends Controller
     {
         $validated = $request->validate([
             'model_id' => ['required', 'string', 'exists:phone_lists,model_id'],
+            'imei' => ['nullable', 'string', 'max:17', 'unique:phone_lists,imei'],
+            'mac_address' => ['nullable', 'string', 'max:17', 'unique:phone_lists,mac_address'],
         ]);
+
+        // Minimal salah satu wajib diisi
+        if (empty($validated['imei']) && empty($validated['mac_address'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Harap isi IMEI atau MAC Address perangkat (minimal salah satu).',
+            ], 422);
+        }
 
         $device = PhoneList::where('model_id', $validated['model_id'])
             ->where('registered', false)
@@ -112,6 +122,8 @@ class DeviceManagement extends Controller
             'registered' => true,
             'approved' => true,
             'hash_token' => $hash,
+            'imei' => $validated['imei'] ?? null,
+            'mac_address' => $validated['mac_address'] ?? null,
         ]);
 
         return response()->json([
@@ -157,12 +169,22 @@ class DeviceManagement extends Controller
             'price' => ['required', 'string', 'max:255'],
             'ram' => ['required', 'string', 'max:255'],
             'storage' => ['required', 'string', 'max:255'],
+            'imei' => ['nullable', 'string', 'max:17', 'unique:phone_lists,imei'],
+            'mac_address' => ['nullable', 'string', 'max:17', 'unique:phone_lists,mac_address'],
         ]);
 
-        $data = collect($validated)->toArray();
+        $data = collect($validated)->except(['imei', 'mac_address'])->toArray();
         $data['registered'] = true;
         $data['approved'] = false;
         $data['hash_token'] = null;
+
+        // Simpan IMEI/MAC hanya jika diisi
+        if (! empty($validated['imei'])) {
+            $data['imei'] = $validated['imei'];
+        }
+        if (! empty($validated['mac_address'])) {
+            $data['mac_address'] = $validated['mac_address'];
+        }
 
         $phone = PhoneList::create($data);
 

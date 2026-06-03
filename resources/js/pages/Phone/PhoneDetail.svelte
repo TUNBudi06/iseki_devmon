@@ -58,6 +58,8 @@
         price: string;
         ram: string;
         storage: string;
+        imei: string | null;
+        mac_address: string | null;
         thumbnail: string | null;
         list_photos: string[] | null;
         registered: boolean;
@@ -341,6 +343,44 @@
                             </div>
                         </div>
                     </div>
+
+                    {#if raw.imei || raw.mac_address}
+                    <div class="border-t border-primary/30 pt-5 pb-1 space-y-2">
+                        <div class="text-[11px] uppercase tracking-[0.22em] text-primary font-bold flex items-center gap-1.5">
+                            <span class="size-2 rounded-full bg-primary animate-pulse" /> Hardware ID
+                        </div>
+                        <div class="grid gap-2">
+                            {#if raw.imei}
+                            <div class="rounded-xl border-2 border-primary/30 bg-primary/5 p-3 flex items-center gap-3 shadow-sm shadow-primary/10">
+                                <div class="size-9 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                                    <span class="text-sm font-black text-primary tracking-wider">IMEI</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="text-[10px] text-primary/70 uppercase tracking-wider font-bold">IMEI</div>
+                                    <code class="text-sm font-mono font-bold text-foreground tracking-wide">{raw.imei}</code>
+                                </div>
+                                <div class="ml-auto shrink-0">
+                                    <span class="size-2 rounded-full bg-emerald-500 inline-block" />
+                                </div>
+                            </div>
+                            {/if}
+                            {#if raw.mac_address}
+                            <div class="rounded-xl border-2 border-primary/30 bg-primary/5 p-3 flex items-center gap-3 shadow-sm shadow-primary/10">
+                                <div class="size-9 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                                    <span class="text-sm font-black text-primary tracking-wider">MAC</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="text-[10px] text-primary/70 uppercase tracking-wider font-bold">MAC Address</div>
+                                    <code class="text-sm font-mono font-bold text-foreground tracking-wide">{raw.mac_address}</code>
+                                </div>
+                                <div class="ml-auto shrink-0">
+                                    <span class="size-2 rounded-full bg-emerald-500 inline-block" />
+                                </div>
+                            </div>
+                            {/if}
+                        </div>
+                    </div>
+                    {/if}
                 </div>
             </div>
         </div>
@@ -479,6 +519,45 @@
                             </div>
                         </div>
                     </div>
+
+                    {#if raw.imei || raw.mac_address}
+                    <!-- Identitas Hardware -->
+                    <div class="border-t border-primary/30 pt-5 pb-3 space-y-3 transition-all duration-700 delay-75">
+                        <div class="text-[11px] uppercase tracking-[0.22em] text-primary font-bold flex items-center gap-1.5">
+                            <span class="size-2 rounded-full bg-primary animate-pulse" /> Identitas Hardware
+                        </div>
+                        <div class="grid gap-2">
+                            {#if raw.imei}
+                            <div class="rounded-xl border-2 border-primary/30 bg-primary/5 p-3 flex items-center gap-3 shadow-sm shadow-primary/10">
+                                <div class="size-10 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                                    <span class="text-sm font-black text-primary tracking-wider">IMEI</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="text-[10px] text-primary/70 uppercase tracking-wider font-bold">IMEI</div>
+                                    <code class="text-sm font-mono font-bold text-foreground tracking-wide">{raw.imei}</code>
+                                </div>
+                                <div class="ml-auto shrink-0">
+                                    <span class="size-2 rounded-full bg-emerald-500 inline-block" title="Tervalidasi" />
+                                </div>
+                            </div>
+                            {/if}
+                            {#if raw.mac_address}
+                            <div class="rounded-xl border-2 border-primary/30 bg-primary/5 p-3 flex items-center gap-3 shadow-sm shadow-primary/10">
+                                <div class="size-10 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                                    <span class="text-sm font-black text-primary tracking-wider">MAC</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="text-[10px] text-primary/70 uppercase tracking-wider font-bold">MAC Address</div>
+                                    <code class="text-sm font-mono font-bold text-foreground tracking-wide">{raw.mac_address}</code>
+                                </div>
+                                <div class="ml-auto shrink-0">
+                                    <span class="size-2 rounded-full bg-emerald-500 inline-block" title="Tervalidasi" />
+                                </div>
+                            </div>
+                            {/if}
+                        </div>
+                    </div>
+                    {/if}
 
                     {#if phone.checks.length > 0}
                     <!-- ④ Riwayat Pengecekan singkat -->

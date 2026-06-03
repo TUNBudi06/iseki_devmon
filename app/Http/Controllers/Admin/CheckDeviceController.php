@@ -24,8 +24,9 @@ class CheckDeviceController extends Controller
 
         $token = $validated['token'];
 
-        // Cari device berdasarkan hash_token
+        // Cari device berdasarkan hash_token ATAU model_id
         $device = PhoneList::where('hash_token', $token)
+            ->orWhere('model_id', $token)
             ->with('brand')
             ->first();
 
@@ -34,18 +35,19 @@ class CheckDeviceController extends Controller
                 'valid' => false,
                 'token_input' => $token,
                 'matched_by' => null,
-                'message' => 'Token tidak cocok dengan hash_token perangkat manapun.',
+                'message' => 'Token tidak ditemukan. Pastikan kode QR berasal dari perangkat yang terdaftar.',
             ], 404);
         }
 
-        // Verifikasi hash_token cocok persis
-        $match = $device->hash_token === $token;
+        // Verifikasi: hash_token cocok ATAU model_id cocok (QR lama sebelum register)
+        $matchedBy = $device->hash_token === $token ? 'hash_token' : ($device->model_id === $token ? 'model_id' : null);
+        $match = $matchedBy !== null;
 
         return response()->json([
             'valid' => $match,
             'token_input' => $token,
-            'matched_by' => 'hash_token',
-            'message' => $match ? '✓ Hash token cocok! Perangkat terverifikasi.' : 'Token tidak sesuai dengan hash_token perangkat.',
+            'matched_by' => $matchedBy,
+            'message' => $match ? '✓ Token cocok! Perangkat terverifikasi ('.($matchedBy === 'hash_token' ? 'JWT hash' : 'Model ID').').' : 'Token tidak sesuai dengan data perangkat.',
             'device' => $match ? [
                 'model_id' => $device->model_id,
                 'model_name' => $device->model_name,

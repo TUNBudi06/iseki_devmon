@@ -24,6 +24,8 @@ class PhoneList extends Model
         'price',
         'ram',
         'storage',
+        'imei',
+        'mac_address',
         'registered',
         'approved',
         'hash_token',

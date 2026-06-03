@@ -738,6 +738,27 @@
                                     <div class="font-semibold text-emerald-600 dark:text-emerald-400">{formatPrice(phone.price)}</div>
                                 </div>
 
+                                <!-- IMEI / MAC Address -->
+                                <div class="flex flex-wrap gap-2 pt-1">
+                                    {#if phone.imei}
+                                        <Badge variant="outline" class="bg-primary/10 border-primary/30 text-primary gap-1.5 text-[11px] font-mono font-bold px-2.5 py-1">
+                                            <span class="text-[9px] uppercase tracking-wider text-primary/70 font-bold">IMEI</span>
+                                            {phone.imei}
+                                        </Badge>
+                                    {/if}
+                                    {#if phone.mac_address}
+                                        <Badge variant="outline" class="bg-primary/10 border-primary/30 text-primary gap-1.5 text-[11px] font-mono font-bold px-2.5 py-1">
+                                            <span class="text-[9px] uppercase tracking-wider text-primary/70 font-bold">MAC</span>
+                                            {phone.mac_address}
+                                        </Badge>
+                                    {/if}
+                                    {#if !phone.imei && !phone.mac_address && phone.registered}
+                                        <Badge variant="outline" class="bg-amber-500/10 border-amber-300/30 text-amber-500 gap-1 text-[10px]">
+                                            IMEI/MAC belum diisi
+                                        </Badge>
+                                    {/if}
+                                </div>
+
                                 <!-- Status badges -->
                                 <div class="flex flex-wrap gap-1.5 pt-1 border-t border-border/30">
                                     {#if phone.registered}

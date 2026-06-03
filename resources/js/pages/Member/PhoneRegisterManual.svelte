@@ -5,7 +5,7 @@
     import { Input } from '$shadcn/components/ui/input';
     import { Label } from '$shadcn/components/ui/label';
     import { Badge } from '$shadcn/components/ui/badge';
-    import { ArrowLeft, Check, Smartphone, Cpu, HardDrive, CalendarDays, Banknote, Tag } from '@lucide/svelte';
+    import { ArrowLeft, Check, Smartphone, Cpu, HardDrive, CalendarDays, Banknote, Tag, SeparatorHorizontal } from '@lucide/svelte';
     import LayoutBG from '$/components/LayoutBG.svelte';
     import Particles from '$shadcn/components/Particles.svelte';
     import { deviceNotRegister, deviceRegisterManual, loginMember } from '$routes/user';
@@ -13,6 +13,7 @@
     import { home } from '$routes';
     import { toast } from 'svelte-sonner';
     import { Toaster } from '$shadcn/components/ui/sonner';
+    import { Separator } from '$shadcn/components/ui/separator';
     import { Loader2 } from '@lucide/svelte';
 
     type Brand = { id: string; name: string };
@@ -28,6 +29,8 @@
         price: '',
         ram: '',
         storage: '',
+        imei: '',
+        mac_address: '',
     });
 
     const suggestedModelId = $derived.by(() => {
@@ -68,6 +71,8 @@
                     price: form.price,
                     ram: form.ram,
                     storage: form.storage,
+                    imei: form.imei || null,
+                    mac_address: form.mac_address || null,
                 }),
             });
 
@@ -178,6 +183,26 @@
                     <Label for="price" class="text-sm font-medium">Harga</Label>
                     <Input id="price" bind:value={form.price} placeholder="5000000" class="h-10" />
                     {#if form.errors.price}<p class="text-xs text-rose-400">{form.errors.price}</p>{/if}
+                </div>
+
+                <!-- ─── IMEI & MAC Address ─── -->
+                <Separator class="opacity-50" />
+                <div>
+                    <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Identifikasi Hardware</p>
+                    <p class="text-xs text-muted-foreground mb-3">Isi minimal salah satu (IMEI untuk HP, MAC Address untuk tablet/hp). Lihat di <b>Settings &gt; About Phone</b>.</p>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <Label for="imei" class="text-sm font-medium">IMEI <span class="text-xs text-muted-foreground">(opsional)</span></Label>
+                            <Input id="imei" bind:value={form.imei} placeholder="352678094561230" maxlength={15} class="h-10 font-mono" />
+                            {#if form.errors.imei}<p class="text-xs text-rose-400">{form.errors.imei}</p>{/if}
+                        </div>
+                        <div class="space-y-2">
+                            <Label for="mac" class="text-sm font-medium">MAC Address <span class="text-xs text-muted-foreground">(opsional)</span></Label>
+                            <Input id="mac" bind:value={form.mac_address} placeholder="00:1A:2B:3C:4D:5E" maxlength={17} class="h-10 font-mono" />
+                            {#if form.errors.mac_address}<p class="text-xs text-rose-400">{form.errors.mac_address}</p>{/if}
+                        </div>
+                    </div>
                 </div>
             </Card.Content>
 

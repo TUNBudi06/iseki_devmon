@@ -49,6 +49,8 @@
         user: string | null;
         ram: string;
         storage: string;
+        imei: string | null;
+        mac_address: string | null;
         status: 'active' | 'inactive';
         registered: boolean;
         type: DeviceType;
@@ -68,6 +70,8 @@
         price: string;
         ram: string;
         storage: string;
+        imei: string | null;
+        mac_address: string | null;
         thumbnail: string | null;
         list_photos: string[] | null;
         registered: boolean;
@@ -94,6 +98,8 @@
             const abs = latestAbsences?.[p.model_id];
             return {
                 id: p.model_id,
+                imei: p.imei,
+                mac_address: p.mac_address,
                 name: p.model_name,
                 photo: assetUrl(p.thumbnail) ?? (p.list_photos?.[0] ? assetUrl(p.list_photos[0]) : undefined) ?? undefined,
                 photos: p.list_photos?.map((photo) => assetUrl(photo)).filter(Boolean) as string[] | undefined,
@@ -442,11 +448,21 @@
                                 </div>
                             </div>
 
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
                                 <span class="rounded-full border px-2.5 py-1 text-[11px] font-medium {isRegistered ? 'border-primary/20 bg-primary/10 text-primary' : 'border-orange-500/20 bg-orange-500/10 text-orange-400'}">
                                     {isRegistered ? 'Terdaftar' : 'Belum'}
                                 </span>
-                                <span class="font-mono text-[11px] text-muted-foreground">{device.id}</span>
+                                {#if device.imei}
+                                    <span class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-mono font-bold text-primary">
+                                        IMEI {device.imei}
+                                    </span>
+                                {:else if device.mac_address}
+                                    <span class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-mono font-bold text-primary">
+                                        MAC {device.mac_address}
+                                    </span>
+                                {:else}
+                                    <span class="font-mono text-[10px] text-amber-500 border border-amber-300/30 rounded-full px-2.5 py-1 bg-amber-500/10">IMEI: -</span>
+                                {/if}
                             </div>
                         </div>
                     </div>
