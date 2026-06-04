@@ -189,7 +189,9 @@
                 p.model_id.toLowerCase().includes(q) ||
                 p.model_name.toLowerCase().includes(q) ||
                 p.brand?.name.toLowerCase().includes(q) ||
-                p.model_type.toLowerCase().includes(q),
+                p.model_type.toLowerCase().includes(q) ||
+                p.imei?.toLowerCase().includes(q) ||
+                p.mac_address?.toLowerCase().includes(q),
         );
     });
 
@@ -634,7 +636,7 @@
                     <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                     <Input
                         bind:value={phoneSearch}
-                        placeholder="Cari model ID, nama, brand..."
+                        placeholder="Cari model ID, nama, brand, IMEI, MAC..."
                         class="pl-10 h-10 bg-card/60 border-border/60"
                     />
                 </div>
