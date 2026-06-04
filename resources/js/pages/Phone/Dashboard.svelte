@@ -452,16 +452,26 @@
                                 <span class="rounded-full border px-2.5 py-1 text-[11px] font-medium {isRegistered ? 'border-primary/20 bg-primary/10 text-primary' : 'border-orange-500/20 bg-orange-500/10 text-orange-400'}">
                                     {isRegistered ? 'Terdaftar' : 'Belum'}
                                 </span>
-                                {#if device.imei}
-                                    <span class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-mono font-bold text-primary">
-                                        IMEI {device.imei}
-                                    </span>
-                                {:else if device.mac_address}
-                                    <span class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-mono font-bold text-primary">
-                                        MAC {device.mac_address}
-                                    </span>
+                                {#if device.type === 'tablet'}
+                                    {#if device.mac_address}
+                                        <span class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-mono font-bold text-primary">
+                                            MAC {device.mac_address}
+                                        </span>
+                                    {:else if device.imei}
+                                        <span class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-mono font-bold text-primary">
+                                            IMEI {device.imei}
+                                        </span>
+                                    {/if}
                                 {:else}
-                                    <span class="font-mono text-[10px] text-amber-500 border border-amber-300/30 rounded-full px-2.5 py-1 bg-amber-500/10">IMEI: -</span>
+                                    {#if device.imei}
+                                        <span class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-mono font-bold text-primary">
+                                            IMEI {device.imei}
+                                        </span>
+                                    {:else if device.mac_address}
+                                        <span class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-mono font-bold text-primary">
+                                            MAC {device.mac_address}
+                                        </span>
+                                    {/if}
                                 {/if}
                             </div>
                         </div>
