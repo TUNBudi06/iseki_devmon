@@ -131,7 +131,9 @@
     let carouselApis: Record<string, any> = {};
 
     // ─── Inisialisasi Sifter (dilakukan sekali via $derived ref) ─
-    const sifter = new Sifter(devices);
+    // Pre-process null IMEI/MAC to empty strings so Sifter won't crash
+    const sifterDevices = devices.map(d => ({ ...d, imei: d.imei ?? '', mac_address: d.mac_address ?? '' }));
+    const sifter = new Sifter(sifterDevices);
 
     // ─── SEMUA FILTER PAKAI SIFTER ─────────────────────────────
     const filteredDevices = $derived.by(() => {
@@ -140,7 +142,7 @@
         // 1. Search filter (if search is not empty)
         if (search.trim()) {
             const results = sifter.search(search, {
-                fields: ['name', 'id'],
+                fields: ['name', 'id', 'imei', 'mac_address'],
                 limit: 100,
                 filter: true
             });
@@ -281,7 +283,7 @@
                     </InputGroup.Addon>
                     <InputGroup.Input
                         bind:value={search}
-                        placeholder="Cari nama perangkat atau ID..."
+                        placeholder="Cari nama, ID, IMEI, atau MAC..."
                         class="text-sm"
                     />
                 </InputGroup.Root>
