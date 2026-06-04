@@ -42,6 +42,8 @@
         model_type: string;
         brand_name: string | null;
         thumbnail: string | null;
+        imei: string | null;
+        mac_address: string | null;
     }>(null);
 
     async function startScan() {
@@ -164,11 +166,16 @@
     let imeiInput = $state('');
     let macInput = $state('');
 
+    function hasExistingHardwareId(): boolean {
+        return !!(deviceInfo?.imei || deviceInfo?.mac_address);
+    }
+
     async function handleRegister() {
         if (!deviceInfo) return;
 
-        // Validasi minimal salah satu wajib
-        if (!imeiInput.trim() && !macInput.trim()) {
+        // Validasi minimal salah satu wajib (cek yang sudah ada di DB + yang diinput user)
+        const hasExisting = hasExistingHardwareId();
+        if (!hasExisting && !imeiInput.trim() && !macInput.trim()) {
             error = 'Harap isi IMEI atau MAC Address perangkat (minimal salah satu).';
             return;
         }
@@ -407,47 +414,70 @@
                     </div>
 
                     <!-- ─── IMEI & MAC Address Input ─── -->
-                    <div class="rounded-xl border border-border/60 p-4 space-y-3 bg-card">
-                        <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Identifikasi Hardware</p>
-                        <p class="text-xs text-muted-foreground">Isi minimal salah satu (IMEI untuk HP, MAC Address untuk tablet/hp). Lihat di <b>Settings &gt; About Phone</b>.</p>
-
-                        <div class="space-y-2">
-                            <Label for="imei" class="text-sm font-medium">IMEI <span class="text-xs text-muted-foreground">(opsional)</span></Label>
-                            <Input
-                                id="imei"
-                                type="text"
-                                bind:value={imeiInput}
-                                placeholder="Contoh: 352678094561230"
-                                maxlength={15}
-                                class="h-10 bg-background/50 font-mono text-sm"
-                            />
+                    {#if hasExistingHardwareId()}
+                        <!-- Sudah ada IMEI/MAC dari admin — tampilkan sebagai info readonly -->
+                        <div class="rounded-xl border-2 border-emerald-500/30 bg-emerald-500/5 p-4 space-y-3">
+                            <div class="flex items-center gap-2">
+                                <CheckCircle class="size-4 text-emerald-500" />
+                                <p class="text-xs font-medium text-emerald-600 uppercase tracking-wider">Identifikasi Hardware (dari admin)</p>
+                            </div>
+                            <p class="text-xs text-emerald-600/70">IMEI/MAC sudah diinput oleh admin — pendaftaran langsung tanpa input ulang.</p>
+                            {#if deviceInfo.imei}
+                                <div class="rounded-lg bg-emerald-500/10 px-3 py-2 flex items-center gap-2">
+                                    <span class="text-[10px] font-black text-emerald-500 uppercase">IMEI</span>
+                                    <code class="text-sm font-mono font-bold text-foreground">{deviceInfo.imei}</code>
+                                </div>
+                            {/if}
+                            {#if deviceInfo.mac_address}
+                                <div class="rounded-lg bg-emerald-500/10 px-3 py-2 flex items-center gap-2">
+                                    <span class="text-[10px] font-black text-emerald-500 uppercase">MAC</span>
+                                    <code class="text-sm font-mono font-bold text-foreground">{deviceInfo.mac_address}</code>
+                                </div>
+                            {/if}
                         </div>
+                    {:else}
+                        <div class="rounded-xl border border-border/60 p-4 space-y-3 bg-card">
+                            <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Identifikasi Hardware</p>
+                            <p class="text-xs text-muted-foreground">Isi minimal salah satu (IMEI untuk HP, MAC Address untuk tablet/hp). Lihat di <b>Settings &gt; About Phone</b>.</p>
 
-                        <div class="space-y-2">
-                            <Label for="mac" class="text-sm font-medium">MAC Address <span class="text-xs text-muted-foreground">(opsional)</span></Label>
-                            <Input
-                                id="mac"
-                                type="text"
-                                bind:value={macInput}
-                                placeholder="Contoh: 00:1A:2B:3C:4D:5E"
-                                maxlength={17}
-                                class="h-10 bg-background/50 font-mono text-sm"
-                            />
+                            <div class="space-y-2">
+                                <Label for="imei" class="text-sm font-medium">IMEI <span class="text-xs text-muted-foreground">(opsional)</span></Label>
+                                <Input
+                                    id="imei"
+                                    type="text"
+                                    bind:value={imeiInput}
+                                    placeholder="Contoh: 352678094561230"
+                                    maxlength={15}
+                                    class="h-10 bg-background/50 font-mono text-sm"
+                                />
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label for="mac" class="text-sm font-medium">MAC Address <span class="text-xs text-muted-foreground">(opsional)</span></Label>
+                                <Input
+                                    id="mac"
+                                    type="text"
+                                    bind:value={macInput}
+                                    placeholder="Contoh: 00:1A:2B:3C:4D:5E"
+                                    maxlength={17}
+                                    class="h-10 bg-background/50 font-mono text-sm"
+                                />
+                            </div>
+
+                            {#if !imeiInput.trim() && !macInput.trim()}
+                                <p class="text-xs text-amber-500 flex items-center gap-1">
+                                    <AlertCircle class="size-3" />
+                                    Pilih salah satu minimal (isi IMEI atau MAC Address)
+                                </p>
+                            {/if}
                         </div>
-
-                        {#if !imeiInput.trim() && !macInput.trim()}
-                            <p class="text-xs text-amber-500 flex items-center gap-1">
-                                <AlertCircle class="size-3" />
-                                Pilih salah satu minimal (isi IMEI atau MAC Address)
-                            </p>
-                        {/if}
-                    </div>
+                    {/if}
 
                     <div class="flex gap-3">
                         <Button variant="outline" onclick={cancelRegistration} class="flex-1 gap-2">
                             <X class="size-4" /> Batal
                         </Button>
-                        <Button onclick={handleRegister} disabled={isRegistering || (!imeiInput.trim() && !macInput.trim())} class="flex-1 gap-2">
+                        <Button onclick={handleRegister} disabled={isRegistering || (!hasExistingHardwareId() && !imeiInput.trim() && !macInput.trim())} class="flex-1 gap-2">
                             {#if isRegistering}
                                 <Loader2 class="size-4 animate-spin" /> Mendaftarkan...
                             {:else}

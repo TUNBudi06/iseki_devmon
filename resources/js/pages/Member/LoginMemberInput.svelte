@@ -18,6 +18,8 @@
     type DeviceInfo = {
         model_id: string;
         model_name: string;
+        imei: string | null;
+        mac_address: string | null;
         approved: boolean;
         registered: boolean;
     };
@@ -87,9 +89,21 @@
                             <Smartphone class="size-4 text-primary shrink-0" />
                             <span class="font-semibold text-sm">{device.model_name}</span>
                         </div>
-                        <div class="text-center">
-                            <code class="text-xs text-muted-foreground">{device.model_id}</code>
-                        </div>
+                        {#if device.imei}
+                            <div class="text-center">
+                                <span class="text-[10px] text-primary/70 uppercase tracking-wider">IMEI</span>
+                                <code class="text-xs font-mono font-bold text-foreground">{device.imei}</code>
+                            </div>
+                        {:else if device.mac_address}
+                            <div class="text-center">
+                                <span class="text-[10px] text-primary/70 uppercase tracking-wider">MAC</span>
+                                <code class="text-xs font-mono font-bold text-foreground">{device.mac_address}</code>
+                            </div>
+                        {:else}
+                            <div class="text-center">
+                                <code class="text-xs text-muted-foreground">{device.model_id}</code>
+                            </div>
+                        {/if}
                     </div>
                 {/if}
 

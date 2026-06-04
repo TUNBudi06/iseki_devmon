@@ -79,6 +79,8 @@ class DeviceManagement extends Controller
                 'model_type' => $device->model_type,
                 'brand_name' => $device->brand?->name,
                 'thumbnail' => $device->thumbnail,
+                'imei' => $device->imei,
+                'mac_address' => $device->mac_address,
             ],
         ]);
     }
@@ -94,14 +96,6 @@ class DeviceManagement extends Controller
             'mac_address' => ['nullable', 'string', 'max:17', 'unique:phone_lists,mac_address'],
         ]);
 
-        // Minimal salah satu wajib diisi
-        if (empty($validated['imei']) && empty($validated['mac_address'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Harap isi IMEI atau MAC Address perangkat (minimal salah satu).',
-            ], 422);
-        }
-
         $device = PhoneList::where('model_id', $validated['model_id'])
             ->where('registered', false)
             ->first();
@@ -110,6 +104,18 @@ class DeviceManagement extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Perangkat tidak ditemukan atau sudah terdaftar.',
+            ], 422);
+        }
+
+        // Gunakan IMEI/MAC dari user input, fallback ke yang sudah ada di database
+        $imei = ! empty($validated['imei']) ? $validated['imei'] : $device->imei;
+        $mac = ! empty($validated['mac_address']) ? $validated['mac_address'] : $device->mac_address;
+
+        // Minimal salah satu wajib diisi (dari input user ATAU dari database)
+        if (empty($imei) && empty($mac)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Harap isi IMEI atau MAC Address perangkat (minimal salah satu).',
             ], 422);
         }
 
@@ -122,8 +128,8 @@ class DeviceManagement extends Controller
             'registered' => true,
             'approved' => true,
             'hash_token' => $hash,
-            'imei' => $validated['imei'] ?? null,
-            'mac_address' => $validated['mac_address'] ?? null,
+            'imei' => $imei,
+            'mac_address' => $mac,
         ]);
 
         return response()->json([

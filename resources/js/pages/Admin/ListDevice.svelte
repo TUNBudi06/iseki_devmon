@@ -1032,6 +1032,24 @@
                     </div>
                 </div>
 
+                <!-- ─── IMEI & MAC Address ─── -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <Label for="add-phone-imei" class="text-sm font-medium">IMEI <span class="text-xs text-muted-foreground">(opsional)</span></Label>
+                        <Input id="add-phone-imei" bind:value={addPhoneForm.imei} placeholder="15 digit IMEI" maxlength={15} class="h-10 font-mono text-sm" />
+                        {#if addPhoneForm.errors.imei}
+                            <p class="text-xs text-rose-400">{addPhoneForm.errors.imei}</p>
+                        {/if}
+                    </div>
+                    <div class="space-y-2">
+                        <Label for="add-phone-mac" class="text-sm font-medium">MAC Address <span class="text-xs text-muted-foreground">(opsional)</span></Label>
+                        <Input id="add-phone-mac" bind:value={addPhoneForm.mac_address} placeholder="00:1A:2B:3C:4D:5E" maxlength={17} class="h-10 font-mono text-sm" />
+                        {#if addPhoneForm.errors.mac_address}
+                            <p class="text-xs text-rose-400">{addPhoneForm.errors.mac_address}</p>
+                        {/if}
+                    </div>
+                </div>
+
                 <!-- ─── Foto Upload ─── -->
                 <div class="space-y-2">
                     <Label class="text-sm font-medium">Foto Perangkat</Label>
@@ -1190,6 +1208,23 @@
                         <Input id="edit-phone-storage" bind:value={editPhoneForm.storage} class="h-10" />
                         {#if editPhoneForm.errors.storage}
                             <p class="text-xs text-rose-400">{editPhoneForm.errors.storage}</p>
+                        {/if}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <Label for="edit-phone-imei" class="text-sm font-medium">IMEI <span class="text-xs text-muted-foreground">(opsional)</span></Label>
+                        <Input id="edit-phone-imei" bind:value={editPhoneForm.imei} placeholder="15 digit IMEI" maxlength={15} class="h-10 font-mono text-sm" />
+                        {#if editPhoneForm.errors.imei}
+                            <p class="text-xs text-rose-400">{editPhoneForm.errors.imei}</p>
+                        {/if}
+                    </div>
+                    <div class="space-y-2">
+                        <Label for="edit-phone-mac" class="text-sm font-medium">MAC Address <span class="text-xs text-muted-foreground">(opsional)</span></Label>
+                        <Input id="edit-phone-mac" bind:value={editPhoneForm.mac_address} placeholder="00:1A:2B:3C:4D:5E" maxlength={17} class="h-10 font-mono text-sm" />
+                        {#if editPhoneForm.errors.mac_address}
+                            <p class="text-xs text-rose-400">{editPhoneForm.errors.mac_address}</p>
                         {/if}
                     </div>
                 </div>

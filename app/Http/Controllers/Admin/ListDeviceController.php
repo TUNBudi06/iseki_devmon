@@ -117,14 +117,23 @@ class ListDeviceController extends Controller
             'price' => ['required', 'string', 'max:255'],
             'ram' => ['required', 'string', 'max:255'],
             'storage' => ['required', 'string', 'max:255'],
+            'imei' => ['nullable', 'string', 'max:17', 'unique:phone_lists,imei'],
+            'mac_address' => ['nullable', 'string', 'max:17', 'unique:phone_lists,mac_address'],
             'list_photos' => ['nullable', 'array'],
             'list_photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
-        $data = collect($validated)->except(['list_photos'])->toArray();
+        $data = collect($validated)->except(['list_photos', 'imei', 'mac_address'])->toArray();
         $data['registered'] = false;
         $data['approved'] = true;
         $data['hash_token'] = null;
+
+        if (! empty($validated['imei'])) {
+            $data['imei'] = $validated['imei'];
+        }
+        if (! empty($validated['mac_address'])) {
+            $data['mac_address'] = $validated['mac_address'];
+        }
 
         // Create phone first to get the ID
         $phone = PhoneList::create($data);
@@ -157,6 +166,8 @@ class ListDeviceController extends Controller
             'price' => ['required', 'string', 'max:255'],
             'ram' => ['required', 'string', 'max:255'],
             'storage' => ['required', 'string', 'max:255'],
+            'imei' => ['nullable', 'string', 'max:17', 'unique:phone_lists,imei,'.$id],
+            'mac_address' => ['nullable', 'string', 'max:17', 'unique:phone_lists,mac_address,'.$id],
             'thumbnail' => ['nullable', 'string'],
             'list_photos' => ['nullable', 'array'],
             'list_photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
@@ -164,7 +175,15 @@ class ListDeviceController extends Controller
 
         $phone = PhoneList::findOrFail($id);
 
-        $data = collect($validated)->except(['list_photos'])->toArray();
+        $data = collect($validated)->except(['list_photos', 'imei', 'mac_address'])->toArray();
+
+        // Handle IMEI/MAC — update if provided, set null if empty
+        if ($request->has('imei')) {
+            $data['imei'] = $validated['imei'] ?: null;
+        }
+        if ($request->has('mac_address')) {
+            $data['mac_address'] = $validated['mac_address'] ?: null;
+        }
 
         // Handle thumbnail selection (URL string from existing photos)
         if ($request->filled('thumbnail') && ! $request->hasFile('thumbnail')) {

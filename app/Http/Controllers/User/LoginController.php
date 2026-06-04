@@ -33,6 +33,8 @@ class LoginController extends Controller
             'device' => [
                 'model_id' => $device->model_id,
                 'model_name' => $device->model_name,
+                'imei' => $device->imei,
+                'mac_address' => $device->mac_address,
                 'approved' => $device->approved,
                 'registered' => $device->registered,
             ],
@@ -57,6 +59,8 @@ class LoginController extends Controller
             'device' => $device ? [
                 'model_id' => $device->model_id,
                 'model_name' => $device->model_name,
+                'imei' => $device->imei,
+                'mac_address' => $device->mac_address,
                 'approved' => $device->approved,
                 'registered' => $device->registered,
             ] : null,
