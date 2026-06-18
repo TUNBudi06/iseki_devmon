@@ -15,5 +15,13 @@ class Departemen extends Model
     protected $fillable = [
         'id',
         'name',
+        'color',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'id' => 'string',
+        ];
+    }
 }

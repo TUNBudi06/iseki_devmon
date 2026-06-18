@@ -275,6 +275,7 @@ class ListDeviceController extends Controller
         $validated = $request->validate([
             'id' => ['required', 'string', 'max:50', 'unique:departemens,id'],
             'name' => ['required', 'string', 'max:100'],
+            'color' => ['required', 'string', 'max:20'],
         ]);
 
         Departemen::create($validated);
@@ -286,10 +287,12 @@ class ListDeviceController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
+            'color' => ['required', 'string', 'max:20'],
         ]);
 
         Departemen::where('id', $id)->update([
             'name' => $validated['name'],
+            'color' => $validated['color'],
             'updated_at' => now(),
         ]);
 

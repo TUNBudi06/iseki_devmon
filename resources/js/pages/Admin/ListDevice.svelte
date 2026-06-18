@@ -69,7 +69,7 @@
         departemen: string;
     };
 
-    let { brands, phoneLists, departemenOptions }: { brands: Brand[]; phoneLists: PhoneList[]; departemenOptions: { id: string; name: string }[] } = $props();
+    let { brands, phoneLists, departemenOptions }: { brands: Brand[]; phoneLists: PhoneList[]; departemenOptions: { id: string; name: string; color: string }[] } = $props();
 
     // ─── Active Tab ──────────────────────────────────────────────
     const tabs = [
@@ -171,14 +171,14 @@
     }
 
     // ─── Departemen CRUD ─────────────────────────────────────────
-    const addDeptForm = useHttp({ id: '', name: '' });
+    const addDeptForm = useHttp({ id: '', name: '', color: '#f59e0b' });
     let showAddDeptModal = $state(false);
 
-    const editDeptForm = useHttp({ name: '' });
-    let editDeptTarget = $state<{ id: string; name: string } | null>(null);
+    const editDeptForm = useHttp({ name: '', color: '#f59e0b' });
+    let editDeptTarget = $state<{ id: string; name: string; color: string } | null>(null);
 
     const deleteDeptForm = useHttp({});
-    let deleteDeptTarget = $state<{ id: string; name: string } | null>(null);
+    let deleteDeptTarget = $state<{ id: string; name: string; color: string } | null>(null);
 
     // ─── Delete Photo ────────────────────────────────────────────
     const deletePhotoForm = useHttp({});
@@ -236,15 +236,16 @@
         return parseInt(val.replace(/\D/g, ''), 10) || 0;
     }
 
-    const totalBudget = $derived(
-        phoneLists.reduce((sum, p) => sum + parsePrice(p.price), 0),
-    );
-
-    const totalBudgetFormatted = $derived(
-        new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalBudget),
-    );
-
     const removedDevices = $derived(phoneLists.filter((p) => p.deleted_at !== null).length);
+
+    const budgetPerDept = $derived.by(() => {
+        const map = new Map<string, number>();
+        for (const p of phoneLists) {
+            const prev = map.get(p.departemen) ?? 0;
+            map.set(p.departemen, prev + parsePrice(p.price));
+        }
+        return map;
+    });
 
     function storageUrl(path: string | null): string | null {
         if (!path) return null;
@@ -557,16 +558,19 @@
 
     <!-- ──────── Summary Cards ──────── -->
     <div class="flex items-center gap-3 flex-wrap">
-        <!-- Total Budget -->
-        <div class="flex items-center gap-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20 px-5 py-2.5 shadow-sm w-fit">
-            <div class="size-9 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                <Banknote class="size-4 text-emerald-400" />
+        {#each departemenOptions as dept}
+            <div class="flex items-center gap-3 rounded-xl bg-gradient-to-r border px-5 py-2.5 shadow-sm w-fit" style="background: linear-gradient(135deg, {dept.color}18, {dept.color}08); border-color: {dept.color}33;">
+                <div class="size-9 rounded-lg flex items-center justify-center" style="background: {dept.color}33;">
+                    <Banknote class="size-4" style="color: {dept.color}" />
+                </div>
+                <div class="text-right">
+                    <p class="text-xs font-medium uppercase tracking-wider" style="color: {dept.color};">{dept.name} Budget</p>
+                    <p class="text-base font-bold" style="color: {dept.color};">
+                        {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(budgetPerDept.get(dept.id) ?? 0)}
+                    </p>
+                </div>
             </div>
-            <div class="text-right">
-                <p class="text-xs text-emerald-500/70 font-medium uppercase tracking-wider">Total Budget</p>
-                <p class="text-base font-bold text-emerald-600 dark:text-emerald-300">{totalBudgetFormatted}</p>
-            </div>
-        </div>
+        {/each}
         <!-- Removed Devices -->
         <div class="flex items-center gap-3 rounded-xl bg-gradient-to-r from-red-500/10 to-rose-600/5 border border-red-500/20 px-5 py-2.5 shadow-sm w-fit">
             <div class="size-9 rounded-lg bg-red-500/20 flex items-center justify-center">
@@ -686,15 +690,19 @@
                     Semua ({phoneLists.length})
                 </button>
                 {#each departemenOptions as dept}
-                    {@const count = phoneLists.filter(p => p.departemen === dept.id).length}
                     <button
                         onclick={() => departemenFilter = dept.id}
-                        class="px-4 py-1.5 rounded-lg text-xs font-medium transition-all duration-200
+                        class="px-4 py-1.5 rounded-lg text-xs font-medium transition-all duration-200"
+                        style="
                             {departemenFilter === dept.id
-                                ? 'bg-pink-500/15 text-pink-500 shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'}"
+                                ? `background: ${dept.color}25; color: ${dept.color}; box-shadow: 0 1px 3px ${dept.color}30;`
+                                : 'color: var(--muted-foreground)'}
+                        "
+                        onmouseenter={(e) => { if (departemenFilter !== dept.id) e.currentTarget.style.background = `${dept.color}10`; }}
+                        onmouseleave={(e) => { if (departemenFilter !== dept.id) e.currentTarget.style.background = 'transparent'; }}
                     >
-                        {dept.name} ({count})
+                        <span class="size-2 rounded-full inline-block mr-1.5" style="background: {dept.color}"></span>
+                        {dept.name} ({phoneLists.filter(p => p.departemen === dept.id).length})
                     </button>
                 {/each}
             </div>
@@ -779,11 +787,10 @@
                                         <Badge variant="outline" class="text-[10px] bg-violet-500/10 border-violet-300/30 text-violet-600 font-medium px-2 py-0">
                                             {phone.brand?.name ?? phone.brand_id}
                                         </Badge>
-                                        {#if phone.departemen === 'QC'}
-                                            <Badge class="bg-sky-500/15 text-sky-600 border-sky-300/30 text-[10px] px-2 py-0">{departemenOptions.find(d => d.id === phone.departemen)?.name ?? phone.departemen}</Badge>
-                                        {:else}
-                                            <Badge class="bg-amber-500/15 text-amber-600 border-amber-300/30 text-[10px] px-2 py-0">{departemenOptions.find(d => d.id === phone.departemen)?.name ?? phone.departemen}</Badge>
-                                        {/if}
+                                        <Badge
+                                            style="background: {departemenOptions.find(d => d.id === phone.departemen)?.color ?? '#f59e0b'}20; color: {departemenOptions.find(d => d.id === phone.departemen)?.color ?? '#f59e0b'}; border-color: {departemenOptions.find(d => d.id === phone.departemen)?.color ?? '#f59e0b'}50;"
+                                            class="text-[10px] px-2 py-0 border"
+                                        >{departemenOptions.find(d => d.id === phone.departemen)?.name ?? phone.departemen}</Badge>
                                     </div>
                                     <div>
                                         {#if phone.model_type === 'Phone'}
@@ -881,15 +888,15 @@
                             {@const deptCount = phoneLists.filter(p => p.departemen === dept.id).length}
                             <div class="rounded-xl border border-border/60 bg-card p-4 flex items-center justify-between gap-4">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    {#if dept.id === 'QC'}
-                                        <Badge class="bg-sky-500/15 text-sky-600 border-sky-300/30 px-3 py-1">{dept.name}</Badge>
-                                    {:else}
-                                        <Badge class="bg-amber-500/15 text-amber-600 border-amber-300/30 px-3 py-1">{dept.name}</Badge>
-                                    {/if}
+                                    <span class="size-3 rounded-full shrink-0" style="background: {dept.color}"></span>
+                                    <Badge
+                                        style="background: {dept.color}20; color: {dept.color}; border-color: {dept.color}50;"
+                                        class="px-3 py-1 border"
+                                    >{dept.name}</Badge>
                                     <span class="text-xs text-muted-foreground">{deptCount} perangkat</span>
                                 </div>
                                 <div class="flex items-center gap-1 shrink-0">
-                                    <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10" onclick={() => { editDeptForm.defaults({ name: dept.name }).reset(); editDeptTarget = dept; }}>
+                                    <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10" onclick={() => { editDeptForm.defaults({ name: dept.name, color: dept.color }).reset(); editDeptTarget = dept; }}>
                                         <Edit class="size-3.5" />
                                     </Button>
                                     <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10" onclick={() => { deleteDeptTarget = dept; }} disabled={deptCount > 0}>
@@ -1593,6 +1600,21 @@
                         <p class="text-xs text-rose-400">{addDeptForm.errors.name}</p>
                     {/if}
                 </div>
+                <div class="space-y-2">
+                    <Label for="add-dept-color" class="text-sm font-medium">Warna</Label>
+                    <div class="flex items-center gap-3">
+                        <input
+                            id="add-dept-color"
+                            type="color"
+                            bind:value={addDeptForm.color}
+                            class="size-10 rounded-lg border border-input bg-transparent cursor-pointer p-1"
+                        />
+                        <span class="text-xs font-mono text-muted-foreground">{addDeptForm.color}</span>
+                    </div>
+                    {#if addDeptForm.errors.color}
+                        <p class="text-xs text-rose-400">{addDeptForm.errors.color}</p>
+                    {/if}
+                </div>
             </Card.Content>
             <Card.Footer class="flex justify-end gap-3 pt-2">
                 <Button variant="outline" onclick={() => { showAddDeptModal = false; addDeptForm.reset(); }} disabled={addDeptForm.processing}>
@@ -1649,6 +1671,21 @@
                     <Input id="edit-dept-name" bind:value={editDeptForm.name} placeholder="Nama departemen" class="h-10" />
                     {#if editDeptForm.errors.name}
                         <p class="text-xs text-rose-400">{editDeptForm.errors.name}</p>
+                    {/if}
+                </div>
+                <div class="space-y-2">
+                    <Label for="edit-dept-color" class="text-sm font-medium">Warna</Label>
+                    <div class="flex items-center gap-3">
+                        <input
+                            id="edit-dept-color"
+                            type="color"
+                            bind:value={editDeptForm.color}
+                            class="size-10 rounded-lg border border-input bg-transparent cursor-pointer p-1"
+                        />
+                        <span class="text-xs font-mono text-muted-foreground">{editDeptForm.color}</span>
+                    </div>
+                    {#if editDeptForm.errors.color}
+                        <p class="text-xs text-rose-400">{editDeptForm.errors.color}</p>
                     {/if}
                 </div>
             </Card.Content>

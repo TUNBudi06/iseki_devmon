@@ -59,7 +59,7 @@
     };
 
     // ─── Props ──────────────────────────────────────────────────
-    let { devices: rawDevices, latestAbsences, todayActiveDeviceIds, departemenOptions }: { devices: PhoneListItem[]; latestAbsences: Record<string, { latest_user: string; latest_user_nik: string; latest_time: string }>; todayActiveDeviceIds: string[]; departemenOptions: { id: string; name: string }[] } = $props();
+    let { devices: rawDevices, latestAbsences, todayActiveDeviceIds, departemenOptions }: { devices: PhoneListItem[]; latestAbsences: Record<string, { latest_user: string; latest_user_nik: string; latest_time: string }>; todayActiveDeviceIds: string[]; departemenOptions: { id: string; name: string; color: string }[] } = $props();
 
     type PhoneListItem = {
         id: number;
@@ -124,7 +124,7 @@
 
     let search = $state('');
     let activeFilter = $state<Filter>('all');
-    let departemenFilter = $state<string>('all');
+    let departemenFilter = $state<string>('Production');
     let sortOption = $state<SortOption>('name-asc');
     let loading = $state(false);
     let failedImages = $state<Set<string>>(new Set());
@@ -322,14 +322,20 @@
                         Semua ({devices.length})
                     </Button>
                     {#each departemenOptions as dept}
-                        {@const count = devices.filter(d => d.departemen === dept.id).length}
                         <Button
                             size="sm"
-                            variant={departemenFilter === dept.id ? 'default' : 'outline'}
+                            variant="outline"
                             onclick={() => departemenFilter = dept.id}
                             class="rounded-full transition-all duration-300"
+                            style={{
+                                background: departemenFilter === dept.id ? `${dept.color}25` : undefined,
+                                color: departemenFilter === dept.id ? dept.color : undefined,
+                                borderColor: departemenFilter === dept.id ? dept.color : undefined,
+                                fontWeight: departemenFilter === dept.id ? '600' : undefined,
+                            }}
                         >
-                            {dept.name} ({count})
+                            <span class="size-2 rounded-full inline-block mr-1" style="background: {dept.color}"></span>
+                            {dept.name} ({devices.filter(d => d.departemen === dept.id).length})
                         </Button>
                     {/each}
                 </div>
@@ -468,11 +474,10 @@
                                     {#if device.brand}
                                         <div class="text-[11px] font-medium text-pink-500/80 uppercase tracking-wider">{device.brand.name}</div>
                                     {/if}
-                                    {#if device.departemen === 'QC'}
-                                        <span class="text-[10px] font-medium bg-sky-500/15 text-sky-600 border border-sky-300/30 rounded-full px-2 py-0.5">{departemenOptions.find(d => d.id === device.departemen)?.name ?? device.departemen}</span>
-                                    {:else}
-                                        <span class="text-[10px] font-medium bg-amber-500/15 text-amber-600 border border-amber-300/30 rounded-full px-2 py-0.5">{departemenOptions.find(d => d.id === device.departemen)?.name ?? device.departemen}</span>
-                                    {/if}
+                                    <span
+                                        class="text-[10px] font-medium border rounded-full px-2 py-0.5"
+                                        style="background: {departemenOptions.find(d => d.id === device.departemen)?.color ?? '#f59e0b'}20; color: {departemenOptions.find(d => d.id === device.departemen)?.color ?? '#f59e0b'}; border-color: {departemenOptions.find(d => d.id === device.departemen)?.color ?? '#f59e0b'}50;"
+                                    >{departemenOptions.find(d => d.id === device.departemen)?.name ?? device.departemen}</span>
                                 </div>
                                 <div class="line-clamp-2 text-[15px] font-semibold tracking-tight text-card-foreground">{device.name}</div>
                                 <div class="inline-flex items-center rounded-full border border-border bg-muted/60 px-2.5 py-1 font-mono text-[11px] text-muted-foreground">
