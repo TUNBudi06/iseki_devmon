@@ -142,7 +142,7 @@
         // 1. Search filter (if search is not empty)
         if (search.trim()) {
             const results = sifter.search(search, {
-                fields: ['name', 'id', 'imei', 'mac_address'],
+                fields: ['name', 'id', 'imei', 'mac_address', 'user'],
                 limit: 100,
                 filter: true
             });

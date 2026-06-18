@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
+
     import { router } from '@inertiajs/svelte';
     import { TableHandler, RowsPerPage, RowCount, Pagination } from '@vincjo/datatables';
     import { Search as DtSearch } from '@vincjo/datatables';
@@ -71,27 +72,37 @@
     let deviceId = $derived(currentDevice.model_id);
 
     // ─── Catatan ───────────────────────────────────────────────────
-    let catatan = $state('');
+    const STORAGE_KEY = `dash_catatan_${deviceId}`;
+    let catatanInput = $state(sessionStorage.getItem(STORAGE_KEY) ?? deviceLatest?.catatan ?? '');
     let savingCatatan = $state(false);
+    let debounceTimer: ReturnType<typeof setTimeout>;
+
+    // Debounced save ke sessionStorage (500ms setelah berhenti ngetik)
+    $effect(() => {
+        const val = catatanInput;
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            sessionStorage.setItem(STORAGE_KEY, val);
+        }, 500);
+
+        return () => clearTimeout(debounceTimer);
+    });
 
     // ─── QR Modal ──────────────────────────────────────────────────
     let showQrModal = $state(false);
-
-    function initCatatan() {
-        catatan = deviceLatest?.catatan ?? '';
-    }
-    $effect(() => { initCatatan(); });
 
     async function saveCatatan() {
         if (!deviceLatest?.id) return;
         savingCatatan = true;
         router.post(dashboard.catatan(deviceId).url, {
             absence_id: deviceLatest.id,
-            catatan: catatan,
+            catatan: catatanInput,
         }, {
             onSuccess: () => {
                 toast.success('Catatan berhasil disimpan');
                 savingCatatan = false;
+                catatanInput = deviceLatest?.catatan ?? '';
+                sessionStorage.removeItem(STORAGE_KEY);
             },
             onError: () => {
                 toast.error('Gagal menyimpan catatan');
@@ -151,7 +162,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <Clock class="size-4 text-muted-foreground shrink-0" />
-                            <span class="text-muted-foreground shrink-0">Jam:</span>
+                            <span class="text-muted-foreground shrink-0">Waktu:</span>
                             <span class="font-medium font-mono">{deviceLatest.time_absence}</span>
                         </div>
                     </div>
@@ -163,7 +174,7 @@
                             <span class="font-medium text-emerald-600 dark:text-emerald-400 text-xs uppercase tracking-wider">Catatan</span>
                         </div>
                         <Textarea
-                            bind:value={catatan}
+                            bind:value={catatanInput}
                             placeholder="Tulis catatan kegiatan..."
                             class="min-h-[80px] text-sm bg-background/50 border-emerald-500/30 focus:border-emerald-500/50"
                         />

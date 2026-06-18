@@ -123,7 +123,7 @@ class LoginController extends Controller
                     'id' => $abs->id,
                     'nik' => $abs->nik,
                     'name' => $abs->name,
-                    'time_absence' => $abs->time_absence->format('H:i:s'),
+                    'time_absence' => $abs->time_absence->format('d/m/Y H:i:s'),
                     'date_absence' => $abs->time_absence->format('d F Y'),
                     'catatan' => $abs->catatan,
                 ];
