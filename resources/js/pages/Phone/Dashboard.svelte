@@ -281,6 +281,44 @@
         </Button>
     </Navbar>
 
+    <!-- ════════════════════════════════════════════════════════════
+         DEPARTEMEN NAVBAR (sticky)
+         ════════════════════════════════════════════════════════════ -->
+    <div class="sticky top-0 z-40 border-b border-border/60 bg-card/80 backdrop-blur-xl px-6">
+        <div class="flex items-center gap-1 overflow-x-auto py-2 scrollbar-none">
+            <button
+                onclick={() => departemenFilter = 'all'}
+                class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shrink-0 whitespace-nowrap
+                    {departemenFilter === 'all'
+                        ? 'bg-pink-500/15 text-pink-500 shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'}"
+            >
+                <span class="size-2.5 rounded-full bg-muted-foreground/40"></span>
+                Semua
+                <span class="text-xs opacity-60">({devices.length})</span>
+            </button>
+            {#each departemenOptions as dept}
+                <button
+                    onclick={() => departemenFilter = dept.id}
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shrink-0 whitespace-nowrap"
+                    style={{
+                        background: departemenFilter === dept.id ? `${dept.color}20` : 'transparent',
+                        color: departemenFilter === dept.id ? dept.color : undefined,
+                    }}
+                    onmouseenter={(e) => { if (departemenFilter !== dept.id) e.currentTarget.style.background = `${dept.color}10`; }}
+                    onmouseleave={(e) => { if (departemenFilter !== dept.id) e.currentTarget.style.background = 'transparent'; }}
+                >
+                    <span class="size-2.5 rounded-full shrink-0" style="background: {dept.color}"></span>
+                    {dept.name}
+                    <span class="text-xs opacity-60">({devices.filter(d => d.departemen === dept.id).length})</span>
+                    {#if departemenFilter === dept.id}
+                        <span class="size-1.5 rounded-full bg-current animate-pulse ml-0.5" />
+                    {/if}
+                </button>
+            {/each}
+        </div>
+    </div>
+
     <div class="p-6 space-y-6">
         <!-- Search + Filter -->
         <Card.Root class="overflow-hidden border border-border/60 bg-card/60 backdrop-blur-2xl shadow-2xl">
@@ -307,35 +345,6 @@
                             class="rounded-full transition-all duration-300"
                         >
                             {f.label} ({countFilter(f.value)})
-                        </Button>
-                    {/each}
-                </div>
-
-                <!-- Departemen Filter -->
-                <div class="flex flex-wrap gap-2">
-                    <Button
-                        size="sm"
-                        variant={departemenFilter === 'all' ? 'default' : 'outline'}
-                        onclick={() => departemenFilter = 'all'}
-                        class="rounded-full transition-all duration-300"
-                    >
-                        Semua ({devices.length})
-                    </Button>
-                    {#each departemenOptions as dept}
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onclick={() => departemenFilter = dept.id}
-                            class="rounded-full transition-all duration-300"
-                            style={{
-                                background: departemenFilter === dept.id ? `${dept.color}25` : undefined,
-                                color: departemenFilter === dept.id ? dept.color : undefined,
-                                borderColor: departemenFilter === dept.id ? dept.color : undefined,
-                                fontWeight: departemenFilter === dept.id ? '600' : undefined,
-                            }}
-                        >
-                            <span class="size-2 rounded-full inline-block mr-1" style="background: {dept.color}"></span>
-                            {dept.name} ({devices.filter(d => d.departemen === dept.id).length})
                         </Button>
                     {/each}
                 </div>
