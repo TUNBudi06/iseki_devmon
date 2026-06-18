@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
+use App\Models\Departemen;
 use App\Models\PhoneList;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +24,7 @@ class ListDeviceController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->withTrashed()
                 ->get(),
+            'departemenOptions' => fn () => Departemen::orderBy('id')->get(),
         ]);
     }
 
@@ -117,6 +119,7 @@ class ListDeviceController extends Controller
             'price' => ['required', 'string', 'max:255'],
             'ram' => ['required', 'string', 'max:255'],
             'storage' => ['required', 'string', 'max:255'],
+            'departemen' => ['required', 'string', 'exists:departemens,id'],
             'imei' => ['nullable', 'string', 'max:17', 'unique:phone_lists,imei'],
             'mac_address' => ['nullable', 'string', 'max:17', 'unique:phone_lists,mac_address'],
             'list_photos' => ['nullable', 'array'],
@@ -166,6 +169,7 @@ class ListDeviceController extends Controller
             'price' => ['required', 'string', 'max:255'],
             'ram' => ['required', 'string', 'max:255'],
             'storage' => ['required', 'string', 'max:255'],
+            'departemen' => ['required', 'string', 'exists:departemens,id'],
             'imei' => ['nullable', 'string', 'max:17', 'unique:phone_lists,imei,'.$id],
             'mac_address' => ['nullable', 'string', 'max:17', 'unique:phone_lists,mac_address,'.$id],
             'thumbnail' => ['nullable', 'string'],
@@ -262,5 +266,49 @@ class ListDeviceController extends Controller
         $phone->update(['approved' => true]);
 
         return redirect()->back()->with('success', 'Perangkat berhasil disetujui');
+    }
+
+    // ─── Departemen CRUD ────────────────────────────────────────
+
+    public function storeDepartemen(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'id' => ['required', 'string', 'max:50', 'unique:departemens,id'],
+            'name' => ['required', 'string', 'max:100'],
+        ]);
+
+        Departemen::create($validated);
+
+        return response()->json(['message' => 'Departemen berhasil ditambahkan']);
+    }
+
+    public function updateDepartemen(Request $request, string $id): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+        ]);
+
+        Departemen::where('id', $id)->update([
+            'name' => $validated['name'],
+            'updated_at' => now(),
+        ]);
+
+        return response()->json(['message' => 'Departemen berhasil diperbarui']);
+    }
+
+    public function destroyDepartemen(string $id): JsonResponse
+    {
+        // Check if any phone lists reference this departemen
+        $inUse = PhoneList::where('departemen', $id)->exists();
+
+        if ($inUse) {
+            return response()->json([
+                'message' => 'Tidak dapat menghapus departemen yang masih digunakan oleh perangkat. Ubah departemen perangkat terlebih dahulu.',
+            ], 422);
+        }
+
+        Departemen::where('id', $id)->delete();
+
+        return response()->json(['message' => 'Departemen berhasil dihapus']);
     }
 }

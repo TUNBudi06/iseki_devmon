@@ -49,6 +49,7 @@
         user: string | null;
         ram: string;
         storage: string;
+        departemen: string;
         imei: string | null;
         mac_address: string | null;
         status: 'active' | 'inactive';
@@ -58,7 +59,7 @@
     };
 
     // ─── Props ──────────────────────────────────────────────────
-    let { devices: rawDevices, latestAbsences, todayActiveDeviceIds }: { devices: PhoneListItem[]; latestAbsences: Record<string, { latest_user: string; latest_user_nik: string; latest_time: string }>; todayActiveDeviceIds: string[] } = $props();
+    let { devices: rawDevices, latestAbsences, todayActiveDeviceIds, departemenOptions }: { devices: PhoneListItem[]; latestAbsences: Record<string, { latest_user: string; latest_user_nik: string; latest_time: string }>; todayActiveDeviceIds: string[]; departemenOptions: { id: string; name: string }[] } = $props();
 
     type PhoneListItem = {
         id: number;
@@ -70,6 +71,7 @@
         price: string;
         ram: string;
         storage: string;
+        departemen: string;
         imei: string | null;
         mac_address: string | null;
         thumbnail: string | null;
@@ -107,6 +109,7 @@
                 user: abs?.latest_user ?? null,
                 ram: p.ram,
                 storage: p.storage,
+                departemen: p.departemen,
                 status: p.deleted_at || !todayActiveSet.has(p.model_id) ? 'inactive' : 'active',
                 registered: p.registered,
                 type: p.model_type.toLowerCase() as DeviceType,
@@ -121,6 +124,7 @@
 
     let search = $state('');
     let activeFilter = $state<Filter>('all');
+    let departemenFilter = $state<string>('all');
     let sortOption = $state<SortOption>('name-asc');
     let loading = $state(false);
     let failedImages = $state<Set<string>>(new Set());
@@ -139,7 +143,12 @@
     const filteredDevices = $derived.by(() => {
         let items = [...devices];
 
-        // 1. Search filter (if search is not empty)
+        // 1. Departemen filter
+        if (departemenFilter !== 'all') {
+            items = items.filter(d => d.departemen === departemenFilter);
+        }
+
+        // 2. Search filter (if search is not empty)
         if (search.trim()) {
             const results = sifter.search(search, {
                 fields: ['name', 'id', 'imei', 'mac_address', 'user'],
@@ -149,7 +158,7 @@
             items = results.items.map(item => devices[item.id as number]);
         }
 
-        // 2. Category filter
+        // 3. Category filter
         if (activeFilter !== 'all') {
             items = items.filter(device => {
                 if (activeFilter === 'active') return device.status === 'active';
@@ -302,6 +311,29 @@
                     {/each}
                 </div>
 
+                <!-- Departemen Filter -->
+                <div class="flex flex-wrap gap-2">
+                    <Button
+                        size="sm"
+                        variant={departemenFilter === 'all' ? 'default' : 'outline'}
+                        onclick={() => departemenFilter = 'all'}
+                        class="rounded-full transition-all duration-300"
+                    >
+                        Semua ({devices.length})
+                    </Button>
+                    {#each departemenOptions as dept}
+                        {@const count = devices.filter(d => d.departemen === dept.id).length}
+                        <Button
+                            size="sm"
+                            variant={departemenFilter === dept.id ? 'default' : 'outline'}
+                            onclick={() => departemenFilter = dept.id}
+                            class="rounded-full transition-all duration-300"
+                        >
+                            {dept.name} ({count})
+                        </Button>
+                    {/each}
+                </div>
+
                 <!-- Sort Dropdown -->
                 <div class="flex justify-end">
                     <DropdownMenu.Root>
@@ -432,9 +464,16 @@
                         <!-- Info -->
                         <div class="space-y-4 p-4">
                             <div class="space-y-2">
-                                {#if device.brand}
-                                    <div class="text-[11px] font-medium text-pink-500/80 uppercase tracking-wider">{device.brand.name}</div>
-                                {/if}
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    {#if device.brand}
+                                        <div class="text-[11px] font-medium text-pink-500/80 uppercase tracking-wider">{device.brand.name}</div>
+                                    {/if}
+                                    {#if device.departemen === 'QC'}
+                                        <span class="text-[10px] font-medium bg-sky-500/15 text-sky-600 border border-sky-300/30 rounded-full px-2 py-0.5">{departemenOptions.find(d => d.id === device.departemen)?.name ?? device.departemen}</span>
+                                    {:else}
+                                        <span class="text-[10px] font-medium bg-amber-500/15 text-amber-600 border border-amber-300/30 rounded-full px-2 py-0.5">{departemenOptions.find(d => d.id === device.departemen)?.name ?? device.departemen}</span>
+                                    {/if}
+                                </div>
                                 <div class="line-clamp-2 text-[15px] font-semibold tracking-tight text-card-foreground">{device.name}</div>
                                 <div class="inline-flex items-center rounded-full border border-border bg-muted/60 px-2.5 py-1 font-mono text-[11px] text-muted-foreground">
                                     {device.ram} / {device.storage}

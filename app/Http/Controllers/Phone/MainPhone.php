@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Phone;
 
 use App\Http\Controllers\Controller;
 use App\Models\Absence;
+use App\Models\Departemen;
 use App\Models\PhoneList;
 use Inertia\Inertia;
 
@@ -26,6 +27,7 @@ class MainPhone extends Controller
                 ->pluck('device_id')
                 ->unique()
                 ->values(),
+            'departemenOptions' => fn () => Departemen::orderBy('id')->get(),
         ]);
     }
 }

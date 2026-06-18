@@ -33,6 +33,7 @@
         ImageUp,
         QrCode,
         ScanQrCode,
+        Layers,
     } from '@lucide/svelte';
     import { toast } from 'svelte-sonner';
     import { dashboard, listDevice } from '$routes/admin';
@@ -65,14 +66,16 @@
         updated_at: string;
         deleted_at: string | null;
         brand: Brand | null;
+        departemen: string;
     };
 
-    let { brands, phoneLists }: { brands: Brand[]; phoneLists: PhoneList[] } = $props();
+    let { brands, phoneLists, departemenOptions }: { brands: Brand[]; phoneLists: PhoneList[]; departemenOptions: { id: string; name: string }[] } = $props();
 
     // ─── Active Tab ──────────────────────────────────────────────
     const tabs = [
         { id: 'brands', label: 'Brand / Perangkat', icon: Smartphone },
         { id: 'phones', label: 'List Devices', icon: AppWindow },
+        { id: 'departemen', label: 'Departemen', icon: Layers },
     ] as const;
     type TabId = (typeof tabs)[number]['id'];
     let activeTab: TabId = $state('brands');
@@ -99,6 +102,7 @@
         price: '',
         ram: '',
         storage: '',
+        departemen: 'Production',
         list_photos: [] as unknown,
     });
     let showAddPhoneModal = $state(false);
@@ -116,6 +120,7 @@
         price: '',
         ram: '',
         storage: '',
+        departemen: 'Production',
         list_photos: [] as unknown,
         thumbnail: '',
     });
@@ -165,6 +170,16 @@
         });
     }
 
+    // ─── Departemen CRUD ─────────────────────────────────────────
+    const addDeptForm = useHttp({ id: '', name: '' });
+    let showAddDeptModal = $state(false);
+
+    const editDeptForm = useHttp({ name: '' });
+    let editDeptTarget = $state<{ id: string; name: string } | null>(null);
+
+    const deleteDeptForm = useHttp({});
+    let deleteDeptTarget = $state<{ id: string; name: string } | null>(null);
+
     // ─── Delete Photo ────────────────────────────────────────────
     const deletePhotoForm = useHttp({});
     let deletingPhotoUrl = $state<string | null>(null);
@@ -172,6 +187,7 @@
     // ─── Search ──────────────────────────────────────────────────
     let brandSearch = $state('');
     let phoneSearch = $state('');
+    let departemenFilter = $state<string>('all');
 
     const filteredBrands = $derived.by(() => {
         if (!brandSearch.trim()) return brands;
@@ -182,17 +198,28 @@
     });
 
     const filteredPhones = $derived.by(() => {
-        if (!phoneSearch.trim()) return phoneLists;
-        const q = phoneSearch.toLowerCase();
-        return phoneLists.filter(
-            (p) =>
-                p.model_id.toLowerCase().includes(q) ||
-                p.model_name.toLowerCase().includes(q) ||
-                p.brand?.name.toLowerCase().includes(q) ||
-                p.model_type.toLowerCase().includes(q) ||
-                p.imei?.toLowerCase().includes(q) ||
-                p.mac_address?.toLowerCase().includes(q),
-        );
+        let items = phoneLists;
+
+        // Filter by departemen (p.departemen is the stored string id)
+        if (departemenFilter !== 'all') {
+            items = items.filter((p) => p.departemen === departemenFilter);
+        }
+
+        // Filter by search
+        if (phoneSearch.trim()) {
+            const q = phoneSearch.toLowerCase();
+            items = items.filter(
+                (p) =>
+                    p.model_id.toLowerCase().includes(q) ||
+                    p.model_name.toLowerCase().includes(q) ||
+                    p.brand?.name.toLowerCase().includes(q) ||
+                    p.model_type.toLowerCase().includes(q) ||
+                    p.imei?.toLowerCase().includes(q) ||
+                    p.mac_address?.toLowerCase().includes(q),
+            );
+        }
+
+        return items;
     });
 
     const brandsTable = $derived(filteredBrands.length > 0 ? new TableHandler(filteredBrands, { rowsPerPage: 10 }) : null);
@@ -370,6 +397,7 @@
                 price: phone.price,
                 ram: phone.ram,
                 storage: phone.storage,
+                departemen: phone.departemen,
                 thumbnail: phone.thumbnail ?? '',
                 list_photos: phone.list_photos ?? [] as unknown,
             })
@@ -646,6 +674,31 @@
                 </Button>
             </div>
 
+            <!-- Departemen Filter -->
+            <div class="flex items-center gap-2 flex-wrap px-6 pb-0">
+                <button
+                    onclick={() => departemenFilter = 'all'}
+                    class="px-4 py-1.5 rounded-lg text-xs font-medium transition-all duration-200
+                        {departemenFilter === 'all'
+                            ? 'bg-pink-500/15 text-pink-500 shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'}"
+                >
+                    Semua ({phoneLists.length})
+                </button>
+                {#each departemenOptions as dept}
+                    {@const count = phoneLists.filter(p => p.departemen === dept.id).length}
+                    <button
+                        onclick={() => departemenFilter = dept.id}
+                        class="px-4 py-1.5 rounded-lg text-xs font-medium transition-all duration-200
+                            {departemenFilter === dept.id
+                                ? 'bg-pink-500/15 text-pink-500 shadow-sm'
+                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'}"
+                    >
+                        {dept.name} ({count})
+                    </button>
+                {/each}
+            </div>
+
             <Card.Root class="border-border/60 bg-card/70 backdrop-blur-xl overflow-hidden shadow-xl">
                 {#if filteredPhones.length === 0}
                     <div class="p-16 text-center">
@@ -653,7 +706,7 @@
                             <AppWindow class="size-7 text-pink-400/60" />
                         </div>
                         <p class="text-muted-foreground font-medium">
-                            {phoneSearch ? 'Tidak ada phone yang cocok' : 'Belum ada phone terdaftar'}
+                            {phoneSearch || departemenFilter !== 'all' ? 'Tidak ada phone yang cocok' : 'Belum ada phone terdaftar'}
                         </p>
                         {#if !phoneSearch}
                             <Button variant="outline" size="sm" onclick={openAddPhone} class="mt-4 gap-2">
@@ -726,6 +779,11 @@
                                         <Badge variant="outline" class="text-[10px] bg-violet-500/10 border-violet-300/30 text-violet-600 font-medium px-2 py-0">
                                             {phone.brand?.name ?? phone.brand_id}
                                         </Badge>
+                                        {#if phone.departemen === 'QC'}
+                                            <Badge class="bg-sky-500/15 text-sky-600 border-sky-300/30 text-[10px] px-2 py-0">{departemenOptions.find(d => d.id === phone.departemen)?.name ?? phone.departemen}</Badge>
+                                        {:else}
+                                            <Badge class="bg-amber-500/15 text-amber-600 border-amber-300/30 text-[10px] px-2 py-0">{departemenOptions.find(d => d.id === phone.departemen)?.name ?? phone.departemen}</Badge>
+                                        {/if}
                                     </div>
                                     <div>
                                         {#if phone.model_type === 'Phone'}
@@ -785,6 +843,61 @@
                     <div class="flex items-center justify-between px-6 py-3 border-t border-border/30 bg-muted/10">
                         <RowCount table={phonesTable} />
                         <Pagination table={phonesTable} />
+                    </div>
+                {/if}
+            </Card.Root>
+        {/if}
+
+        <!-- ════════════════════════════════════════════════════════
+             DEPARTEMEN TAB
+             ════════════════════════════════════════════════════════ -->
+        {#if activeTab === 'departemen'}
+            <div class="flex items-center justify-between gap-4 flex-wrap">
+                <div class="relative max-w-sm w-full">
+                    <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Input
+                        bind:value={phoneSearch}
+                        placeholder="Cari ID atau nama departemen..."
+                        class="pl-10 h-10 bg-card/60 border-border/60"
+                    />
+                </div>
+                <Button onclick={() => { addDeptForm.reset(); showAddDeptModal = true; }} class="gap-2 shadow-lg shadow-pink-500/20">
+                    <Plus class="size-4" />
+                    Tambah Departemen
+                </Button>
+            </div>
+
+            <Card.Root class="border-border/60 bg-card/70 backdrop-blur-xl overflow-hidden shadow-xl">
+                {#if departemenOptions.length === 0}
+                    <div class="p-16 text-center">
+                        <div class="size-14 rounded-2xl bg-pink-500/10 flex items-center justify-center mx-auto mb-4">
+                            <Layers class="size-7 text-pink-400/60" />
+                        </div>
+                        <p class="text-muted-foreground font-medium">Belum ada departemen</p>
+                    </div>
+                {:else}
+                    <div class="p-4 space-y-3">
+                        {#each departemenOptions as dept}
+                            {@const deptCount = phoneLists.filter(p => p.departemen === dept.id).length}
+                            <div class="rounded-xl border border-border/60 bg-card p-4 flex items-center justify-between gap-4">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    {#if dept.id === 'QC'}
+                                        <Badge class="bg-sky-500/15 text-sky-600 border-sky-300/30 px-3 py-1">{dept.name}</Badge>
+                                    {:else}
+                                        <Badge class="bg-amber-500/15 text-amber-600 border-amber-300/30 px-3 py-1">{dept.name}</Badge>
+                                    {/if}
+                                    <span class="text-xs text-muted-foreground">{deptCount} perangkat</span>
+                                </div>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10" onclick={() => { editDeptForm.defaults({ name: dept.name }).reset(); editDeptTarget = dept; }}>
+                                        <Edit class="size-3.5" />
+                                    </Button>
+                                    <Button size="icon" variant="ghost" class="size-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10" onclick={() => { deleteDeptTarget = dept; }} disabled={deptCount > 0}>
+                                        <Trash2 class="size-3.5" />
+                                    </Button>
+                                </div>
+                            </div>
+                        {/each}
                     </div>
                 {/if}
             </Card.Root>
@@ -1034,7 +1147,6 @@
                     </div>
                 </div>
 
-                <!-- ─── IMEI & MAC Address ─── -->
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <Label for="add-phone-imei" class="text-sm font-medium">IMEI <span class="text-xs text-muted-foreground">(opsional)</span></Label>
@@ -1050,6 +1162,23 @@
                             <p class="text-xs text-rose-400">{addPhoneForm.errors.mac_address}</p>
                         {/if}
                     </div>
+                </div>
+
+                <!-- ─── Departemen ─── -->
+                <div class="space-y-2">
+                    <Label for="add-phone-departemen" class="text-sm font-medium">Departemen</Label>
+                    <select
+                        id="add-phone-departemen"
+                        bind:value={addPhoneForm.departemen}
+                        class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                        {#each departemenOptions as dept}
+                            <option value={dept.id}>{dept.name}</option>
+                        {/each}
+                    </select>
+                    {#if addPhoneForm.errors.departemen}
+                        <p class="text-xs text-rose-400">{addPhoneForm.errors.departemen}</p>
+                    {/if}
                 </div>
 
                 <!-- ─── Foto Upload ─── -->
@@ -1231,6 +1360,23 @@
                     </div>
                 </div>
 
+                <!-- ─── Departemen ─── -->
+                <div class="space-y-2">
+                    <Label for="edit-phone-departemen" class="text-sm font-medium">Departemen</Label>
+                    <select
+                        id="edit-phone-departemen"
+                        bind:value={editPhoneForm.departemen}
+                        class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                        {#each departemenOptions as dept}
+                            <option value={dept.id}>{dept.name}</option>
+                        {/each}
+                    </select>
+                    {#if editPhoneForm.errors.departemen}
+                        <p class="text-xs text-rose-400">{editPhoneForm.errors.departemen}</p>
+                    {/if}
+                </div>
+
                 <!-- ─── Foto Upload ─── -->
                 <div class="space-y-2">
                     <Label class="text-sm font-medium">Foto Perangkat</Label>
@@ -1399,6 +1545,181 @@
                 </Button>
                 <Button variant="destructive" onclick={handleDeletePhone} disabled={deletePhoneForm.processing} class="gap-2">
                     {#if deletePhoneForm.processing}
+                        <div class="size-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Menghapus...
+                    {:else}
+                        <Trash2 class="size-4" />
+                        Hapus
+                    {/if}
+                </Button>
+            </Card.Footer>
+        </Card.Root>
+    </div>
+{/if}
+
+<!-- ════════════════════════════════════════════════════════════════
+     DEPARTEMEN MODALS
+     ════════════════════════════════════════════════════════════════ -->
+
+<!-- ─── Add Departemen Modal ─── -->
+{#if showAddDeptModal}
+    <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"
+         role="dialog" aria-modal="true">
+        <Card.Root class="w-full max-w-md border-border/60 bg-card shadow-2xl animate-in zoom-in-95 duration-200">
+            <Card.Header>
+                <div class="flex items-center gap-3">
+                    <div class="size-10 rounded-xl bg-pink-500/20 flex items-center justify-center">
+                        <Layers class="size-5 text-pink-400" />
+                    </div>
+                    <div>
+                        <Card.Title class="text-lg">Tambah Departemen</Card.Title>
+                        <Card.Description>Masukkan ID dan nama departemen baru</Card.Description>
+                    </div>
+                </div>
+            </Card.Header>
+            <Separator class="opacity-50" />
+            <Card.Content class="pt-5 space-y-4">
+                <div class="space-y-2">
+                    <Label for="add-dept-id" class="text-sm font-medium">ID Departemen</Label>
+                    <Input id="add-dept-id" bind:value={addDeptForm.id} placeholder="Contoh: QC" class="h-10" />
+                    {#if addDeptForm.errors.id}
+                        <p class="text-xs text-rose-400">{addDeptForm.errors.id}</p>
+                    {/if}
+                </div>
+                <div class="space-y-2">
+                    <Label for="add-dept-name" class="text-sm font-medium">Nama Departemen</Label>
+                    <Input id="add-dept-name" bind:value={addDeptForm.name} placeholder="Contoh: Quality Control" class="h-10" />
+                    {#if addDeptForm.errors.name}
+                        <p class="text-xs text-rose-400">{addDeptForm.errors.name}</p>
+                    {/if}
+                </div>
+            </Card.Content>
+            <Card.Footer class="flex justify-end gap-3 pt-2">
+                <Button variant="outline" onclick={() => { showAddDeptModal = false; addDeptForm.reset(); }} disabled={addDeptForm.processing}>
+                    Batal
+                </Button>
+                <Button onclick={() => {
+                    addDeptForm.post(listDevice.departemen.store().url, {
+                        onSuccess: () => {
+                            showAddDeptModal = false;
+                            addDeptForm.reset();
+                            router.reload();
+                            toast.success('Departemen berhasil ditambahkan');
+                        },
+                        onError: (errors: Record<string, string>) => {
+                            toast.error(errors.id ?? errors.name ?? 'Gagal menambahkan departemen');
+                        },
+                    });
+                }} disabled={addDeptForm.processing || !addDeptForm.id.trim() || !addDeptForm.name.trim()} class="gap-2">
+                    {#if addDeptForm.processing}
+                        <div class="size-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Menyimpan...
+                    {:else}
+                        <Check class="size-4" />
+                        Simpan
+                    {/if}
+                </Button>
+            </Card.Footer>
+        </Card.Root>
+    </div>
+{/if}
+
+<!-- ─── Edit Departemen Modal ─── -->
+{#if editDeptTarget}
+    <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"
+         role="dialog" aria-modal="true">
+        <Card.Root class="w-full max-w-md border-border/60 bg-card shadow-2xl animate-in zoom-in-95 duration-200">
+            <Card.Header>
+                <div class="flex items-center gap-3">
+                    <div class="size-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                        <Edit class="size-5 text-emerald-400" />
+                    </div>
+                    <div>
+                        <Card.Title class="text-lg">Edit Departemen</Card.Title>
+                        <Card.Description>
+                            <span class="font-mono text-xs">{editDeptTarget.id}</span>
+                        </Card.Description>
+                    </div>
+                </div>
+            </Card.Header>
+            <Separator class="opacity-50" />
+            <Card.Content class="pt-5 space-y-4">
+                <div class="space-y-2">
+                    <Label for="edit-dept-name" class="text-sm font-medium">Nama Departemen</Label>
+                    <Input id="edit-dept-name" bind:value={editDeptForm.name} placeholder="Nama departemen" class="h-10" />
+                    {#if editDeptForm.errors.name}
+                        <p class="text-xs text-rose-400">{editDeptForm.errors.name}</p>
+                    {/if}
+                </div>
+            </Card.Content>
+            <Card.Footer class="flex justify-end gap-3 pt-2">
+                <Button variant="outline" onclick={() => { editDeptTarget = null; editDeptForm.reset(); }} disabled={editDeptForm.processing}>
+                    Batal
+                </Button>
+                <Button onclick={() => {
+                    if (!editDeptTarget) return;
+                    editDeptForm.put(listDevice.departemen.update({ id: editDeptTarget.id }).url, {
+                        onSuccess: () => {
+                            editDeptTarget = null;
+                            editDeptForm.reset();
+                            router.reload();
+                            toast.success('Departemen berhasil diperbarui');
+                        },
+                        onError: (errors: Record<string, string>) => {
+                            toast.error(errors.name ?? 'Gagal memperbarui departemen');
+                        },
+                    });
+                }} disabled={editDeptForm.processing || !editDeptForm.name.trim()} class="gap-2">
+                    {#if editDeptForm.processing}
+                        <div class="size-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Menyimpan...
+                    {:else}
+                        <Check class="size-4" />
+                        Simpan
+                    {/if}
+                </Button>
+            </Card.Footer>
+        </Card.Root>
+    </div>
+{/if}
+
+<!-- ─── Delete Departemen Modal ─── -->
+{#if deleteDeptTarget}
+    <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"
+         role="dialog" aria-modal="true">
+        <Card.Root class="w-full max-w-md border-red-500/30 bg-card shadow-2xl animate-in zoom-in-95 duration-200">
+            <Card.Header>
+                <div class="flex items-center gap-3">
+                    <div class="size-10 rounded-xl bg-red-500/20 flex items-center justify-center">
+                        <Trash2 class="size-5 text-red-400" />
+                    </div>
+                    <div>
+                        <Card.Title class="text-lg">Hapus Departemen</Card.Title>
+                        <Card.Description>
+                            Apakah Anda yakin ingin menghapus
+                            <span class="font-medium text-foreground">{deleteDeptTarget.name}</span>?
+                        </Card.Description>
+                    </div>
+                </div>
+            </Card.Header>
+            <Card.Footer class="flex justify-end gap-3">
+                <Button variant="outline" onclick={() => { deleteDeptTarget = null; }} disabled={deleteDeptForm.processing}>
+                    Batal
+                </Button>
+                <Button variant="destructive" onclick={() => {
+                    if (!deleteDeptTarget) return;
+                    deleteDeptForm.delete(listDevice.departemen.destroy({ id: deleteDeptTarget.id }).url, {
+                        onSuccess: () => {
+                            deleteDeptTarget = null;
+                            router.reload();
+                            toast.success('Departemen berhasil dihapus');
+                        },
+                        onError: (errors: { message?: string }) => {
+                            toast.error(errors.message ?? 'Gagal menghapus departemen');
+                        },
+                    });
+                }} disabled={deleteDeptForm.processing} class="gap-2">
+                    {#if deleteDeptForm.processing}
                         <div class="size-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         Menghapus...
                     {:else}

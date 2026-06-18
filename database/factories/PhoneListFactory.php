@@ -28,6 +28,7 @@ class PhoneListFactory extends Factory
             'price' => (string) fake()->numberBetween(1_000_000, 15_000_000),
             'ram' => fake()->randomElement(['4 GB', '6 GB', '8 GB', '12 GB']),
             'storage' => fake()->randomElement(['64 GB', '128 GB', '256 GB', '512 GB']),
+            'departemen' => fake()->randomElement(['Production', 'QC']),
             'registered' => false,
             'hash_token' => null,
         ];

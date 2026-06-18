@@ -65,6 +65,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('list-device/phone/{id}/thumbnail', [ListDeviceController::class, 'destroyPhoneThumbnail'])->name('listDevice.phone.thumbnail.destroy');
         Route::post('list-device/phone/{phone}/approve', [ListDeviceController::class, 'approvePhone'])->name('listDevice.phone.approve');
 
+        Route::post('list-device/departemen', [ListDeviceController::class, 'storeDepartemen'])->name('listDevice.departemen.store');
+        Route::put('list-device/departemen/{id}', [ListDeviceController::class, 'updateDepartemen'])->name('listDevice.departemen.update');
+        Route::delete('list-device/departemen/{id}', [ListDeviceController::class, 'destroyDepartemen'])->name('listDevice.departemen.destroy');
+
         Route::get('admin-list', [AdminListController::class, 'index'])->name('adminList');
         Route::post('admin-list', [AdminListController::class, 'store']);
         Route::put('admin-list/{id}', [AdminListController::class, 'update'])->name('adminList.update');
