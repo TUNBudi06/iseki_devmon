@@ -276,16 +276,16 @@
     </Navbar>
 
     <!-- ════════════════════════════════════════════════════════════
-         DEPARTEMEN NAVBAR (sticky)
+         DEPARTEMEN NAVBAR (sticky, right-aligned)
          ════════════════════════════════════════════════════════════ -->
-    <div class="sticky top-0 z-40 border-b border-border/60 bg-card/80 backdrop-blur-xl px-6">
-        <div class="flex items-center gap-1 overflow-x-auto py-2 scrollbar-none">
+    <div class="sticky w-full top-0 z-40 border-b border-border/60 bg-card/80 backdrop-blur-xl px-6">
+        <div class="flex items-center gap-1 overflow-x-auto py-2 scrollbar-none justify-end">
             {#each departemenOptions as dept}
                 <button
                     onclick={() => router.visit(listPhone({ departemen: dept.id }).url)}
-                    class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shrink-0 whitespace-nowrap"
+                    class="relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shrink-0 whitespace-nowrap"
                     style={{
-                        background: activeDepartemen === dept.id ? `${dept.color}20` : 'transparent',
+                        background: activeDepartemen === dept.id ? `${dept.color}15` : 'transparent',
                         color: activeDepartemen === dept.id ? dept.color : undefined,
                     }}
                     onmouseenter={(e) => { if (activeDepartemen !== dept.id) e.currentTarget.style.background = `${dept.color}10`; }}
@@ -295,7 +295,8 @@
                     {dept.name}
                     <span class="text-xs opacity-60">({devices.filter(d => d.departemen === dept.id).length})</span>
                     {#if activeDepartemen === dept.id}
-                        <span class="size-1.5 rounded-full bg-current animate-pulse ml-0.5" />
+                        <!-- Active indicator bar -->
+                        <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3/4 h-0.5 rounded-full" style="background: {dept.color}; box-shadow: 0 0 6px {dept.color}" />
                     {/if}
                 </button>
             {/each}
