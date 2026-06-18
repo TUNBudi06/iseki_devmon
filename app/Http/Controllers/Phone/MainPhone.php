@@ -10,8 +10,11 @@ use Inertia\Inertia;
 
 class MainPhone extends Controller
 {
-    public function index(string $departemen)
+    public function index(?string $departemen = null)
     {
+        // Default to Production
+        $departemen = $departemen ?? 'Production';
+
         $devices = PhoneList::with('brand')
             ->where('approved', true)
             ->where('departemen', $departemen);

@@ -16,8 +16,7 @@ use Inertia\Inertia;
 Route::get('/', fn () => Inertia::render('Welcome'))->name('home');
 
 Route::prefix('device')->group(function () {
-    Route::permanentRedirect('list', '/device/list/Production');
-    Route::get('list/{departemen}', [MainPhone::class, 'index'])->name('phone.listPhone')->where('departemen', '[A-Za-z_]+');
+    Route::get('list/{departemen?}', [MainPhone::class, 'index'])->name('phone.listPhone')->where('departemen', '[A-Za-z_]+');
     Route::get('detail/{id}', [DetailPhone::class, 'index'])->name('phone.detailPhone');
 });
 
