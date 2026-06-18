@@ -32,7 +32,7 @@
     } from '@lucide/svelte';
 
     import { home } from '$routes';
-    import { detailPhone } from '$routes/phone';
+    import { listPhone, detailPhone } from '$routes/phone';
     import Autoplay from 'embla-carousel-autoplay';
     import * as DropdownMenu from '$shadcn/components/ui/dropdown-menu';
     import Sifter from 'sifter';
@@ -59,7 +59,7 @@
     };
 
     // ─── Props ──────────────────────────────────────────────────
-    let { devices: rawDevices, latestAbsences, todayActiveDeviceIds, departemenOptions }: { devices: PhoneListItem[]; latestAbsences: Record<string, { latest_user: string; latest_user_nik: string; latest_time: string }>; todayActiveDeviceIds: string[]; departemenOptions: { id: string; name: string; color: string }[] } = $props();
+    let { devices: rawDevices, latestAbsences, todayActiveDeviceIds, departemenOptions, activeDepartemen }: { devices: PhoneListItem[]; latestAbsences: Record<string, { latest_user: string; latest_user_nik: string; latest_time: string }>; todayActiveDeviceIds: string[]; departemenOptions: { id: string; name: string; color: string }[]; activeDepartemen: string } = $props();
 
     type PhoneListItem = {
         id: number;
@@ -124,7 +124,6 @@
 
     let search = $state('');
     let activeFilter = $state<Filter>('all');
-    let departemenFilter = $state<string>('Production');
     let sortOption = $state<SortOption>('name-asc');
     let loading = $state(false);
     let failedImages = $state<Set<string>>(new Set());
@@ -143,12 +142,7 @@
     const filteredDevices = $derived.by(() => {
         let items = [...devices];
 
-        // 1. Departemen filter
-        if (departemenFilter !== 'all') {
-            items = items.filter(d => d.departemen === departemenFilter);
-        }
-
-        // 2. Search filter (if search is not empty)
+        // 1. Search filter (if search is not empty)
         if (search.trim()) {
             const results = sifter.search(search, {
                 fields: ['name', 'id', 'imei', 'mac_address', 'user'],
@@ -286,32 +280,21 @@
          ════════════════════════════════════════════════════════════ -->
     <div class="sticky top-0 z-40 border-b border-border/60 bg-card/80 backdrop-blur-xl px-6">
         <div class="flex items-center gap-1 overflow-x-auto py-2 scrollbar-none">
-            <button
-                onclick={() => departemenFilter = 'all'}
-                class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shrink-0 whitespace-nowrap
-                    {departemenFilter === 'all'
-                        ? 'bg-pink-500/15 text-pink-500 shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'}"
-            >
-                <span class="size-2.5 rounded-full bg-muted-foreground/40"></span>
-                Semua
-                <span class="text-xs opacity-60">({devices.length})</span>
-            </button>
             {#each departemenOptions as dept}
                 <button
-                    onclick={() => departemenFilter = dept.id}
+                    onclick={() => router.visit(listPhone({ departemen: dept.id }).url)}
                     class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shrink-0 whitespace-nowrap"
                     style={{
-                        background: departemenFilter === dept.id ? `${dept.color}20` : 'transparent',
-                        color: departemenFilter === dept.id ? dept.color : undefined,
+                        background: activeDepartemen === dept.id ? `${dept.color}20` : 'transparent',
+                        color: activeDepartemen === dept.id ? dept.color : undefined,
                     }}
-                    onmouseenter={(e) => { if (departemenFilter !== dept.id) e.currentTarget.style.background = `${dept.color}10`; }}
-                    onmouseleave={(e) => { if (departemenFilter !== dept.id) e.currentTarget.style.background = 'transparent'; }}
+                    onmouseenter={(e) => { if (activeDepartemen !== dept.id) e.currentTarget.style.background = `${dept.color}10`; }}
+                    onmouseleave={(e) => { if (activeDepartemen !== dept.id) e.currentTarget.style.background = 'transparent'; }}
                 >
                     <span class="size-2.5 rounded-full shrink-0" style="background: {dept.color}"></span>
                     {dept.name}
                     <span class="text-xs opacity-60">({devices.filter(d => d.departemen === dept.id).length})</span>
-                    {#if departemenFilter === dept.id}
+                    {#if activeDepartemen === dept.id}
                         <span class="size-1.5 rounded-full bg-current animate-pulse ml-0.5" />
                     {/if}
                 </button>

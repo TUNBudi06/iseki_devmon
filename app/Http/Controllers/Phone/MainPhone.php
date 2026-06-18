@@ -10,13 +10,14 @@ use Inertia\Inertia;
 
 class MainPhone extends Controller
 {
-    public function index()
+    public function index(string $departemen)
     {
+        $devices = PhoneList::with('brand')
+            ->where('approved', true)
+            ->where('departemen', $departemen);
+
         return Inertia::render('Phone/Dashboard', [
-            'devices' => fn () => PhoneList::with('brand')
-                ->where('approved', true)
-                ->orderBy('created_at', 'desc')
-                ->get(),
+            'devices' => fn () => $devices->orderBy('created_at', 'desc')->get(),
             'latestAbsences' => fn () => Absence::selectRaw('device_id, name as latest_user, nik as latest_user_nik, time_absence as latest_time')
                 ->whereIn('device_id', fn ($q) => $q->select('model_id')->from('phone_lists')->where('approved', true))
                 ->whereIn('id', fn ($query) => $query->selectRaw('MAX(id)')->from('absences')->groupBy('device_id'))
@@ -28,6 +29,7 @@ class MainPhone extends Controller
                 ->unique()
                 ->values(),
             'departemenOptions' => fn () => Departemen::orderBy('id')->get(),
+            'activeDepartemen' => $departemen,
         ]);
     }
 }
