@@ -1,5 +1,6 @@
 <script lang="ts">
     import { usePolling } from '$lib/usePolling.svelte';
+    import { router } from '@inertiajs/svelte';
     import LayoutBG from '$/components/LayoutBG.svelte';
     import Navbar from '$/components/wrapper/Navbar.svelte';
 

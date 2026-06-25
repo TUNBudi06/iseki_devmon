@@ -1,5 +1,6 @@
 <script lang="ts">
     import { usePolling } from '$lib/usePolling.svelte';
+    import { router } from '@inertiajs/svelte';
 
     usePolling({ only: ['stats'] });
 
