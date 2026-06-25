@@ -10,6 +10,7 @@
     import TiltCard from '$shadcn/components/spell/tilt-card/tilt-card.svelte';
     import {
         ShieldCheck,
+        Monitor,
         Smartphone,
         Users,
         Wrench,
@@ -19,7 +20,8 @@
         AlertTriangle,
         Activity,
 } from '@lucide/svelte';
-    import { dashboard, checkDevice, listDevice, adminList, maintenance, logout } from '$routes/admin';
+    import { dashboard, listDevice, adminList, maintenance, logout } from '$routes/admin';
+    import { listPhone } from '$routes/phone';
     type Stat = {
         totalDevices: number;
         totalBrands: number;
@@ -44,11 +46,11 @@
 
     const menuCards = [
         {
-            key: 'check-device',
-            icon: ShieldCheck,
-            label: 'Check Device',
-            description: 'Verifikasi dan periksa perangkat',
-            route: checkDevice,
+            key: 'phone-list',
+            icon: Monitor,
+            label: 'Phone List',
+            description: 'Lihat seluruh daftar perangkat publik',
+            route: listPhone,
             gradient: 'from-emerald-500 to-emerald-600',
             gradientLight: 'from-emerald-500/20 to-emerald-600/10',
             border: 'border-emerald-500/30',
