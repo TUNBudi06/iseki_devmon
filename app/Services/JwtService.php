@@ -36,8 +36,9 @@ class JwtService implements JwtServiceInterface
 
     public function decode(string $token): ?object
     {
+        $headers = (object) ['HS512'];
         try {
-            return JWT::decode($token, $this->secret, ['HS512']);
+            return JWT::decode($token, $this->secret, $headers);
         } catch (\Exception) {
             return null;
         }
@@ -46,5 +47,12 @@ class JwtService implements JwtServiceInterface
     public function hash(string $jwt): string
     {
         return hash('sha256', $jwt);
+    }
+
+    public static function verify(string $qrcode): bool
+    {
+        $data = explode(';',$qrcode);
+        debugbar()->log($data);
+        return false;
     }
 }

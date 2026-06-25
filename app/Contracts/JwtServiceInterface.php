@@ -9,4 +9,6 @@ interface JwtServiceInterface
     public function decode(string $token): ?object;
 
     public function hash(string $jwt): string;
+
+    public static function verify(string $qrcode): bool;
 }
