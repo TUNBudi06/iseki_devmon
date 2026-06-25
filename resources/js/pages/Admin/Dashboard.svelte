@@ -1,18 +1,7 @@
 <script lang="ts">
-    import { router } from '@inertiajs/svelte';
-    import { onMount, onDestroy } from 'svelte';
+    import { usePolling } from '$lib/usePolling.svelte';
 
-    let pollInterval: ReturnType<typeof setInterval> | null = null;
-
-    onMount(() => {
-        pollInterval = setInterval(() => {
-            router.reload({ only: ['stats'] });
-        }, 10000);
-    });
-
-    onDestroy(() => {
-        if (pollInterval) clearInterval(pollInterval);
-    });
+    usePolling({ only: ['stats'] });
 
     import { Button } from '$shadcn/components/ui/button';
     import * as Card from '$shadcn/components/ui/card';
@@ -31,7 +20,6 @@
         Activity,
 } from '@lucide/svelte';
     import { dashboard, checkDevice, listDevice, adminList, maintenance, logout } from '$routes/admin';
-
     type Stat = {
         totalDevices: number;
         totalBrands: number;

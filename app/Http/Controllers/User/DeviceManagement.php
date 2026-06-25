@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Contracts\JwtServiceInterface;
 use App\Http\Controllers\Controller;
-use App\Http\Helper\JwtManager;
+use App\Http\Requests\ManualDeviceStoreRequest;
 use App\Models\Brand;
 use App\Models\PhoneList;
 use Illuminate\Http\JsonResponse;
@@ -12,6 +13,10 @@ use Inertia\Inertia;
 
 class DeviceManagement extends Controller
 {
+    public function __construct(
+        private JwtServiceInterface $jwtService,
+    ) {}
+
     public function index()
     {
         return Inertia::render('Member/PhoneNotRegister');
@@ -120,14 +125,12 @@ class DeviceManagement extends Controller
         }
 
         // Generate JWT and hash
-        $jwtManager = new JwtManager($device->model_name, $device->model_id);
-        $jwt = $jwtManager->encode();
-        $hash = $jwtManager->hashJwt();
+        $jwtPayload = $this->generateDeviceToken($device);
 
         $device->update([
             'registered' => true,
             'approved' => true,
-            'hash_token' => $hash,
+            'hash_token' => $jwtPayload['hash'],
             'imei' => $imei,
             'mac_address' => $mac,
         ]);
@@ -135,7 +138,7 @@ class DeviceManagement extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Perangkat berhasil didaftarkan!',
-            'jwt' => $jwt,
+            'jwt' => $jwtPayload['jwt'],
             'device_id' => $device->model_id,
         ]);
     }
@@ -164,20 +167,9 @@ class DeviceManagement extends Controller
      * Generates JWT and sets registered=true (linked to device).
      * Requires admin approval before login.
      */
-    public function storeManualDevice(Request $request): JsonResponse
+    public function storeManualDevice(ManualDeviceStoreRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'brand_id' => ['required', 'string', 'exists:brands,id'],
-            'model_id' => ['required', 'string', 'max:255', 'unique:phone_lists,model_id'],
-            'model_name' => ['required', 'string', 'max:255'],
-            'model_type' => ['required', 'string', 'max:255'],
-            'buy_date' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'string', 'max:255'],
-            'ram' => ['required', 'string', 'max:255'],
-            'storage' => ['required', 'string', 'max:255'],
-            'imei' => ['nullable', 'string', 'max:17', 'unique:phone_lists,imei'],
-            'mac_address' => ['nullable', 'string', 'max:17', 'unique:phone_lists,mac_address'],
-        ]);
+        $validated = $request->validated();
 
         $data = collect($validated)->except(['imei', 'mac_address'])->toArray();
         $data['registered'] = true;
@@ -195,17 +187,28 @@ class DeviceManagement extends Controller
         $phone = PhoneList::create($data);
 
         // Generate JWT
-        $jwtManager = new JwtManager($phone->model_name, $phone->model_id);
-        $jwt = $jwtManager->encode();
-        $hash = $jwtManager->hashJwt();
+        $jwtPayload = $this->generateDeviceToken($phone);
 
-        $phone->update(['hash_token' => $hash]);
+        $phone->update(['hash_token' => $jwtPayload['hash']]);
 
         return response()->json([
             'success' => true,
             'message' => 'Perangkat berhasil didaftarkan! Menunggu persetujuan admin.',
-            'jwt' => $jwt,
+            'jwt' => $jwtPayload['jwt'],
             'device_id' => $phone->model_id,
         ]);
+    }
+
+    /**
+     * Generate a JWT and its SHA-256 hash for a device.
+     *
+     * @return array{jwt: string, hash: string}
+     */
+    private function generateDeviceToken(PhoneList $device): array
+    {
+        $jwt = $this->jwtService->encode($device->model_name, $device->model_id);
+        $hash = $this->jwtService->hash($jwt);
+
+        return ['jwt' => $jwt, 'hash' => $hash];
     }
 }

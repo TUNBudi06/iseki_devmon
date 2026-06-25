@@ -4,7 +4,7 @@
     import { router } from '@inertiajs/svelte';
     import { home } from '$routes';
     import { Button } from '$shadcn/components/ui/button';
-    import storage from '$routes/storage';
+    import { assetUrl, formatPrice } from '$lib/asset';
     import {
         ArrowRightCircle,
         LucideHome,
@@ -30,20 +30,6 @@
     import Lenis from 'lenis';
     import ScrollTrigger from 'gsap/ScrollTrigger';
     import Autoplay from 'embla-carousel-autoplay';
-
-    // ─── Helpers ────────────────────────────────────────────────
-    function assetUrl(path: string | null): string | null {
-        if (!path) return null;
-        // Strip 'storage/' prefix if present (backward compat with old stored paths)
-        const clean = path.replace(/^storage\//, '');
-        return storage.local({ path: clean }).url;
-    }
-
-    function formatPrice(val: string): string {
-        const num = parseInt(val.replace(/\D/g, ''), 10);
-        if (isNaN(num)) return val;
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
-    }
 
     // ─── Props ──────────────────────────────────────────────────
     let { phone: raw, usages: rawUsages, latestUser }: { phone: PhoneType; usages: { name: string; nik: string; login: string; note: string | null }[]; latestUser: { name: string; nik: string; login: string; note: string | null } | null } = $props();

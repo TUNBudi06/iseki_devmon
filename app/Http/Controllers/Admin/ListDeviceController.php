@@ -2,19 +2,25 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\PhotoStorageInterface;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PhoneStoreRequest;
+use App\Http\Requests\PhoneUpdateRequest;
 use App\Models\Brand;
 use App\Models\Departemen;
 use App\Models\PhoneList;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ListDeviceController extends Controller
 {
+    public function __construct(
+        private readonly PhotoStorageInterface $photoStorage,
+    ) {}
+
     public function index(): Response
     {
         return Inertia::render('Admin/ListDevice', [
@@ -48,10 +54,7 @@ class ListDeviceController extends Controller
             'name' => ['required', 'string', 'max:255'],
         ]);
 
-        Brand::where('id', $id)->update([
-            'name' => $validated['name'],
-            'updated_at' => now(),
-        ]);
+        Brand::where('id', $id)->update(['name' => $validated['name']]);
 
         return response()->json(['message' => 'Brand berhasil diperbarui']);
     }
@@ -63,68 +66,11 @@ class ListDeviceController extends Controller
         return response()->json(['message' => 'Brand berhasil dihapus']);
     }
 
-    // ─── Photo Helpers ─────────────────────────────────────────
-
-    /**
-     * Save an uploaded photo under public/storage/device/{phoneId}/
-     * Uses CRC32 of file content for the filename to avoid duplicates.
-     * Returns the public URL path like "storage/device/{id}/{hash}.{ext}"
-     */
-    private function savePhoto(UploadedFile $file, int $phoneId): string
-    {
-        $basePath = 'storage/device/'.$phoneId;
-        $directory = public_path($basePath);
-
-        if (! is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
-        // CRC32 hash of file content for dedup
-        $hash = dechex(crc32(file_get_contents($file->getRealPath())));
-        $ext = $file->getClientOriginalExtension();
-        $filename = $hash.'.'.$ext;
-        $fullPath = $directory.'/'.$filename;
-
-        // If file with same hash already exists, return existing URL
-        if (file_exists($fullPath)) {
-            return $basePath.'/'.$filename;
-        }
-
-        $file->move($directory, $filename);
-
-        return $basePath.'/'.$filename;
-    }
-
-    /**
-     * Delete a photo file given its public path (e.g. "storage/device/1/abc123.jpg")
-     */
-    private function deletePhotoByPath(string $path): void
-    {
-        $full = public_path($path);
-        if (file_exists($full)) {
-            unlink($full);
-        }
-    }
-
     // ─── Phone List CRUD ───────────────────────────────────────
 
-    public function storePhone(Request $request): RedirectResponse
+    public function storePhone(PhoneStoreRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'brand_id' => ['required', 'exists:brands,id'],
-            'model_id' => ['required', 'string', 'max:255', 'unique:phone_lists,model_id'],
-            'model_name' => ['required', 'string', 'max:255'],
-            'model_type' => ['required', 'string', 'max:255'],
-            'buy_date' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'string', 'max:255'],
-            'ram' => ['required', 'string', 'max:255'],
-            'storage' => ['required', 'string', 'max:255'],
-            'departemen' => ['required', 'string', 'exists:departemens,id'],
-            'imei' => ['nullable', 'string', 'max:17', 'unique:phone_lists,imei'],
-            'mac_address' => ['nullable', 'string', 'max:17', 'unique:phone_lists,mac_address'],
-            'list_photos' => ['nullable', 'array'],
-            'list_photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-        ]);
+        $validated = $request->validated();
 
         $data = collect($validated)->except(['list_photos', 'imei', 'mac_address'])->toArray();
         $data['registered'] = false;
@@ -145,7 +91,7 @@ class ListDeviceController extends Controller
         if ($request->hasFile('list_photos')) {
             $paths = [];
             foreach ($request->file('list_photos') as $i => $photo) {
-                $url = $this->savePhoto($photo, $phone->id);
+                $url = $this->photoStorage->save($photo, $phone->id);
                 $paths[] = $url;
             }
             $data['list_photos'] = $paths;
@@ -158,24 +104,9 @@ class ListDeviceController extends Controller
         return to_route('admin.listDevice')->with('success', 'Phone berhasil ditambahkan');
     }
 
-    public function updatePhone(Request $request, string $id): RedirectResponse
+    public function updatePhone(PhoneUpdateRequest $request, string $id): RedirectResponse
     {
-        $validated = $request->validate([
-            'brand_id' => ['required', 'exists:brands,id'],
-            'model_id' => ['required', 'string', 'max:255', 'unique:phone_lists,model_id,'.$id],
-            'model_name' => ['required', 'string', 'max:255'],
-            'model_type' => ['required', 'string', 'max:255'],
-            'buy_date' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'string', 'max:255'],
-            'ram' => ['required', 'string', 'max:255'],
-            'storage' => ['required', 'string', 'max:255'],
-            'departemen' => ['required', 'string', 'exists:departemens,id'],
-            'imei' => ['nullable', 'string', 'max:17', 'unique:phone_lists,imei,'.$id],
-            'mac_address' => ['nullable', 'string', 'max:17', 'unique:phone_lists,mac_address,'.$id],
-            'thumbnail' => ['nullable', 'string'],
-            'list_photos' => ['nullable', 'array'],
-            'list_photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-        ]);
+        $validated = $request->validated();
 
         $phone = PhoneList::findOrFail($id);
 
@@ -202,7 +133,7 @@ class ListDeviceController extends Controller
         if ($request->hasFile('list_photos')) {
             $existing = (array) ($phone->list_photos ?? []);
             foreach ($request->file('list_photos') as $i => $photo) {
-                $url = $this->savePhoto($photo, $phone->id);
+                $url = $this->photoStorage->save($photo, $phone->id);
                 if (! in_array($url, $existing, true)) {
                     $existing[] = $url;
                 }
@@ -232,7 +163,7 @@ class ListDeviceController extends Controller
         $photos = (array) ($phone->list_photos ?? []);
         $photos = array_values(array_filter($photos, fn ($p) => $p !== $photoUrl));
 
-        $this->deletePhotoByPath($photoUrl);
+        $this->photoStorage->delete($photoUrl);
 
         $update = ['list_photos' => $photos];
 
@@ -293,7 +224,6 @@ class ListDeviceController extends Controller
         Departemen::where('id', $id)->update([
             'name' => $validated['name'],
             'color' => $validated['color'],
-            'updated_at' => now(),
         ]);
 
         return response()->json(['message' => 'Departemen berhasil diperbarui']);

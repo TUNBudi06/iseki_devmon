@@ -1,21 +1,10 @@
 <script lang="ts">
-    import { onMount, onDestroy } from 'svelte';
+    import { usePolling } from '$lib/usePolling.svelte';
 
-    import { router } from '@inertiajs/svelte';
+    usePolling({ only: ['deviceLatest', 'hasAbsence', 'noAbsence'] });
+
     import { TableHandler, RowsPerPage, RowCount, Pagination } from '@vincjo/datatables';
     import { Search as DtSearch } from '@vincjo/datatables';
-
-    let pollInterval: ReturnType<typeof setInterval> | null = null;
-
-    onMount(() => {
-        pollInterval = setInterval(() => {
-            router.reload({ only: ['deviceLatest', 'hasAbsence', 'noAbsence'] });
-        }, 10000);
-    });
-
-    onDestroy(() => {
-        if (pollInterval) clearInterval(pollInterval);
-    });
     import {
         Smartphone,
         CheckCircle2,

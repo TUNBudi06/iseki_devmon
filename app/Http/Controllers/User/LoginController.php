@@ -109,6 +109,8 @@ class LoginController extends Controller
             return redirect()->route('user.deviceNotRegister');
         }
 
+        $grouped = self::getDevicesGroupedByAbsence();
+
         return Inertia::render('Member/DashboardMember', [
             'deviceLatest' => function () use ($deviceId) {
                 $abs = Absence::where('device_id', $deviceId)
@@ -133,46 +135,8 @@ class LoginController extends Controller
                 'model_name' => $device->model_name,
                 'hash_token' => $device->hash_token,
             ],
-            'hasAbsence' => fn () => PhoneList::where('approved', true)
-                ->where('registered', true)
-                ->with('brand')
-                ->get()
-                ->filter(fn ($d) => Absence::whereDate('time_absence', today())
-                    ->where('device_id', $d->model_id)
-                    ->exists()
-                )
-                ->values()
-                ->map(fn ($d) => [
-                    'model_id' => $d->model_id,
-                    'model_name' => $d->model_name,
-                    'brand_name' => $d->brand?->name,
-                    'latest_user_name' => Absence::whereDate('time_absence', today())
-                        ->where('device_id', $d->model_id)
-                        ->latest('time_absence')
-                        ->first()?->name,
-                    'latest_user_nik' => Absence::whereDate('time_absence', today())
-                        ->where('device_id', $d->model_id)
-                        ->latest('time_absence')
-                        ->first()?->nik,
-                    'latest_time' => Absence::whereDate('time_absence', today())
-                        ->where('device_id', $d->model_id)
-                        ->latest('time_absence')
-                        ->first()?->time_absence?->format('H:i'),
-                ]),
-            'noAbsence' => fn () => PhoneList::where('approved', true)
-                ->where('registered', true)
-                ->with('brand')
-                ->get()
-                ->reject(fn ($d) => Absence::whereDate('time_absence', today())
-                    ->where('device_id', $d->model_id)
-                    ->exists()
-                )
-                ->values()
-                ->map(fn ($d) => [
-                    'model_id' => $d->model_id,
-                    'model_name' => $d->model_name,
-                    'brand_name' => $d->brand?->name,
-                ]),
+            'hasAbsence' => fn () => $grouped['hasAbsence'],
+            'noAbsence' => fn () => $grouped['noAbsence'],
         ]);
     }
 
@@ -192,5 +156,57 @@ class LoginController extends Controller
         $absence->update(['catatan' => $validated['catatan']]);
 
         return back();
+    }
+
+    /**
+     * Get all approved, registered devices partitioned by whether they
+     * have a today's absence. Uses a single grouped query to avoid N+1.
+     *
+     * @return array{hasAbsence: array, noAbsence: array}
+     */
+    private static function getDevicesGroupedByAbsence(): array
+    {
+        $today = today();
+
+        // Single query: latest today's absence per device (MySQL-compatible)
+        $latestIds = Absence::whereDate('time_absence', $today)
+            ->selectRaw('MAX(id) as id')
+            ->groupBy('device_id')
+            ->pluck('id');
+
+        $todayAbsences = Absence::whereIn('id', $latestIds)
+            ->get()
+            ->keyBy('device_id');
+
+        $absentDeviceIds = $todayAbsences->keys();
+
+        $devices = PhoneList::where('approved', true)
+            ->where('registered', true)
+            ->with('brand')
+            ->get();
+
+        $hasAbsence = [];
+        $noAbsence = [];
+
+        foreach ($devices as $d) {
+            $base = [
+                'model_id' => $d->model_id,
+                'model_name' => $d->model_name,
+                'brand_name' => $d->brand?->name,
+            ];
+
+            if ($absentDeviceIds->contains($d->model_id)) {
+                $abs = $todayAbsences->get($d->model_id);
+                $hasAbsence[] = $base + [
+                    'latest_user_name' => $abs->name,
+                    'latest_user_nik' => $abs->nik,
+                    'latest_time' => $abs->time_absence?->format('H:i'),
+                ];
+            } else {
+                $noAbsence[] = $base;
+            }
+        }
+
+        return ['hasAbsence' => $hasAbsence, 'noAbsence' => $noAbsence];
     }
 }

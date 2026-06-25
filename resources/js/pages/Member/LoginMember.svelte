@@ -10,7 +10,6 @@
     import { Label } from '$shadcn/components/ui/label';
     import * as Card from '$shadcn/components/ui/card';
     import * as Alert from '$shadcn/components/ui/alert';
-    import { Badge } from '$shadcn/components/ui/badge';
     import { home } from '$routes';
     import loginMember from '$routes/user/loginMember';
     import { dashboard } from '$routes/user';
@@ -25,6 +24,7 @@
     };
 
     let { device, error: serverError }: { device: DeviceInfo | null; error: string | null } = $props();
+    let { mode = 'primary' }: { mode: 'primary' | 'additional' } = $props();
 
     const http = useHttp({ nik: '', password: '' });
 
@@ -33,13 +33,18 @@
     let blocked = $derived(!device || !device.approved || !device.registered || !!serverError);
     let deviceId = $derived(device?.model_id ?? '');
 
+    let title = $derived(mode === 'primary' ? 'Absensi Perangkat' : 'Absensi Tambahan');
+    let description = $derived(mode === 'primary' ? today : `Input absen untuk pengguna lain — ${today}`);
+    let backRoute = $derived(mode === 'primary' ? home().url : dashboard(deviceId).url);
+    let backLabel = $derived(mode === 'primary' ? 'Kembali' : 'Kembali ke Dashboard');
+
     function handleNIKInput(e: Event) {
         const input = e.target as HTMLInputElement;
         http.nik = input.value.replace(/\D/g, '').slice(0, 6);
     }
 
-    function handleSubmit(e:Event) {
-        e.preventDefault() // just because forgot this this page is automaticly reloading fuck
+    function handleSubmit(e: Event) {
+        e.preventDefault();
         if (http.nik.length !== 6 || !http.password) {
             localError = 'Harap isi NIK (6 digit) dan password';
             return;
@@ -56,13 +61,12 @@
             },
             onError: (errors) => {
                 localError = errors.error || errors.message || 'Terjadi kesalahan';
-                console.error((errors))
             },
         });
     }
 
     let today = $derived(new Date().toLocaleDateString('id-ID', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
     }));
 </script>
 
@@ -70,8 +74,11 @@
     <Particles particleCount={200} particleColors={['#000000', '#ff00ae', '#ffffff']} particleBaseSize={100} speed={0.05} class="absolute inset-0 z-0 opacity-30" />
 
     <div class="w-full max-w-md relative z-10">
-        <button onclick={() => router.visit(home().url)} class="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-            <ArrowLeft class="size-4" /> Kembali
+        <button
+            onclick={() => router.visit(backRoute)}
+            class="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+        >
+            <ArrowLeft class="size-4" /> {backLabel}
         </button>
 
         <Card.Root class="border-border/60 bg-card/80 backdrop-blur-xl">
@@ -79,8 +86,8 @@
                 <div class="mx-auto size-14 rounded-2xl bg-primary/20 flex items-center justify-center mb-4">
                     <Fingerprint class="size-7 text-primary" />
                 </div>
-                <Card.Title class="text-2xl font-bold">Absensi Perangkat</Card.Title>
-                <Card.Description class="text-sm">{today}</Card.Description>
+                <Card.Title class="text-2xl font-bold">{title}</Card.Title>
+                <Card.Description class="text-sm">{description}</Card.Description>
             </Card.Header>
 
             <Card.Content class="space-y-4">
