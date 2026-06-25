@@ -11,8 +11,7 @@
     import * as Card from '$shadcn/components/ui/card';
     import * as Alert from '$shadcn/components/ui/alert';
     import { home } from '$routes';
-    import loginMember from '$routes/user/loginMember';
-    import { dashboard } from '$routes/user';
+    import { loginMember, dashboard } from '$routes/user/user';
 
     type DeviceInfo = {
         model_id: string;
@@ -23,8 +22,7 @@
         registered: boolean;
     };
 
-    let { device, error: serverError }: { device: DeviceInfo | null; error: string | null } = $props();
-    let { mode = 'primary' }: { mode: 'primary' | 'additional' } = $props();
+    let { device, error: serverError, mode = 'primary' }: { device: DeviceInfo | null; error: string | null; mode: 'primary' | 'additional' } = $props();
 
     const http = useHttp({ nik: '', password: '' });
 

@@ -8,7 +8,8 @@
     import { ArrowLeft, Check, Smartphone, Cpu, HardDrive, CalendarDays, Banknote, Tag, SeparatorHorizontal } from '@lucide/svelte';
     import LayoutBG from '$/components/LayoutBG.svelte';
     import Particles from '$shadcn/components/Particles.svelte';
-    import { deviceNotRegister, deviceRegisterManual, loginMember } from '$routes/user';
+    import { loginMember } from '$routes/user/user';
+    import { deviceNotRegister, deviceRegisterManual } from '$routes/user';
     import { saveDeviceAuth } from '$lib/indexedDB';
     import { home } from '$routes';
     import { toast } from 'svelte-sonner';

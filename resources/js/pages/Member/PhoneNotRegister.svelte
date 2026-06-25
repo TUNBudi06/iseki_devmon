@@ -14,7 +14,8 @@
     import * as Card from '$shadcn/components/ui/card';
     import { Button } from '$shadcn/components/ui/button';
     import SpotlightCard from '$shadcn/components/svelte-bits/SpotlightCard.svelte';
-    import { deviceNotRegister, deviceRegisterQR, deviceRegisterManual, loginMember, checkDeviceToken } from '$routes/user';
+    import { loginMember } from '$routes/user/user';
+    import { deviceNotRegister, deviceRegisterQR, deviceRegisterManual, checkDeviceToken } from '$routes/user';
     import { home } from '$routes';
     import { getDeviceAuth, clearDeviceAuth } from '$lib/indexedDB';
 

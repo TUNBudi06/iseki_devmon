@@ -92,9 +92,9 @@
             spotlightColor: 'rgba(139, 92, 246, 0.2)',
         },
         {
-            key: 'maintenance',
+            key: 'check-device',
             icon: Wrench,
-            label: 'Maintenance',
+            label: 'Check All Device',
             description: 'Perawatan perangkat (fisik, layar, kamera, body)',
             route: maintenance,
             gradient: 'from-amber-500 to-amber-600',
@@ -145,8 +145,8 @@
             spotlightColor: 'rgba(139, 92, 246, 0.18)',
         },
         {
-            key: 'in-maintenance',
-            label: 'Dalam Perbaikan',
+            key: 'has-checked',
+            label: 'HP yang sudah di check',
             value: stats.maintenanceCount,
             icon: Wrench,
             gradient: 'from-amber-500/20 to-amber-600/5',

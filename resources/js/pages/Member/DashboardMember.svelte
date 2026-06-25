@@ -29,7 +29,7 @@
     import { Button } from '$shadcn/components/ui/button';
     import { Textarea } from '$shadcn/components/ui/textarea';
     import { home } from '$routes';
-    import { loginMember, dashboard } from '$routes/user';
+    import { loginMember, dashboard } from '$routes/user/user';
 
     type DeviceItem = {
         model_id: string;
@@ -329,10 +329,10 @@
             </Card.Header>
             <Card.Content class="pt-4 pb-2 flex flex-col items-center gap-4">
                 <div class="rounded-2xl bg-white p-4 shadow-lg ring-1 ring-violet-500/20">
-                    <QRCode value={currentDevice.hash_token} size={220} fgColor="#000000" bgColor="#ffffff" />
+                    <QRCode value={currentDevice.model_id+ ';'+currentDevice.hash_token} size={220} fgColor="#000000" bgColor="#ffffff" />
                 </div>
                 <div class="text-center space-y-1">
-                    <code class="text-xs font-mono break-all text-violet-600 dark:text-violet-400">{currentDevice.hash_token}</code>
+                    <code class="text-xs font-mono break-all text-violet-600 dark:text-violet-400">{currentDevice.model_id}</code>
                 </div>
             </Card.Content>
             <Card.Footer class="flex justify-center pt-2">

@@ -23,7 +23,8 @@
     import * as Alert from '$shadcn/components/ui/alert';
     import QrScanner from 'qr-scanner';
     import { home } from '$routes';
-    import { loginMember, deviceNotRegister, deviceVerify, deviceRegister } from '$routes/user';
+    import { loginMember } from '$routes/user/user';
+    import { deviceNotRegister, deviceVerify, deviceRegister } from '$routes/user';
     import { saveDeviceAuth } from '$lib/indexedDB';
 
     let videoElement: HTMLVideoElement | null = null;
