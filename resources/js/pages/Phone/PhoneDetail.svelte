@@ -789,7 +789,7 @@
                         <Carousel.Root
                             class="w-full"
                             plugins={[
-                                Autoplay({ delay: 4000, stopOnInteraction: true }),
+                                Autoplay({ delay: 1500, stopOnInteraction: true }),
                             ]}
                         >
                             <Carousel.Content>
