@@ -51,8 +51,9 @@ class JwtService implements JwtServiceInterface
 
     public static function verify(string $qrcode): bool
     {
-        $data = explode(';',$qrcode);
+        $data = explode(';', $qrcode);
         debugbar()->log($data);
+
         return false;
     }
 }

@@ -9,7 +9,7 @@
     import {onMount, onDestroy, tick} from "svelte";
     import QrScanner from "qr-scanner";
     import {useHttp} from "@inertiajs/svelte";
-    import maintenance from "$routes/admin/maintenance";
+    import maintenance, { store as storeRoute } from "$routes/admin/maintenance";
     import {toast} from "svelte-sonner";
     import {page} from "@inertiajs/svelte"
     import * as Carousel from "$shadcn/components/ui/carousel"
@@ -52,6 +52,25 @@
     function removeFoto(index: number) {
         formCheckDevice.foto = formCheckDevice.foto.filter((_, i) => i !== index);
         fotoPreview = fotoPreview.filter((_, i) => i !== index);
+    }
+
+    async function handleSubmit() {
+        formCheckDevice.post(storeRoute().url, {
+            forceFormData: true,
+            onSuccess: () => {
+                toast.success('Pengecekan berhasil dicatat');
+                // Reset form for next scan
+                deviceData = false;
+                formCheckDevice.keterangan = '';
+                resetFoto();
+                formCheckDevice.imei_ok = false;
+                formCheckDevice.mac_ok = false;
+            },
+            onError: (errors: Record<string, string>) => {
+                const msg = Object.values(errors)[0] ?? 'Gagal menyimpan';
+                toast.error(msg);
+            },
+        });
     }
 
     async function startScanner() {
@@ -330,13 +349,14 @@
                                 <div class="pt-3">
                                     <Button
                                         type="button"
-                                        onclick={() => {
-                                            toast.success('Form maintenance siap diproses (backend belum terintegrasi)');
-                                        }}
+                                        onclick={handleSubmit}
                                         disabled={formCheckDevice.processing}
                                         class="w-full gap-2 bg-pink-600 hover:bg-pink-700"
                                     >
-                                        Simpan Maintenance
+                                        {#if formCheckDevice.processing}
+                                            <span class="animate-spin size-4 border-2 border-white border-t-transparent rounded-full" />
+                                        {/if}
+                                        {formCheckDevice.processing ? 'Menyimpan...' : 'Simpan Maintenance'}
                                     </Button>
                                 </div>
                             </div>

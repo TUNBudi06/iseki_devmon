@@ -28,6 +28,22 @@ class DetailPhone extends Controller
                 'note' => $a->catatan,
             ]);
 
+        // Riwayat pengecekan device
+        $checks = $phone->deviceChecks()
+            ->orderByDesc('created_at')
+            ->take(50)
+            ->get()
+            ->map(fn ($c) => [
+                'date' => $c->created_at->format('Y-m-d H:i'),
+                'user' => $c->checked_by_name,
+                'username' => $c->checked_by_username,
+                'status' => $c->imei_ok || $c->mac_ok ? 'ok' : 'info',
+                'imei_ok' => $c->imei_ok,
+                'mac_ok' => $c->mac_ok,
+                'note' => $c->keterangan,
+                'foto' => $c->foto,
+            ]);
+
         // User terakhir yang pakai device ini
         $latestUser = $usages->first();
 
@@ -35,6 +51,7 @@ class DetailPhone extends Controller
             'phone' => $phone,
             'usages' => $usages->values(),
             'latestUser' => $latestUser,
+            'checks' => $checks->values(),
         ]);
     }
 }

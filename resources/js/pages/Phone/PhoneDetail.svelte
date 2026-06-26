@@ -574,6 +574,14 @@
                                         <span class="text-sm truncate flex-1"
                                             >{check.user} ({check.nik})</span
                                         >
+                                        <div class="flex items-center gap-1 shrink-0">
+                                            {#if check.imei_ok}
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-mono">IMEI</span>
+                                            {/if}
+                                            {#if check.mac_ok}
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-mono">MAC</span>
+                                            {/if}
+                                        </div>
                                         <span
                                             class="text-xs text-muted-foreground shrink-0"
                                             >{check.date.slice(5)}</span
@@ -695,11 +703,29 @@
                         </div>
                         <div class="flex items-center gap-2 text-xs text-muted-foreground">
                             <span>{row.date}</span>
+                            {#if row.imei_ok || row.mac_ok}
+                                <span>·</span>
+                                <div class="flex items-center gap-1">
+                                    {#if row.imei_ok}<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-mono">IMEI ✓</span>{/if}
+                                    {#if row.mac_ok}<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-mono">MAC ✓</span>{/if}
+                                </div>
+                            {/if}
                             {#if row.note}
                                 <span>·</span>
-                                <span>{row.note}</span>
+                                <span class="truncate max-w-[200px]">{row.note}</span>
                             {/if}
                         </div>
+                        {#if row.foto && row.foto.length > 0}
+                            <div class="flex gap-1.5 mt-1.5">
+                                {#each row.foto as f}
+                                    <img
+                                        src={assetUrl(f)}
+                                        alt="check foto"
+                                        class="size-10 rounded object-cover ring-1 ring-border/50"
+                                    />
+                                {/each}
+                            </div>
+                        {/if}
                     </div>
                 {/each}
             </div>
