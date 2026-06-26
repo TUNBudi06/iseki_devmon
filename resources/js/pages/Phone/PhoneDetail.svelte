@@ -563,7 +563,8 @@
                             <div class="space-y-1.5">
                                 {#each phone.checks.slice(0, 4) as check}
                                     <div
-                                        class="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2"
+                                        class="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2 cursor-pointer transition-all hover:border-primary/40 hover:bg-card"
+                                        onclick={() => { selectedCheck = { ...check }; checkModalOpen = true; }}
                                     >
                                         {#if check.status === 'ok'}
                                             <CheckCircle2
