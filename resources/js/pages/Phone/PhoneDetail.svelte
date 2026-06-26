@@ -571,39 +571,26 @@
                                 Lihat Semua
                             </button>
                         </div>
-                            <div class="space-y-1.5">
-                                {#each phone.checks.slice(0, 4) as check}
-                                    <div
-                                        class="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2 cursor-pointer transition-all hover:border-primary/40 hover:bg-card"
-                                        onclick={() => { selectedCheck = { ...check }; checkModalOpen = true; }}
-                                    >
-                                        {#if check.status === 'ok'}
-                                            <CheckCircle2
-                                                class="size-4 text-emerald-500 shrink-0"
-                                            />
-                                        {:else}
-                                            <XCircle
-                                                class="size-4 text-destructive shrink-0"
-                                            />
-                                        {/if}
-                                        <span class="text-sm truncate flex-1"
-                                            >{check.user} ({check.nik})</span
-                                        >
-                                        <div class="flex items-center gap-1 shrink-0">
-                                            {#if check.imei_ok}
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-mono">IMEI</span>
-                                            {/if}
-                                            {#if check.mac_ok}
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-mono">MAC</span>
-                                            {/if}
-                                        </div>
-                                        <span
-                                            class="text-xs text-muted-foreground shrink-0"
-                                            >{check.date.slice(5)}</span
-                                        >
-                                    </div>
-                                {/each}
-                            </div>
+                            <button
+                                onclick={() => {
+                                    const el = document.getElementById('checks');
+                                    if (el) {
+                                        lenis?.scrollTo(el, { offset: -80, duration: 1.2 });
+                                    }
+                                }}
+                                class="w-full flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 hover:bg-card hover:border-primary/40 transition-all px-4 py-3 group"
+                            >
+                                <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                                    <ClipboardList class="size-4 text-primary" />
+                                </div>
+                                <div class="flex-1 text-left">
+                                    <div class="text-sm font-medium group-hover:text-primary transition-colors">Lihat Riwayat Pengecekan</div>
+                                    <div class="text-xs text-muted-foreground">{phone.checks.length} catatan &middot; Klik untuk detail</div>
+                                </div>
+                                <svg class="size-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </button>
                     </div>
                     {/if}
                 </div>
@@ -776,13 +763,14 @@
     {#if checkModalOpen && selectedCheck}
         <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
         <div
-            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overscroll-contain"
             onclick={() => checkModalOpen = false}
         >
             <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
             <div
-                class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border/60 bg-background shadow-2xl"
+                class="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl border border-border/60 bg-background shadow-2xl"
                 onclick={(e) => e.stopPropagation()}
+                onwheel={(e) => e.stopPropagation()}
             >
                 <!-- Close button -->
                 <div class="flex items-center justify-between px-5 pt-4 pb-0">
