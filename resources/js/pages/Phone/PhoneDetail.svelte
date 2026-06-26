@@ -25,6 +25,7 @@
     import { TableHandler, RowsPerPage, RowCount, Pagination } from '@vincjo/datatables';
     import { Search as DtSearch } from '@vincjo/datatables';
     import * as Carousel from '$shadcn/components/ui/carousel';
+    import { X } from '@lucide/svelte';
     import { onMount, onDestroy } from 'svelte';
     import gsap from 'gsap';
     import Lenis from 'lenis';
@@ -77,6 +78,8 @@
     let lenis: Lenis | null = $state(null);
     let stickyRef = $state<HTMLDivElement | null>(null);
     let isMobile = $state(false);
+    let selectedUsage = $state<{ name: string; nik: string; login: string; note: string | null } | null>(null);
+    let usageModalOpen = $state(false);
 
     // Desktop: sticky progress
     let stickyProgress = $state(0);
@@ -623,7 +626,10 @@
 
             <div class="p-3 space-y-2">
                 {#each usagesTable!.rows as row}
-                    <div class="rounded-xl border border-border/60 bg-card p-3 flex items-center gap-3">
+                    <div
+                        class="rounded-xl border border-border/60 bg-card p-3 flex items-center gap-3 cursor-pointer transition-all hover:border-primary/40 hover:shadow-sm hover:bg-primary/[0.02]"
+                        onclick={() => { selectedUsage = { ...row }; usageModalOpen = true; }}
+                    >
                         <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
                             {row.name.charAt(0)}
                         </div>
@@ -737,7 +743,96 @@
         </div>
     </div>
     {/if}
+    {#if usageModalOpen && selectedUsage}
+        <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+        <div
+            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onclick={() => usageModalOpen = false}
+        >
+            <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+            <div
+                class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border/60 bg-background shadow-2xl"
+                onclick={(e) => e.stopPropagation()}
+            >
+                <!-- Close button -->
+                <div class="flex items-center justify-between px-5 pt-4 pb-0">
+                    <h3 class="font-bold text-lg">Detail Penggunaan</h3>
+                    <button
+                        onclick={() => usageModalOpen = false}
+                        class="size-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+                    >
+                        <X class="size-4" />
+                    </button>
+                </div>
+
+                <!-- Carousel -->
+                {#if phone.photos.length > 0}
+                    <div class="px-5 pt-3">
+                        <Carousel.Root
+                            class="w-full"
+                            plugins={[
+                                Autoplay({ delay: 4000, stopOnInteraction: true }),
+                            ]}
+                        >
+                            <Carousel.Content>
+                                {#each phone.photos as photo, i (i)}
+                                    <Carousel.Item>
+                                        <div class="aspect-video bg-muted/20 rounded-xl overflow-hidden">
+                                            <img
+                                                src={photo}
+                                                alt="Foto perangkat {i + 1}"
+                                                class="w-full h-full object-contain"
+                                            />
+                                        </div>
+                                    </Carousel.Item>
+                                {/each}
+                            </Carousel.Content>
+                        </Carousel.Root>
+                    </div>
+                {:else}
+                    <div class="px-5 pt-3">
+                        <div class="aspect-video bg-muted/20 rounded-xl flex items-center justify-center text-muted-foreground text-sm">
+                            Tidak ada foto perangkat
+                        </div>
+                    </div>
+                {/if}
+
+                <!-- Description -->
+                <div class="p-5 space-y-3">
+                    <div class="flex items-center gap-3 pb-3 border-b border-border/40">
+                        <div class="size-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0 text-lg font-bold text-primary">
+                            {selectedUsage.name.charAt(0)}
+                        </div>
+                        <div>
+                            <div class="font-semibold text-base">{selectedUsage.name}</div>
+                            <div class="text-xs text-muted-foreground font-mono">{selectedUsage.nik}</div>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-muted/30 px-4 py-2.5">
+                            <span class="text-xs text-muted-foreground font-medium">Waktu Login</span>
+                            <span class="text-sm font-semibold">{selectedUsage.login}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-muted/30 px-4 py-2.5">
+                            <span class="text-xs text-muted-foreground font-medium">Perangkat</span>
+                            <span class="text-sm font-semibold">{phone.name} ({phone.id})</span>
+                        </div>
+                        {#if selectedUsage.note}
+                            <div class="rounded-lg bg-muted/30 px-4 py-2.5 space-y-1">
+                                <span class="text-xs text-muted-foreground font-medium">Catatan</span>
+                                <p class="text-sm leading-relaxed">{selectedUsage.note}</p>
+                            </div>
+                        {/if}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {/if}
+
 </LayoutBG>
+
+<svelte:window onkeydown={(e) => { if (e.key === 'Escape') usageModalOpen = false; }} />
 
 <style>
 </style>
