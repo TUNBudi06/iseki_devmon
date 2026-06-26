@@ -309,7 +309,7 @@
                                     <p class="text-xs text-muted-foreground">Upload foto kondisi fisik perangkat saat ini</p>
                                     <FileDropZone.Root
                                         accept="image/*"
-                                        capture="environment"
+                                        capture="user"
                                         maxFileSize={FileDropZone.MEGABYTE * 5}
                                         fileCount={formCheckDevice.foto.length}
                                         onUpload={async (files) => {
@@ -333,7 +333,7 @@
                                                     <button
                                                         type="button"
                                                         onclick={(e) => { e.stopPropagation(); removeFoto(i); }}
-                                                        class="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-red-500/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        class="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-red-500/80 flex items-center justify-center lg:opacity-0 group-hover:opacity-100 transition-opacity"
                                                     >
                                                         <X class="size-3 text-white" />
                                                     </button>
