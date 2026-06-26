@@ -355,7 +355,7 @@
 
         <!-- Device Grid -->
         {#if loading}
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 lg:gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 lg:gap-8">
                 {#each Array(8) as _, i}
                     <div class="overflow-hidden rounded-xl border border-border bg-card/50 animate-pulse">
                         <div class="aspect-[3/4] shimmer-pink" />
@@ -374,7 +374,7 @@
                 </Card.Content>
             </Card.Root>
         {:else}
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 lg:gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 lg:gap-8">
                 {#each filteredDevices as device (device.id)}
                     {@const isRegistered = device.registered}
                     {@const BattIcon = batteryIcon(device.battery)}
