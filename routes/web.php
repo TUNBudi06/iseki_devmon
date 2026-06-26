@@ -77,5 +77,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
         Route::post('maintenance/search', [MaintenanceController::class, 'getDeviceByQr'])->name('maintenance.search');
         Route::post('maintenance/store', [MaintenanceController::class, 'store'])->name('maintenance.store');
+
+        Route::get('print',[\App\Http\Controllers\PrintableController::class,'index'])->name('printPage');
     });
 });
