@@ -20,7 +20,7 @@ class MainPhone extends Controller
             ->where('departemen', $departemen);
 
         return Inertia::render('Phone/Dashboard', [
-            'devices' => fn () => $devices->orderBy('created_at', 'desc')->get(),
+            'devices' => fn () => $devices->orderBy('created_at', 'desc')->take(200)->get(),
             'latestAbsences' => fn () => Absence::selectRaw('device_id, name as latest_user, nik as latest_user_nik, time_absence as latest_time')
                 ->whereIn('device_id', fn ($q) => $q->select('model_id')->from('phone_lists')->where('approved', true))
                 ->whereIn('id', fn ($query) => $query->selectRaw('MAX(id)')->from('absences')->groupBy('device_id'))

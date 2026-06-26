@@ -29,6 +29,7 @@ class ListDeviceController extends Controller
                 ->orderByRaw('deleted_at IS NOT NULL')
                 ->orderBy('created_at', 'desc')
                 ->withTrashed()
+                ->take(300)
                 ->get(),
             'departemenOptions' => fn () => Departemen::orderBy('id')->get(),
         ]);

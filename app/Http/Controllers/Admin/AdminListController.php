@@ -13,7 +13,7 @@ class AdminListController extends Controller
 {
     public function index(): Response
     {
-        $users = User::orderBy('created_at', 'desc')->get();
+        $users = User::orderBy('created_at', 'desc')->take(100)->get();
 
         return Inertia::render('Admin/AdminList', [
             'users' => $users,
