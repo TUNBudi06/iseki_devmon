@@ -309,6 +309,7 @@
                                     <p class="text-xs text-muted-foreground">Upload foto kondisi fisik perangkat saat ini</p>
                                     <FileDropZone.Root
                                         accept="image/*"
+                                        capture="environment"
                                         maxFileSize={FileDropZone.MEGABYTE * 5}
                                         fileCount={formCheckDevice.foto.length}
                                         onUpload={async (files) => {

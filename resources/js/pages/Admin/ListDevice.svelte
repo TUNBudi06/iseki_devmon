@@ -1190,6 +1190,7 @@
                     <p class="text-xs text-muted-foreground">Foto pertama akan menjadi thumbnail</p>
                     <FileDropZone.Root
                         accept="image/*"
+                        capture="environment"
                         maxFileSize={FileDropZone.MEGABYTE * 5}
                         fileCount={addPhotos.length}
                         onUpload={async (files) => {
@@ -1418,6 +1419,7 @@
 
                     <FileDropZone.Root
                         accept="image/*"
+                        capture="environment"
                         maxFileSize={FileDropZone.MEGABYTE * 5}
                         fileCount={editPhotos.length}
                         onUpload={async (files) => {
