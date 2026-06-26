@@ -743,11 +743,11 @@
         </div>
     </div>
     {/if}
-    {#if usageModalOpen && selectedUsage}
+    {#if checkModalOpen && selectedCheck}
         <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
         <div
             class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-            onclick={() => usageModalOpen = false}
+            onclick={() => checkModalOpen = false}
         >
             <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
             <div
@@ -756,17 +756,17 @@
             >
                 <!-- Close button -->
                 <div class="flex items-center justify-between px-5 pt-4 pb-0">
-                    <h3 class="font-bold text-lg">Detail Penggunaan</h3>
+                    <h3 class="font-bold text-lg">Detail Pengecekan</h3>
                     <button
-                        onclick={() => usageModalOpen = false}
+                        onclick={() => checkModalOpen = false}
                         class="size-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
                     >
                         <X class="size-4" />
                     </button>
                 </div>
 
-                <!-- Carousel -->
-                {#if phone.photos.length > 0}
+                <!-- Carousel Foto Pengecekan -->
+                {#if selectedCheck.foto && selectedCheck.foto.length > 0}
                     <div class="px-5 pt-3">
                         <Carousel.Root
                             class="w-full"
@@ -775,12 +775,12 @@
                             ]}
                         >
                             <Carousel.Content>
-                                {#each phone.photos as photo, i (i)}
+                                {#each selectedCheck.foto as f, i (i)}
                                     <Carousel.Item>
                                         <div class="aspect-video bg-muted/20 rounded-xl overflow-hidden">
                                             <img
-                                                src={photo}
-                                                alt="Foto perangkat {i + 1}"
+                                                src={assetUrl(f)}
+                                                alt="Foto pengecekan {i + 1}"
                                                 class="w-full h-full object-contain"
                                             />
                                         </div>
@@ -792,7 +792,7 @@
                 {:else}
                     <div class="px-5 pt-3">
                         <div class="aspect-video bg-muted/20 rounded-xl flex items-center justify-center text-muted-foreground text-sm">
-                            Tidak ada foto perangkat
+                            Tidak ada foto pengecekan
                         </div>
                     </div>
                 {/if}
@@ -801,27 +801,51 @@
                 <div class="p-5 space-y-3">
                     <div class="flex items-center gap-3 pb-3 border-b border-border/40">
                         <div class="size-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0 text-lg font-bold text-primary">
-                            {selectedUsage.name.charAt(0)}
+                            {selectedCheck.user.charAt(0)}
                         </div>
                         <div>
-                            <div class="font-semibold text-base">{selectedUsage.name}</div>
-                            <div class="text-xs text-muted-foreground font-mono">{selectedUsage.nik}</div>
+                            <div class="font-semibold text-base">{selectedCheck.user}</div>
+                            <div class="text-xs text-muted-foreground font-mono">{selectedCheck.nik}</div>
                         </div>
                     </div>
 
                     <div class="grid gap-2">
                         <div class="flex items-center justify-between rounded-lg bg-muted/30 px-4 py-2.5">
-                            <span class="text-xs text-muted-foreground font-medium">Waktu Login</span>
-                            <span class="text-sm font-semibold">{selectedUsage.login}</span>
+                            <span class="text-xs text-muted-foreground font-medium">Tanggal</span>
+                            <span class="text-sm font-semibold">{selectedCheck.date}</span>
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-muted/30 px-4 py-2.5">
-                            <span class="text-xs text-muted-foreground font-medium">Perangkat</span>
-                            <span class="text-sm font-semibold">{phone.name} ({phone.id})</span>
+                            <span class="text-xs text-muted-foreground font-medium">Status</span>
+                            <span
+                                class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border
+                                {selectedCheck.status === 'ok'
+                                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                                    : 'bg-destructive/10 text-destructive border-destructive/20'}"
+                            >
+                                {#if selectedCheck.status === 'ok'}
+                                    <CheckCircle2 class="size-3" />
+                                {:else}
+                                    <XCircle class="size-3" />
+                                {/if}
+                                {selectedCheck.status === 'ok' ? 'OK' : 'Gagal'}
+                            </span>
                         </div>
-                        {#if selectedUsage.note}
+                        {#if selectedCheck.imei_ok}
+                            <div class="flex items-center justify-between rounded-lg bg-emerald-500/5 border border-emerald-500/15 px-4 py-2.5">
+                                <span class="text-xs text-muted-foreground font-medium">IMEI</span>
+                                <span class="text-sm font-semibold text-emerald-600">✓ Sesuai</span>
+                            </div>
+                        {/if}
+                        {#if selectedCheck.mac_ok}
+                            <div class="flex items-center justify-between rounded-lg bg-emerald-500/5 border border-emerald-500/15 px-4 py-2.5">
+                                <span class="text-xs text-muted-foreground font-medium">MAC Address</span>
+                                <span class="text-sm font-semibold text-emerald-600">✓ Sesuai</span>
+                            </div>
+                        {/if}
+                        {#if selectedCheck.note}
                             <div class="rounded-lg bg-muted/30 px-4 py-2.5 space-y-1">
-                                <span class="text-xs text-muted-foreground font-medium">Catatan</span>
-                                <p class="text-sm leading-relaxed">{selectedUsage.note}</p>
+                                <span class="text-xs text-muted-foreground font-medium">Keterangan</span>
+                                <p class="text-sm leading-relaxed">{selectedCheck.note}</p>
                             </div>
                         {/if}
                     </div>
@@ -832,7 +856,7 @@
 
 </LayoutBG>
 
-<svelte:window onkeydown={(e) => { if (e.key === 'Escape') usageModalOpen = false; }} />
+<svelte:window onkeydown={(e) => { if (e.key === 'Escape') checkModalOpen = false; }} />
 
 <style>
 </style>
