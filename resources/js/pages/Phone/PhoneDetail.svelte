@@ -78,8 +78,8 @@
     let lenis: Lenis | null = $state(null);
     let stickyRef = $state<HTMLDivElement | null>(null);
     let isMobile = $state(false);
-    let selectedUsage = $state<{ name: string; nik: string; login: string; note: string | null } | null>(null);
-    let usageModalOpen = $state(false);
+    let selectedCheck = $state<{ date: string; user: string; nik: string; status: string; note: string; imei_ok: boolean; mac_ok: boolean; foto: string[] | null } | null>(null);
+    let checkModalOpen = $state(false);
 
     // Desktop: sticky progress
     let stickyProgress = $state(0);
@@ -626,10 +626,7 @@
 
             <div class="p-3 space-y-2">
                 {#each usagesTable!.rows as row}
-                    <div
-                        class="rounded-xl border border-border/60 bg-card p-3 flex items-center gap-3 cursor-pointer transition-all hover:border-primary/40 hover:shadow-sm hover:bg-primary/[0.02]"
-                        onclick={() => { selectedUsage = { ...row }; usageModalOpen = true; }}
-                    >
+                    <div class="rounded-xl border border-border/60 bg-card p-3 flex items-center gap-3">
                         <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
                             {row.name.charAt(0)}
                         </div>
@@ -739,6 +736,24 @@
             <div class="flex items-center justify-between px-4 py-2 border-t border-border/30 bg-muted/10">
                 <RowCount table={checksTable!} />
                 <Pagination table={checksTable!} />
+            </div>
+
+            <!-- Tombol scroll ke Riwayat Penggunaan -->
+            <div class="flex justify-center pt-4">
+                <button
+                    onclick={() => {
+                        const el = document.getElementById('usage');
+                        if (el) {
+                            lenis?.scrollTo(el, { offset: -80, duration: 1.2 });
+                        }
+                    }}
+                    class="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors px-4 py-2 rounded-full border border-border/40 hover:border-border/80"
+                >
+                    Lihat Riwayat Penggunaan
+                    <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
