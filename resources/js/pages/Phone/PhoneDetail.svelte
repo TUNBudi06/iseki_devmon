@@ -559,6 +559,17 @@
                             >
                                 <ClipboardList class="size-4" /> Riwayat Pengecekan
                             </div>
+                            <button
+                                onclick={() => {
+                                    const el = document.getElementById('checks');
+                                    if (el) {
+                                        lenis?.scrollTo(el, { offset: -80, duration: 1.2 });
+                                    }
+                                }}
+                                class="text-[10px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+                            >
+                                Lihat Semua
+                            </button>
                         </div>
                             <div class="space-y-1.5">
                                 {#each phone.checks.slice(0, 4) as check}
@@ -682,7 +693,10 @@
 
             <div class="p-3 space-y-2">
                 {#each checksTable!.rows as row}
-                    <div class="rounded-xl border border-border/60 bg-card p-3 space-y-2">
+                    <div
+                        class="rounded-xl border border-border/60 bg-card p-3 space-y-2 cursor-pointer transition-all hover:border-primary/40 hover:shadow-sm"
+                        onclick={() => { selectedCheck = { ...row }; checkModalOpen = true; }}
+                    >
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <div class="size-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary">
