@@ -32,7 +32,7 @@
     import Autoplay from 'embla-carousel-autoplay';
 
     // ─── Props ──────────────────────────────────────────────────
-    let { phone: raw, usages: rawUsages, latestUser }: { phone: PhoneType; usages: { name: string; nik: string; login: string; note: string | null }[]; latestUser: { name: string; nik: string; login: string; note: string | null } | null } = $props();
+    let { phone: raw, usages: rawUsages, latestUser, checks: rawChecks }: { phone: PhoneType; usages: { name: string; nik: string; login: string; note: string | null }[]; latestUser: { name: string; nik: string; login: string; note: string | null } | null; checks?: { date: string; user: string; username: string; status: string; imei_ok: boolean; mac_ok: boolean; note: string | null; foto: string[] | null }[] } = $props();
 
     type PhoneType = {
         id: number;
@@ -66,7 +66,7 @@
         color: '',
         photos: raw.list_photos?.map((p) => assetUrl(p)).filter(Boolean) as string[] ?? [],
         buy_date: raw.buy_date,
-        checks: [] as { date: string; user: string; nik: string; status: string; note: string }[],
+        checks: (rawChecks ?? []).map(c => ({ ...c, nik: c.username })) as { date: string; user: string; nik: string; status: string; note: string; imei_ok: boolean; mac_ok: boolean; foto: string[] | null }[],
         usages: rawUsages ?? [],
     };
 
