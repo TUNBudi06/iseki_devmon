@@ -75,5 +75,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('admin-list/{id}', [AdminListController::class, 'destroy'])->name('adminList.destroy');
 
         Route::get('maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
+        Route::post('maintenance/search',[MaintenanceController::class,'getDeviceByQr'])->name('maintenance.search');
     });
 });

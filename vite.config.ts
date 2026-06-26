@@ -85,4 +85,11 @@ export default defineConfig({
             '$lib': path.resolve(__dirname, './resources/js/lib'),
         }
     },
+    server:{
+        host: '0.0.0.0',
+        origin:'http://192.168.173.37:5173',
+        cors:{
+            origin: ['http://192.168.173.37','http://localhost','http://192.168.123.203']
+        }
+    }
 });

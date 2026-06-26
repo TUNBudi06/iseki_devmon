@@ -26,7 +26,7 @@ class LoginController extends Controller
             ->exists();
 
         if ($hasAbsenceToday) {
-            return redirect()->route('user.dashboard', ['device_id' => $deviceId]);
+            return redirect()->route('user.user.dashboard', ['device_id' => $deviceId]);
         }
 
         return Inertia::render('Member/LoginMember', [
