@@ -135,7 +135,7 @@
         },
         {
             key: 'checked-month',
-            label: 'Checked This Month',
+            label: 'Total Pengecekan',
             value: stats.checkedThisMonth,
             icon: ShieldCheck,
             gradient: 'from-violet-500/20 to-violet-600/5',
@@ -146,13 +146,13 @@
         },
         {
             key: 'has-checked',
-            label: 'HP yang sudah di check',
+            label: 'HP Sudah Di-Check',
             value: stats.maintenanceCount,
             icon: Wrench,
             gradient: 'from-amber-500/20 to-amber-600/5',
             iconBg: 'bg-amber-500/20 text-amber-400',
             border: 'border-amber-500/20',
-            badge: stats.maintenanceCount === 0 ? 'None' : 'Needs attention',
+            badge: stats.maintenanceCount > 0 ? `${stats.maintenanceCount} device` : 'Belum ada',
             spotlightColor: 'rgba(245, 158, 11, 0.18)',
         },
     ] as const;
@@ -356,11 +356,11 @@
                 </div>
                 <div class="text-center">
                     <div class="text-2xl font-bold text-violet-400">{stats.checkedThisMonth}</div>
-                    <p class="text-xs text-muted-foreground mt-1">Checked This Month</p>
+                    <p class="text-xs text-muted-foreground mt-1">Total Pengecekan</p>
                 </div>
                 <div class="text-center">
                     <div class="text-2xl font-bold text-amber-400">{stats.maintenanceCount}</div>
-                    <p class="text-xs text-muted-foreground mt-1">Dalam Perbaikan</p>
+                    <p class="text-xs text-muted-foreground mt-1">HP Di-Check Bulan Ini</p>
                 </div>
             </div>
         </div>
