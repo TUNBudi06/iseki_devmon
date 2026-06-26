@@ -37,6 +37,7 @@
     } from '@lucide/svelte';
     import { toast } from 'svelte-sonner';
     import { dashboard, listDevice } from '$routes/admin';
+    import { goBack } from '$lib/navigation';
     import type { FormDataErrors } from '@inertiajs/core';
 
     // ─── Types ───────────────────────────────────────────────────
@@ -264,12 +265,7 @@
 
 
 
-    // ─── Navigation ──────────────────────────────────────────────
-    function goBack() {
-        router.visit(dashboard().url);
-    }
-
-    // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════
     //  BRAND CRUD
     // ═══════════════════════════════════════════════════════════════
 

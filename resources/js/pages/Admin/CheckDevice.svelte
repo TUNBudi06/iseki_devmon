@@ -19,6 +19,7 @@
         CameraOff,
     } from '@lucide/svelte';
     import { dashboard, checkDevice } from '$routes/admin';
+    import { goBack } from '$lib/navigation';
 
     type DeviceInfo = {
         model_id: string;
@@ -111,23 +112,20 @@
         stopScanner();
     });
 
-    function goBack() {
-        router.visit(dashboard().url);
-    }
 </script>
 
-<div class="min-h-screen bg-mesh-pink p-6 space-y-6">
+<div class="min-h-screen bg-mesh-pink p-4 md:p-6 space-y-4 md:space-y-6">
     <!-- ──────── Header ──────── -->
-    <div class="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onclick={goBack}>
+    <div class="flex items-start sm:items-center gap-3 sm:gap-4">
+        <Button variant="ghost" size="icon" onclick={goBack} class="shrink-0 mt-0.5 sm:mt-0">
             <ArrowLeft class="size-5" />
         </Button>
         <div>
-            <div class="flex items-center gap-2">
-                <ScanQrCode class="size-6 text-emerald-400" />
-                <h1 class="text-2xl font-bold">Check Device</h1>
+            <div class="flex items-center gap-2 flex-wrap">
+                <ScanQrCode class="size-5 sm:size-6 text-emerald-400" />
+                <h1 class="text-xl sm:text-2xl font-bold">Check Device</h1>
             </div>
-            <p class="text-sm text-muted-foreground mt-1">
+            <p class="text-xs sm:text-sm text-muted-foreground mt-1">
                 Scan QR code dari perangkat untuk verifikasi
             </p>
         </div>
@@ -135,10 +133,10 @@
 
     <!-- ──────── Scanner Card ──────── -->
     <Card.Root class="max-w-xl border-border/60 bg-card/60 backdrop-blur-xl">
-        <Card.Content class="p-6 space-y-4">
+        <Card.Content class="p-4 sm:p-6 space-y-4">
             {#if !scanning && !result}
-                <div class="text-center py-8 space-y-4">
-                    <div class="size-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto">
+                <div class="text-center py-6 sm:py-8 space-y-4">
+                    <div class="size-16 sm:size-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto">
                         <Camera class="size-10 text-emerald-400" />
                     </div>
                     <div>
@@ -156,7 +154,7 @@
 
             {#if scanning}
                 <div class="relative rounded-xl overflow-hidden border border-border/60 bg-black">
-                    <video bind:this={videoRef} class="w-full h-72 object-cover" muted playsinline />
+                    <video bind:this={videoRef} class="w-full h-56 sm:h-72 object-cover" muted playsinline />
 
                     {#if checking}
                         <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
@@ -196,10 +194,10 @@
         <Card.Root class="max-w-xl border-border/60 bg-card/60 backdrop-blur-xl overflow-hidden">
             <div class="h-1.5 bg-gradient-to-r {result.valid ? 'from-emerald-500 to-emerald-400' : 'from-red-500 to-red-400'}" />
 
-            <Card.Content class="p-6 space-y-5">
+            <Card.Content class="p-4 sm:p-6 space-y-4 md:space-y-5">
                 <!-- Status Header -->
-                <div class="flex items-center gap-3">
-                    <div class="size-12 rounded-full {result.valid ? 'bg-emerald-500/20 ring-emerald-500/30' : 'bg-red-500/20 ring-red-500/30'} flex items-center justify-center shrink-0 ring-2">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div class="size-10 sm:size-12 rounded-full {result.valid ? 'bg-emerald-500/20 ring-emerald-500/30' : 'bg-red-500/20 ring-red-500/30'} flex items-center justify-center shrink-0 ring-2">
                         {#if result.valid}
                             <CheckCircle2 class="size-6 text-emerald-400" />
                         {:else}
@@ -207,7 +205,7 @@
                         {/if}
                     </div>
                     <div>
-                        <div class="font-bold text-lg {result.valid ? 'text-emerald-400' : 'text-red-400'}">
+                        <div class="font-bold text-base sm:text-lg {result.valid ? 'text-emerald-400' : 'text-red-400'}">
                             {result.valid ? '✓ Token Cocok' : '✗ Token Tidak Cocok'}
                         </div>
                         <p class="text-sm text-muted-foreground">{result.message}</p>
@@ -231,16 +229,16 @@
                             Informasi Perangkat
                         </div>
 
-                        <div class="flex gap-4">
+                        <div class="flex flex-col sm:flex-row gap-4">
                             {#if result.device.thumbnail}
-                                <img src={assetUrl(result.device.thumbnail)} alt={result.device.model_name} class="size-20 rounded-xl object-cover ring-1 ring-emerald-300/30 shrink-0" />
+                                <img src={assetUrl(result.device.thumbnail)} alt={result.device.model_name} class="size-16 sm:size-20 rounded-xl object-cover ring-1 ring-emerald-300/30 shrink-0 mx-auto sm:mx-0" />
                             {:else}
                                 <div class="size-20 rounded-xl bg-emerald-500/10 flex items-center justify-center ring-1 ring-emerald-300/20 shrink-0">
                                     <Smartphone class="size-8 text-emerald-400/60" />
                                 </div>
                             {/if}
 
-                            <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm flex-1">
+                            <div class="grid grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-2 text-xs sm:text-sm flex-1">
                                 <div class="col-span-2">
                                     <span class="text-xs text-muted-foreground">Nama Perangkat</span>
                                     <div class="font-semibold flex items-center gap-2">

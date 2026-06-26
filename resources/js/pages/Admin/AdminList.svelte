@@ -23,6 +23,7 @@
     } from '@lucide/svelte';
     import { toast } from 'svelte-sonner';
     import { dashboard, adminList } from '$routes/admin';
+    import { goBack } from '$lib/navigation';
     import type { FormDataErrors } from '@inertiajs/core';
 
     type AdminUser = {
@@ -62,10 +63,6 @@
     const adminTable = $derived.by(() => {
         return filteredUsers.length > 0 ? new TableHandler(filteredUsers, { rowsPerPage: 10 }) : null;
     });
-
-    function goBack() {
-        router.visit(dashboard().url);
-    }
 
     function formatDate(dateStr: string): string {
         return new Date(dateStr).toLocaleDateString('id-ID', {

@@ -10,6 +10,7 @@
     import QrScanner from "qr-scanner";
     import {useHttp} from "@inertiajs/svelte";
     import maintenance, { store as storeRoute } from "$routes/admin/maintenance";
+    import { goBack } from '$lib/navigation';
     import {toast} from "svelte-sonner";
     import {page} from "@inertiajs/svelte"
     import * as Carousel from "$shadcn/components/ui/carousel"
@@ -27,10 +28,6 @@
     let bindHtml = $state<HTMLVideoElement>()
     let scanError = $state('')
     let fotoPreview = $state<string[]>([])
-
-    function goBack() {
-        router.visit(dashboard().url);
-    }
 
     const formSearchDevice = useHttp({
         model_id: ''
