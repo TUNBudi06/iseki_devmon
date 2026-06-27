@@ -22,6 +22,7 @@
     import { Textarea } from '$shadcn/components/ui/textarea';
     import { Separator } from '$shadcn/components/ui/separator';
     import * as FileDropZone from '$shadcn/components/ui/file-drop-zone';
+    import { detailPhone } from '$routes/phone';
 
     let isScannning = $state(true);
     let isLoading = $state(false);
@@ -565,7 +566,10 @@
                         <div class="flex flex-col">
                             {#each recentChecks as check (check.id)}
                                 {@const phone = check.phone_list}
-                                <div class="flex items-center gap-3 py-2.5 border-b border-border/30 last:border-b-0">
+                                <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+                                <div
+                                    class="flex items-center gap-3 py-2.5 border-b border-border/30 last:border-b-0 cursor-pointer hover:bg-muted/30 rounded-lg px-2 -mx-2 transition-colors group"
+                                    onclick={() => phone && router.visit(detailPhone({ id: phone.model_id }).url)}
                                     <!-- Status dot -->
                                     <div class="size-2 rounded-full shrink-0 {check.imei_ok && check.mac_ok ? 'bg-emerald-500' : 'bg-amber-500'}" title={check.imei_ok && check.mac_ok ? 'Semua OK' : 'Perlu perhatian'}></div>
 
@@ -599,6 +603,11 @@
                                     <span class="text-xs text-muted-foreground shrink-0 w-20 text-right">
                                         {new Date(check.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                                     </span>
+
+                                    <!-- Arrow -->
+                                    <svg class="size-3.5 text-muted-foreground/30 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg>
                                 </div>
                             {/each}
                         </div>
