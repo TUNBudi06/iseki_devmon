@@ -8,7 +8,7 @@
     import { AspectRatio } from '$shadcn/components/ui/aspect-ratio';
     import { onMount, onDestroy, tick } from 'svelte';
     import QrScanner from 'qr-scanner';
-    import { useHttp, useForm } from '@inertiajs/svelte';
+    import { useHttp } from '@inertiajs/svelte';
     import maintenance, {
         store as storeRoute,
     } from '$routes/admin/maintenance';
@@ -58,10 +58,10 @@
 
     let checkPhotos = $state<File[]>([]);
 
-    const formCheckDevice = useForm({
+    const formCheckDevice = useHttp({
         id: '',
         keterangan: '',
-        foto: [] as unknown,
+        foto: [],
         imei_ok: false,
         mac_ok: false,
     });
@@ -77,9 +77,8 @@
     }
 
     async function handleSubmit() {
-        formCheckDevice.foto = checkPhotos as unknown;
+        formCheckDevice.foto = checkPhotos;
         formCheckDevice.post(storeRoute().url, {
-            forceFormData: true,
             onSuccess: () => {
                 toast.success('Pengecekan berhasil dicatat');
                 deviceData = false;
