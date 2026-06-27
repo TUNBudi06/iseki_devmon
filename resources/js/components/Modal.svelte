@@ -39,8 +39,13 @@
                 <Card.Header>
                     <div class="flex items-center gap-3">
                         {#if icon}
-                            <div class="size-10 rounded-xl bg-pink-500/20 flex items-center justify-center shrink-0">
-                                <svelte:component this={icon} class="size-5 text-pink-400" />
+                            <div
+                                class="size-10 rounded-xl bg-pink-500/20 flex items-center justify-center shrink-0"
+                            >
+                                <svelte:component
+                                    this={icon}
+                                    class="size-5 text-pink-400"
+                                />
                             </div>
                         {/if}
                         <div>
@@ -48,7 +53,9 @@
                                 <Card.Title class="text-lg">{title}</Card.Title>
                             {/if}
                             {#if description}
-                                <Card.Description>{description}</Card.Description>
+                                <Card.Description
+                                    >{description}</Card.Description
+                                >
                             {/if}
                         </div>
                     </div>
@@ -56,7 +63,9 @@
             {/if}
 
             {#if children}
-                <Card.Content class="pt-5 space-y-4 max-h-[75vh] overflow-y-auto">
+                <Card.Content
+                    class="pt-5 space-y-4 max-h-[75vh] overflow-y-auto"
+                >
                     {@render children()}
                 </Card.Content>
             {/if}

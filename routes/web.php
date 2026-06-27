@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\ListDeviceController;
 use App\Http\Controllers\Admin\MaintenanceController;
 use App\Http\Controllers\Phone\DetailPhone;
 use App\Http\Controllers\Phone\MainPhone;
+use App\Http\Controllers\PrintableController;
 use App\Http\Controllers\User\DeviceManagement;
 use App\Http\Controllers\User\LoginController;
 use Illuminate\Support\Facades\Route;
@@ -78,6 +79,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('maintenance/search', [MaintenanceController::class, 'getDeviceByQr'])->name('maintenance.search');
         Route::post('maintenance/store', [MaintenanceController::class, 'store'])->name('maintenance.store');
 
-        Route::get('print',[\App\Http\Controllers\PrintableController::class,'index'])->name('printPage');
+        Route::get('print', [PrintableController::class, 'index'])->name('printPage');
+        Route::get('print-qr/select', [PrintableController::class, 'selectDevices'])->name('printQrSelect');
     });
 });

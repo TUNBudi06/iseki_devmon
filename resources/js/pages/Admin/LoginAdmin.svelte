@@ -9,8 +9,8 @@
     import LayoutBG from '$/components/LayoutBG.svelte';
     import { home } from '$routes';
     import { loginAdmin, dashboard } from '$routes/admin';
-    import {toast} from "svelte-sonner";
-    import {tick} from "svelte";
+    import { toast } from 'svelte-sonner';
+    import { tick } from 'svelte';
 
     const form = useHttp({
         username: '',
@@ -18,16 +18,22 @@
     });
 
     function handleSubmit(e: Event) {
-        e.preventDefault()
+        e.preventDefault();
         form.post(loginAdmin.authenticate().url, {
-            onSuccess:async () => {
-                await toast.success('Login berhasil! Mengalihkan ke dashboard...')
+            onSuccess: async () => {
+                await toast.success(
+                    'Login berhasil! Mengalihkan ke dashboard...',
+                );
                 setTimeout(() => {
-                router.visit(dashboard().url);
-                }, 1000)
+                    router.visit(dashboard().url);
+                }, 1000);
             },
             onError: (errors) => {
-                toast.error(errors.password || errors.username || 'Login gagal. Periksa username dan password.');
+                toast.error(
+                    errors.password ||
+                        errors.username ||
+                        'Login gagal. Periksa username dan password.',
+                );
             },
         });
     }
@@ -61,7 +67,8 @@
                     <Shield class="size-7 text-primary" />
                 </div>
                 <Card.Title class="text-2xl font-bold">Login Admin</Card.Title>
-                <Card.Description>Masuk ke panel administrator</Card.Description>
+                <Card.Description>Masuk ke panel administrator</Card.Description
+                >
             </Card.Header>
 
             <Card.Content>
@@ -98,8 +105,12 @@
                     </div>
 
                     {#if form.errors.password}
-                        <div class="rounded-lg bg-red-500/10 border border-red-500/20 p-3">
-                            <p class="text-sm text-red-400">{form.errors.password}</p>
+                        <div
+                            class="rounded-lg bg-red-500/10 border border-red-500/20 p-3"
+                        >
+                            <p class="text-sm text-red-400">
+                                {form.errors.password}
+                            </p>
                         </div>
                     {/if}
 

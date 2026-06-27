@@ -15,7 +15,12 @@
     import { Button } from '$shadcn/components/ui/button';
     import SpotlightCard from '$shadcn/components/svelte-bits/SpotlightCard.svelte';
     import { loginMember } from '$routes/user/user';
-    import { deviceNotRegister, deviceRegisterQR, deviceRegisterManual, checkDeviceToken } from '$routes/user';
+    import {
+        deviceNotRegister,
+        deviceRegisterQR,
+        deviceRegisterManual,
+        checkDeviceToken,
+    } from '$routes/user';
     import { home } from '$routes';
     import { getDeviceAuth, clearDeviceAuth } from '$lib/indexedDB';
 
@@ -33,7 +38,10 @@
         try {
             const res = await fetch(checkDeviceToken().url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
                 body: JSON.stringify({ device_id: auth.device_id }),
             });
 
@@ -88,17 +96,27 @@
         <div class="w-full max-w-lg relative z-10">
             <Card.Root class="border-red-500/30 bg-card/80 backdrop-blur-xl">
                 <Card.Content class="p-4 flex items-center gap-3">
-                    <div class="size-10 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
+                    <div
+                        class="size-10 rounded-full bg-red-500/20 flex items-center justify-center shrink-0"
+                    >
                         <AlertTriangle class="size-5 text-red-400" />
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-red-400">Token tidak valid</p>
+                        <p class="text-sm font-medium text-red-400">
+                            Token tidak valid
+                        </p>
                         <p class="text-xs text-muted-foreground mt-0.5">
-                            Token perangkat lama tidak ditemukan atau sudah tidak berlaku.
-                            Hapus token untuk melanjutkan registrasi baru.
+                            Token perangkat lama tidak ditemukan atau sudah
+                            tidak berlaku. Hapus token untuk melanjutkan
+                            registrasi baru.
                         </p>
                     </div>
-                    <Button size="sm" variant="destructive" onclick={handleClearToken} class="gap-1.5 shrink-0">
+                    <Button
+                        size="sm"
+                        variant="destructive"
+                        onclick={handleClearToken}
+                        class="gap-1.5 shrink-0"
+                    >
                         <Trash2 class="size-3.5" />
                         Hapus Token
                     </Button>
@@ -109,8 +127,12 @@
 
     <!-- Loading state -->
     {#if tokenChecking}
-        <div class="flex items-center gap-2 text-sm text-muted-foreground relative z-10">
-            <div class="size-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <div
+            class="flex items-center gap-2 text-sm text-muted-foreground relative z-10"
+        >
+            <div
+                class="size-4 border-2 border-primary border-t-transparent rounded-full animate-spin"
+            />
             Memeriksa sesi perangkat...
         </div>
     {/if}

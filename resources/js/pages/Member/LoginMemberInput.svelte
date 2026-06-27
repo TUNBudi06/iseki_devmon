@@ -10,7 +10,10 @@
         registered: boolean;
     };
 
-    let { device, error: serverError }: { device: DeviceInfo | null; error: string | null } = $props();
+    let {
+        device,
+        error: serverError,
+    }: { device: DeviceInfo | null; error: string | null } = $props();
 </script>
 
 <LoginMember {device} error={serverError} mode="additional" />

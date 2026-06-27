@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { cn } from '$lib/utils.ts';
+    import { cn } from '$shadcn/utils.ts';
 
     let {
         class: className = '',
@@ -16,13 +16,17 @@
 
     const { width: w, height: h } = dimensions[orientation];
 
-    let containerClass = cn('relative bg-white box-border print:shadow-none print:border-0', className);
+    let containerClass = cn(
+        'relative bg-white box-border print:shadow-none print:border-0',
+        className,
+    );
 </script>
 
 <div
     bind:this={ref}
     class={containerClass}
-    style="width: {w * 3.78}px; min-width: {w * 3.78}px; height: {h * 3.78}px; min-height: {h * 3.78}px;"
+    style="width: {w * 3.78}px; min-width: {w * 3.78}px; height: {h *
+        3.78}px; min-height: {h * 3.78}px;"
     {...restProps}
 >
     {@render children?.()}

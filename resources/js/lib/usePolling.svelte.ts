@@ -1,5 +1,5 @@
-import { onMount, onDestroy } from 'svelte';
 import { router } from '@inertiajs/svelte';
+import { onDestroy, onMount } from 'svelte';
 
 type PollingOptions = {
     only: string[];

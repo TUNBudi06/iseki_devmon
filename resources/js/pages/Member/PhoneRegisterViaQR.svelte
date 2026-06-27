@@ -24,7 +24,11 @@
     import QrScanner from 'qr-scanner';
     import { home } from '$routes';
     import { loginMember } from '$routes/user/user';
-    import { deviceNotRegister, deviceVerify, deviceRegister } from '$routes/user';
+    import {
+        deviceNotRegister,
+        deviceVerify,
+        deviceRegister,
+    } from '$routes/user';
     import { saveDeviceAuth } from '$lib/indexedDB';
 
     let videoElement: HTMLVideoElement | null = null;
@@ -74,7 +78,8 @@
             await qrScanner.start();
             hasFlash = await qrScanner.hasFlash();
         } catch (err) {
-            error = 'Tidak dapat mengakses kamera. Pastikan izin kamera diberikan.';
+            error =
+                'Tidak dapat mengakses kamera. Pastikan izin kamera diberikan.';
             scanning = false;
         }
     }
@@ -113,7 +118,9 @@
             try {
                 const cameras = await QrScanner.listCameras(true);
                 const currentCamera = await qrScanner.getCamera();
-                const currentIndex = cameras.findIndex((cam) => cam.id === currentCamera);
+                const currentIndex = cameras.findIndex(
+                    (cam) => cam.id === currentCamera,
+                );
                 const nextCamera = cameras[(currentIndex + 1) % cameras.length];
                 await qrScanner.setCamera(nextCamera.id);
             } catch (err) {
@@ -130,7 +137,10 @@
         try {
             const res = await fetch(deviceVerify().url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
                 body: JSON.stringify({ code }),
             });
 
@@ -177,7 +187,8 @@
         // Validasi minimal salah satu wajib (cek yang sudah ada di DB + yang diinput user)
         const hasExisting = hasExistingHardwareId();
         if (!hasExisting && !imeiInput.trim() && !macInput.trim()) {
-            error = 'Harap isi IMEI atau MAC Address perangkat (minimal salah satu).';
+            error =
+                'Harap isi IMEI atau MAC Address perangkat (minimal salah satu).';
             return;
         }
 
@@ -187,7 +198,10 @@
         try {
             const res = await fetch(deviceRegister().url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
                 body: JSON.stringify({
                     model_id: deviceInfo.model_id,
                     imei: imeiInput.trim() || null,
@@ -249,14 +263,20 @@
             onclick={() => router.visit(deviceNotRegister().url)}
             class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
         >
-            <ArrowLeft class="size-4 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft
+                class="size-4 group-hover:-translate-x-1 transition-transform"
+            />
             Kembali
         </button>
     </div>
 
     <!-- Hero section -->
-    <div class="text-center relative z-10 space-y-4 md:space-y-6 max-w-4xl mx-auto">
-        <div class="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 text-primary text-xs font-medium px-4 py-1.5 rounded-full animate-in fade-in slide-in-from-top-5 duration-500">
+    <div
+        class="text-center relative z-10 space-y-4 md:space-y-6 max-w-4xl mx-auto"
+    >
+        <div
+            class="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 text-primary text-xs font-medium px-4 py-1.5 rounded-full animate-in fade-in slide-in-from-top-5 duration-500"
+        >
             <QrCode class="size-3" />
             <span class="size-1.5 rounded-full bg-primary animate-pulse"></span>
             Pendaftaran Cepat
@@ -267,7 +287,8 @@
         </h1>
 
         <p class="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
-            Scan QR code pada perangkat atau masukkan kode manual untuk memulai pendaftaran
+            Scan QR code pada perangkat atau masukkan kode manual untuk memulai
+            pendaftaran
         </p>
     </div>
 
@@ -277,7 +298,9 @@
             <Card.Root class="border-border/60 bg-card/80 backdrop-blur-sm">
                 <Card.Header>
                     <Card.Title class="text-xl font-bold text-center">
-                        {scanning ? 'Arahkan Kamera ke QR Code' : 'Pilih Metode'}
+                        {scanning
+                            ? 'Arahkan Kamera ke QR Code'
+                            : 'Pilih Metode'}
                     </Card.Title>
                     <Card.Description class="text-center">
                         {scanning
@@ -297,37 +320,71 @@
 
                     {#if isLoading}
                         <div class="p-16 flex flex-col items-center gap-4">
-                            <Loader2 class="size-10 text-primary animate-spin" />
-                            <p class="text-sm text-muted-foreground">Memverifikasi perangkat...</p>
+                            <Loader2
+                                class="size-10 text-primary animate-spin"
+                            />
+                            <p class="text-sm text-muted-foreground">
+                                Memverifikasi perangkat...
+                            </p>
                         </div>
                     {:else if scanning}
                         <!-- Scanner -->
-                        <div class="relative aspect-square w-full max-w-sm mx-auto rounded-xl overflow-hidden border-2 border-primary/30 bg-black">
-                            <video bind:this={videoElement} class="w-full h-full object-cover"></video>
+                        <div
+                            class="relative aspect-square w-full max-w-sm mx-auto rounded-xl overflow-hidden border-2 border-primary/30 bg-black"
+                        >
+                            <video
+                                bind:this={videoElement}
+                                class="w-full h-full object-cover"
+                            ></video>
                             <div class="absolute inset-0 pointer-events-none">
-                                <div class="absolute inset-0 border-2 border-primary/50 rounded-xl"></div>
-                                <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-primary animate-scan"></div>
-                                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-primary rounded-xl"></div>
+                                <div
+                                    class="absolute inset-0 border-2 border-primary/50 rounded-xl"
+                                ></div>
+                                <div
+                                    class="absolute top-1/2 left-0 right-0 h-0.5 bg-primary animate-scan"
+                                ></div>
+                                <div
+                                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-primary rounded-xl"
+                                ></div>
                             </div>
                         </div>
 
                         <div class="flex justify-center gap-3 flex-wrap">
                             {#if hasFlash}
-                                <Button onclick={toggleFlash} variant="outline" class="gap-2">
-                                    <Zap class="size-4 {isFlashOn ? 'text-yellow-500 fill-yellow-500' : ''}" />
+                                <Button
+                                    onclick={toggleFlash}
+                                    variant="outline"
+                                    class="gap-2"
+                                >
+                                    <Zap
+                                        class="size-4 {isFlashOn
+                                            ? 'text-yellow-500 fill-yellow-500'
+                                            : ''}"
+                                    />
                                     {isFlashOn ? 'Flash On' : 'Flash Off'}
                                 </Button>
                             {/if}
-                            <Button onclick={switchCamera} variant="outline" class="gap-2">
+                            <Button
+                                onclick={switchCamera}
+                                variant="outline"
+                                class="gap-2"
+                            >
                                 <FlipHorizontal class="size-4" /> Ganti Kamera
                             </Button>
-                            <Button onclick={stopScan} variant="outline" class="gap-2">
+                            <Button
+                                onclick={stopScan}
+                                variant="outline"
+                                class="gap-2"
+                            >
                                 <X class="size-4" /> Batal
                             </Button>
                         </div>
 
                         <div class="text-center text-xs text-muted-foreground">
-                            <p>Pastikan QR code terlihat jelas dan dalam pencahayaan yang cukup</p>
+                            <p>
+                                Pastikan QR code terlihat jelas dan dalam
+                                pencahayaan yang cukup
+                            </p>
                         </div>
                     {:else}
                         <!-- Method selection -->
@@ -336,33 +393,61 @@
                                 onclick={startScan}
                                 class="group flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border hover:border-primary/50 bg-card/50 hover:bg-primary/5 transition-all duration-300"
                             >
-                                <div class="size-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <div
+                                    class="size-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform"
+                                >
                                     <Camera class="size-6 text-primary" />
                                 </div>
                                 <div>
-                                    <div class="font-semibold text-sm">Scan Kamera</div>
-                                    <p class="text-xs text-muted-foreground mt-1">Gunakan kamera perangkat</p>
+                                    <div class="font-semibold text-sm">
+                                        Scan Kamera
+                                    </div>
+                                    <p
+                                        class="text-xs text-muted-foreground mt-1"
+                                    >
+                                        Gunakan kamera perangkat
+                                    </p>
                                 </div>
                             </button>
                             <button
-                                onclick={() => document.getElementById('manual-input')?.scrollIntoView({ behavior: 'smooth' })}
+                                onclick={() =>
+                                    document
+                                        .getElementById('manual-input')
+                                        ?.scrollIntoView({
+                                            behavior: 'smooth',
+                                        })}
                                 class="group flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border hover:border-primary/50 bg-card/50 hover:bg-primary/5 transition-all duration-300"
                             >
-                                <div class="size-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <div
+                                    class="size-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform"
+                                >
                                     <Smartphone class="size-6 text-primary" />
                                 </div>
                                 <div>
-                                    <div class="font-semibold text-sm">Input Manual</div>
-                                    <p class="text-xs text-muted-foreground mt-1">Masukkan model ID perangkat</p>
+                                    <div class="font-semibold text-sm">
+                                        Input Manual
+                                    </div>
+                                    <p
+                                        class="text-xs text-muted-foreground mt-1"
+                                    >
+                                        Masukkan model ID perangkat
+                                    </p>
                                 </div>
                             </button>
                         </div>
 
-                        <div id="manual-input" class="space-y-4 pt-4 border-t border-border">
+                        <div
+                            id="manual-input"
+                            class="space-y-4 pt-4 border-t border-border"
+                        >
                             <div class="space-y-2">
-                                <Label for="qr-code" class="text-sm font-medium">Model ID / Kode Perangkat</Label>
+                                <Label for="qr-code" class="text-sm font-medium"
+                                    >Model ID / Kode Perangkat</Label
+                                >
                                 <div class="relative">
-                                    <QrCode class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                                    <QrCode
+                                        class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+                                    />
                                     <Input
                                         id="qr-code"
                                         type="text"
@@ -372,11 +457,17 @@
                                     />
                                 </div>
                             </div>
-                            <Button onclick={handleManualSubmit} disabled={isLoading || !manualCode.trim()} class="w-full gap-2">
+                            <Button
+                                onclick={handleManualSubmit}
+                                disabled={isLoading || !manualCode.trim()}
+                                class="w-full gap-2"
+                            >
                                 {#if isLoading}
                                     <Loader2 class="size-4 animate-spin" /> Memverifikasi...
                                 {:else}
-                                    Verifikasi Kode <CheckCircle class="size-4" />
+                                    Verifikasi Kode <CheckCircle
+                                        class="size-4"
+                                    />
                                 {/if}
                             </Button>
                         </div>
@@ -385,31 +476,54 @@
             </Card.Root>
         {:else if deviceInfo}
             <!-- Device Info Step -->
-            <Card.Root class="border-border/60 bg-card/80 backdrop-blur-sm animate-in zoom-in-95 duration-200">
+            <Card.Root
+                class="border-border/60 bg-card/80 backdrop-blur-sm animate-in zoom-in-95 duration-200"
+            >
                 <Card.Header class="text-center">
-                    <div class="mx-auto size-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center mb-3">
+                    <div
+                        class="mx-auto size-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center mb-3"
+                    >
                         <Smartphone class="size-7 text-emerald-400" />
                     </div>
-                    <Card.Title class="text-xl font-bold">Perangkat Ditemukan!</Card.Title>
-                    <Card.Description>Verifikasi berhasil — perangkat siap didaftarkan</Card.Description>
+                    <Card.Title class="text-xl font-bold"
+                        >Perangkat Ditemukan!</Card.Title
+                    >
+                    <Card.Description
+                        >Verifikasi berhasil — perangkat siap didaftarkan</Card.Description
+                    >
                 </Card.Header>
 
                 <Card.Content class="space-y-4">
                     <div class="rounded-xl bg-muted/30 p-5 space-y-3">
                         <div class="flex items-center justify-between">
-                            <span class="text-sm text-muted-foreground">Model ID</span>
-                            <code class="text-sm font-mono text-primary font-semibold">{deviceInfo.model_id}</code>
+                            <span class="text-sm text-muted-foreground"
+                                >Model ID</span
+                            >
+                            <code
+                                class="text-sm font-mono text-primary font-semibold"
+                                >{deviceInfo.model_id}</code
+                            >
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-sm text-muted-foreground">Nama Perangkat</span>
-                            <span class="text-sm font-semibold">{deviceInfo.model_name}</span>
+                            <span class="text-sm text-muted-foreground"
+                                >Nama Perangkat</span
+                            >
+                            <span class="text-sm font-semibold"
+                                >{deviceInfo.model_name}</span
+                            >
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-sm text-muted-foreground">Brand</span>
-                            <span class="text-sm font-semibold">{deviceInfo.brand_name ?? '-'}</span>
+                            <span class="text-sm text-muted-foreground"
+                                >Brand</span
+                            >
+                            <span class="text-sm font-semibold"
+                                >{deviceInfo.brand_name ?? '-'}</span
+                            >
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-sm text-muted-foreground">Tipe</span>
+                            <span class="text-sm text-muted-foreground"
+                                >Tipe</span
+                            >
                             <span class="text-sm">{deviceInfo.model_type}</span>
                         </div>
                     </div>
@@ -417,32 +531,73 @@
                     <!-- ─── IMEI & MAC Address Input ─── -->
                     {#if hasExistingHardwareId()}
                         <!-- Sudah ada IMEI/MAC dari admin — tampilkan sebagai info readonly -->
-                        <div class="rounded-xl border-2 border-emerald-500/30 bg-emerald-500/5 p-4 space-y-3">
+                        <div
+                            class="rounded-xl border-2 border-emerald-500/30 bg-emerald-500/5 p-4 space-y-3"
+                        >
                             <div class="flex items-center gap-2">
                                 <CheckCircle class="size-4 text-emerald-500" />
-                                <p class="text-xs font-medium text-emerald-600 uppercase tracking-wider">Identifikasi Hardware (dari admin)</p>
+                                <p
+                                    class="text-xs font-medium text-emerald-600 uppercase tracking-wider"
+                                >
+                                    Identifikasi Hardware (dari admin)
+                                </p>
                             </div>
-                            <p class="text-xs text-emerald-600/70">IMEI/MAC sudah diinput oleh admin — pendaftaran langsung tanpa input ulang.</p>
+                            <p class="text-xs text-emerald-600/70">
+                                IMEI/MAC sudah diinput oleh admin — pendaftaran
+                                langsung tanpa input ulang.
+                            </p>
                             {#if deviceInfo.imei}
-                                <div class="rounded-lg bg-emerald-500/10 px-3 py-2 flex items-center gap-2">
-                                    <span class="text-[10px] font-black text-emerald-500 uppercase">IMEI</span>
-                                    <code class="text-sm font-mono font-bold text-foreground">{deviceInfo.imei}</code>
+                                <div
+                                    class="rounded-lg bg-emerald-500/10 px-3 py-2 flex items-center gap-2"
+                                >
+                                    <span
+                                        class="text-[10px] font-black text-emerald-500 uppercase"
+                                        >IMEI</span
+                                    >
+                                    <code
+                                        class="text-sm font-mono font-bold text-foreground"
+                                        >{deviceInfo.imei}</code
+                                    >
                                 </div>
                             {/if}
                             {#if deviceInfo.mac_address}
-                                <div class="rounded-lg bg-emerald-500/10 px-3 py-2 flex items-center gap-2">
-                                    <span class="text-[10px] font-black text-emerald-500 uppercase">MAC</span>
-                                    <code class="text-sm font-mono font-bold text-foreground">{deviceInfo.mac_address}</code>
+                                <div
+                                    class="rounded-lg bg-emerald-500/10 px-3 py-2 flex items-center gap-2"
+                                >
+                                    <span
+                                        class="text-[10px] font-black text-emerald-500 uppercase"
+                                        >MAC</span
+                                    >
+                                    <code
+                                        class="text-sm font-mono font-bold text-foreground"
+                                        >{deviceInfo.mac_address}</code
+                                    >
                                 </div>
                             {/if}
                         </div>
                     {:else}
-                        <div class="rounded-xl border border-border/60 p-4 space-y-3 bg-card">
-                            <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Identifikasi Hardware</p>
-                            <p class="text-xs text-muted-foreground">Isi minimal salah satu (IMEI untuk HP, MAC Address untuk tablet/hp). Lihat di <b>Settings &gt; About Phone</b>.</p>
+                        <div
+                            class="rounded-xl border border-border/60 p-4 space-y-3 bg-card"
+                        >
+                            <p
+                                class="text-xs font-medium text-muted-foreground uppercase tracking-wider"
+                            >
+                                Identifikasi Hardware
+                            </p>
+                            <p class="text-xs text-muted-foreground">
+                                Isi minimal salah satu (IMEI untuk HP, MAC
+                                Address untuk tablet/hp). Lihat di <b
+                                    >Settings &gt; About Phone</b
+                                >.
+                            </p>
 
                             <div class="space-y-2">
-                                <Label for="imei" class="text-sm font-medium">IMEI <span class="text-xs text-muted-foreground">(opsional)</span></Label>
+                                <Label for="imei" class="text-sm font-medium"
+                                    >IMEI <span
+                                        class="text-xs text-muted-foreground"
+                                        >(opsional)</span
+                                    ></Label
+                                >
                                 <Input
                                     id="imei"
                                     type="text"
@@ -454,7 +609,12 @@
                             </div>
 
                             <div class="space-y-2">
-                                <Label for="mac" class="text-sm font-medium">MAC Address <span class="text-xs text-muted-foreground">(opsional)</span></Label>
+                                <Label for="mac" class="text-sm font-medium"
+                                    >MAC Address <span
+                                        class="text-xs text-muted-foreground"
+                                        >(opsional)</span
+                                    ></Label
+                                >
                                 <Input
                                     id="mac"
                                     type="text"
@@ -466,7 +626,9 @@
                             </div>
 
                             {#if !imeiInput.trim() && !macInput.trim()}
-                                <p class="text-xs text-amber-500 flex items-center gap-1">
+                                <p
+                                    class="text-xs text-amber-500 flex items-center gap-1"
+                                >
                                     <AlertCircle class="size-3" />
                                     Pilih salah satu minimal (isi IMEI atau MAC Address)
                                 </p>
@@ -475,10 +637,21 @@
                     {/if}
 
                     <div class="flex gap-3">
-                        <Button variant="outline" onclick={cancelRegistration} class="flex-1 gap-2">
+                        <Button
+                            variant="outline"
+                            onclick={cancelRegistration}
+                            class="flex-1 gap-2"
+                        >
                             <X class="size-4" /> Batal
                         </Button>
-                        <Button onclick={handleRegister} disabled={isRegistering || (!hasExistingHardwareId() && !imeiInput.trim() && !macInput.trim())} class="flex-1 gap-2">
+                        <Button
+                            onclick={handleRegister}
+                            disabled={isRegistering ||
+                                (!hasExistingHardwareId() &&
+                                    !imeiInput.trim() &&
+                                    !macInput.trim())}
+                            class="flex-1 gap-2"
+                        >
                             {#if isRegistering}
                                 <Loader2 class="size-4 animate-spin" /> Mendaftarkan...
                             {:else}
@@ -493,18 +666,63 @@
 
     <!-- Footer -->
     <div class="relative z-10 pt-4">
-        <p class="text-xs text-muted-foreground/60">&copy; 2025 DevControl — Sistem Manajemen Perangkat Lapangan</p>
+        <p class="text-xs text-muted-foreground/60">
+            &copy; 2025 DevControl — Sistem Manajemen Perangkat Lapangan
+        </p>
     </div>
 </LayoutBG>
 
 <style>
-    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slide-in-from-top-5 { from { transform: translateY(-5px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
-    .animate-in { animation-duration: 0.5s; animation-fill-mode: both; }
-    .fade-in { animation-name: fade-in; }
-    .slide-in-from-top-5 { animation-name: slide-in-from-top-5; }
-    .animate-scan { animation: scan 2s linear infinite; }
-    .zoom-in-95 { animation-name: zoom-in-95; }
-    @keyframes zoom-in-95 { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    @keyframes slide-in-from-top-5 {
+        from {
+            transform: translateY(-5px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    @keyframes scan {
+        0% {
+            top: 0%;
+        }
+        100% {
+            top: 100%;
+        }
+    }
+    .animate-in {
+        animation-duration: 0.5s;
+        animation-fill-mode: both;
+    }
+    .fade-in {
+        animation-name: fade-in;
+    }
+    .slide-in-from-top-5 {
+        animation-name: slide-in-from-top-5;
+    }
+    .animate-scan {
+        animation: scan 2s linear infinite;
+    }
+    .zoom-in-95 {
+        animation-name: zoom-in-95;
+    }
+    @keyframes zoom-in-95 {
+        from {
+            transform: scale(0.95);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
 </style>

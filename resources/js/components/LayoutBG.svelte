@@ -1,6 +1,6 @@
 <script>
     import { cn } from '$shadcn/utils.ts';
-    import {Toaster} from "$shadcn/components/ui/sonner/index.ts";
+    import { Toaster } from '$shadcn/components/ui/sonner/index.ts';
 
     let { children, class: className = '' } = $props();
 
