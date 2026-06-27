@@ -1,7 +1,7 @@
 <script lang="ts">
     import LayoutBG from '$/components/LayoutBG.svelte';
     import { Button } from '$shadcn/components/ui/button';
-    import { CircleArrowLeft, X } from '@lucide/svelte';
+    import { CircleArrowLeft, X, ChevronDown } from '@lucide/svelte';
     import { router } from '@inertiajs/svelte';
     import { dashboard } from '$routes/admin';
     import * as Card from '$shadcn/components/ui/card';
@@ -31,6 +31,7 @@
     let bindHtml = $state<HTMLVideoElement>();
     let scanError = $state('');
     let fotoPreview = $state<string[]>([]);
+    let expandedGuide = $state(false);
 
     let { recentChecks = [] } = $props<{
         recentChecks?: {
@@ -176,88 +177,80 @@
 <LayoutBG class="bg-linear-to-br md:p-4 from-pink-50 via-pink-100 to-pink-50">
     <div class="w-full mx-auto relative z-10">
         <div
-            class="mx-auto p-4 h-14 md:max-w-[98%] rounded items-center flex justify-between bg-linear-to-r from-pink-500 to-pink-800"
+            class="mx-auto p-3 md:p-4 md:max-w-[98%] rounded-xl bg-linear-to-r from-pink-500 to-pink-800 shadow-md"
         >
-            <div class=" items-center text-center">
-                <h2 class="font-bold text-white">Check Device</h2>
-                <div class="text-muted text-[8px]">Check All device</div>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="size-8 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
+                        <svg class="size-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 7v2a3 3 0 003 3h2a3 3 0 003-3V7a3 3 0 00-3-3H6a3 3 0 00-3 3z" /><path d="M13 7v2a3 3 0 003 3h2a3 3 0 003-3V7a3 3 0 00-3-3h-2a3 3 0 00-3 3z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-white text-sm md:text-base">Check Device</h2>
+                        <p class="text-pink-200 text-[10px] md:text-xs">Scan QR untuk maintenance</p>
+                    </div>
+                </div>
+                <Button variant="ghost" size="sm" onclick={goBack} class="text-pink-200 hover:text-white hover:bg-white/10">
+                    <CircleArrowLeft class="size-4" />
+                </Button>
             </div>
-            <Button
-                variant="link"
-                onclick={goBack}
-                class="text-white hover:scale-110 transition border-white m-1"
-            >
-                <CircleArrowLeft class="rotate-180" /> Back
-            </Button>
         </div>
 
-        <div class="md:max-w-[98%] mx-auto pt-2 pb-5">
-            <Card.Root>
-                {#if isScannning}
-                    <Card.Header
-                        class="flex flex-row items-center justify-between"
-                    >
+        <div class="mx-auto pt-2 pb-5">
+            {#if isScannning}
+                <!-- Scanner full-width on mobile, card on desktop -->
+                <div class="md:max-w-[98%] mx-auto mb-3 px-1 md:px-0">
+                    <div class="flex items-center justify-between mb-2">
                         <div>
-                            <Card.Title>Scan QR Perangkat</Card.Title>
-                            <Card.Description class="text-xs"
-                                >Arahkan kamera ke QR code di dashboard
-                                perangkat</Card.Description
-                            >
+                            <p class="font-semibold text-sm text-pink-800">Scan QR Perangkat</p>
+                            <p class="text-[11px] text-muted-foreground">Arahkan kamera ke QR code perangkat</p>
                         </div>
                         {#if isLoading}
-                            <span
-                                class="text-xs text-muted-foreground animate-pulse"
-                                >Memproses...</span
-                            >
+                            <span class="text-xs text-muted-foreground animate-pulse">Memproses...</span>
                         {/if}
-                    </Card.Header>
-                {/if}
-                <Card.Content>
-                    {#if isScannning}
-                        <AspectRatio ratio={16 / 9} class="my-5 relative">
-                            <video
-                                bind:this={bindHtml}
-                                class="w-full h-full rounded-lg object-cover"
-                            ></video>
-                            {#if scanError}
-                                <div
-                                    class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-lg"
-                                >
-                                    <div class="text-center p-4">
-                                        <p class="text-red-400 text-sm mb-2">
-                                            {scanError}
-                                        </p>
-                                        <Button
-                                            variant="secondary"
-                                            size="sm"
-                                            onclick={startScanner}
-                                        >
-                                            Coba Lagi
-                                        </Button>
-                                    </div>
-                                </div>
-                            {/if}
+                    </div>
+                    <div class="relative rounded-xl overflow-hidden border-2 border-pink-500/40 shadow-lg shadow-pink-500/10">
+                        <AspectRatio ratio={3 / 4} class="sm:aspect-[16/9] bg-black">
+                            <video bind:this={bindHtml} class="w-full h-full object-cover"></video>
                         </AspectRatio>
-                    {:else if !deviceData}
-                        <div
-                            class="flex flex-col items-center justify-center py-10 gap-4"
-                        >
-                            <p class="text-muted-foreground text-sm">
-                                Silakan scan QR code perangkat
-                            </p>
-                            <Button
-                                onclick={startScanner}
-                                variant="outline"
-                                class="gap-2"
-                            >
-                                <CircleArrowLeft class="rotate-90 size-4" />
-                                Buka Kamera
-                            </Button>
-                        </div>
-                    {/if}
+                        {#if scanError}
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/70">
+                                <div class="text-center p-6">
+                                    <X class="size-10 text-red-400 mx-auto mb-3" />
+                                    <p class="text-red-400 text-sm mb-3">{scanError}</p>
+                                    <Button variant="secondary" size="sm" onclick={startScanner}>Coba Lagi</Button>
+                                </div>
+                            </div>
+                        {/if}
+                    </div>
+                </div>
 
-                    {#if deviceData}
-                        <div
+                <!-- Quick tip -->
+                <p class="text-center text-[10px] text-muted-foreground px-4">
+                    Pastikan QR code terlihat jelas dan tidak terhalang
+                </p>
+            {/if}
+
+            {#if !isScannning && !deviceData}
+                <div class="flex flex-col items-center justify-center py-16 gap-4">
+                    <div class="size-16 rounded-2xl bg-pink-500/10 flex items-center justify-center">
+                        <svg class="size-8 text-pink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M3 7v2a3 3 0 003 3h2a3 3 0 003-3V7a3 3 0 00-3-3H6a3 3 0 00-3 3z" /><path d="M13 7v2a3 3 0 003 3h2a3 3 0 003-3V7a3 3 0 00-3-3h-2a3 3 0 00-3 3z" />
+                        </svg>
+                    </div>
+                    <p class="text-muted-foreground text-sm font-medium">Silakan scan QR code perangkat</p>
+                    <Button onclick={startScanner} variant="outline" size="sm" class="gap-2">
+                        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+                        Buka Kamera
+                    </Button>
+                </div>
+            {/if}
+
+            {#if deviceData}
+                <Card.Root class="md:max-w-[98%] mx-auto">
+                <Card.Content>
+                    <div
                             class="w-full h-full flex flex-col md:flex-row gap-4"
                         >
                             <div class="w-full md:w-1/3">
@@ -387,54 +380,30 @@
                                     </label>
                                 {/if}
 
-                                <!-- Petunjuk Cek IMEI/MAC -->
-                                <div
-                                    class="rounded-lg border border-muted bg-muted/20 p-3 space-y-1.5"
-                                >
-                                    <p
-                                        class="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+                                <!-- Petunjuk Cek IMEI/MAC (collapsible on mobile) -->
+                                <div class="rounded-lg border border-muted bg-muted/20 overflow-hidden">
+                                    <button
+                                        onclick={() => expandedGuide = !expandedGuide}
+                                        class="w-full flex items-center justify-between p-3 text-left"
                                     >
-                                        Cara Cek IMEI / MAC
-                                    </p>
-                                    <ol
-                                        class="text-xs text-muted-foreground space-y-1 list-decimal list-inside"
-                                    >
-                                        <li>
-                                            Buka <span
-                                                class="font-medium text-foreground/80"
-                                                >Pengaturan</span
-                                            > (Settings) di perangkat
-                                        </li>
-                                        <li>
-                                            Masuk ke <span
-                                                class="font-medium text-foreground/80"
-                                                >Tentang Ponsel</span
-                                            > (About Phone)
-                                        </li>
-                                        <li>
-                                            Pilih <span
-                                                class="font-medium text-foreground/80"
-                                                >Status</span
-                                            >
-                                            atau
-                                            <span
-                                                class="font-medium text-foreground/80"
-                                                >Informasi Perangkat</span
-                                            >
-                                        </li>
-                                        <li>
-                                            Cocokkan IMEI / MAC Address yang
-                                            tertera
-                                        </li>
-                                    </ol>
-                                    <p
-                                        class="text-xs text-muted-foreground/70 italic"
-                                    >
-                                        Alternatif: ketik <span
-                                            class="font-mono not-italic"
-                                            >*#06#</span
-                                        > di dial pad untuk lihat IMEI
-                                    </p>
+                                        <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                            Cara Cek IMEI / MAC
+                                        </span>
+                                        <ChevronDown class="size-4 text-muted-foreground transition-transform duration-200 {expandedGuide ? 'rotate-180' : ''}" />
+                                    </button>
+                                    {#if expandedGuide}
+                                        <div class="px-3 pb-3 space-y-1.5">
+                                            <ol class="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                                                <li>Buka <span class="font-medium text-foreground/80">Pengaturan</span> (Settings) di perangkat</li>
+                                                <li>Masuk ke <span class="font-medium text-foreground/80">Tentang Ponsel</span> (About Phone)</li>
+                                                <li>Pilih <span class="font-medium text-foreground/80">Status</span> atau <span class="font-medium text-foreground/80">Informasi Perangkat</span></li>
+                                                <li>Cocokkan IMEI / MAC Address yang tertera</li>
+                                            </ol>
+                                            <p class="text-xs text-muted-foreground/70 italic">
+                                                Alternatif: ketik <span class="font-mono not-italic">*#06#</span> di dial pad untuk lihat IMEI
+                                            </p>
+                                        </div>
+                                    {/if}
                                 </div>
 
                                 <!-- Keterangan -->
@@ -538,9 +507,9 @@
                                 </div>
                             </div>
                         </div>
-                    {/if}
                 </Card.Content>
             </Card.Root>
+            {/if}
         </div>
 
         {#if recentChecks.length > 0}
