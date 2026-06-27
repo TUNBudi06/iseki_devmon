@@ -8,7 +8,7 @@
     import { AspectRatio } from '$shadcn/components/ui/aspect-ratio';
     import { onMount, onDestroy, tick } from 'svelte';
     import QrScanner from 'qr-scanner';
-    import { useHttp } from '@inertiajs/svelte';
+    import { useHttp, useForm } from '@inertiajs/svelte';
     import maintenance, {
         store as storeRoute,
     } from '$routes/admin/maintenance';
@@ -56,38 +56,32 @@
         model_id: '',
     });
 
-    const formCheckDevice = useHttp<{
-        id: string;
-        foto: File[];
-        keterangan: string;
-        imei_ok: boolean;
-        mac_ok: boolean;
-    }>({
+    let checkPhotos = $state<File[]>([]);
+
+    const formCheckDevice = useForm({
         id: '',
         keterangan: '',
-        foto: [],
+        foto: [] as unknown,
         imei_ok: false,
         mac_ok: false,
     });
 
     function resetFoto() {
-        formCheckDevice.foto = [];
+        checkPhotos = [];
         fotoPreview = [];
     }
 
     function removeFoto(index: number) {
-        formCheckDevice.foto = formCheckDevice.foto.filter(
-            (_, i) => i !== index,
-        );
+        checkPhotos = checkPhotos.filter((_, i) => i !== index);
         fotoPreview = fotoPreview.filter((_, i) => i !== index);
     }
 
     async function handleSubmit() {
+        formCheckDevice.foto = checkPhotos as unknown;
         formCheckDevice.post(storeRoute().url, {
             forceFormData: true,
             onSuccess: () => {
                 toast.success('Pengecekan berhasil dicatat');
-                // Reset form for next scan
                 deviceData = false;
                 formCheckDevice.keterangan = '';
                 resetFoto();
@@ -439,17 +433,11 @@
                                         accept="image/*"
                                         capture="user"
                                         maxFileSize={FileDropZone.MEGABYTE * 5}
-                                        fileCount={formCheckDevice.foto.length}
+                                        fileCount={checkPhotos.length}
                                         onUpload={async (files) => {
                                             for (const file of files) {
-                                                formCheckDevice.foto = [
-                                                    ...formCheckDevice.foto,
-                                                    file,
-                                                ];
-                                                fotoPreview = [
-                                                    ...fotoPreview,
-                                                    URL.createObjectURL(file),
-                                                ];
+                                                checkPhotos = [...checkPhotos, file];
+                                                fotoPreview = [...fotoPreview, URL.createObjectURL(file)];
                                             }
                                         }}
                                     >
