@@ -62,14 +62,7 @@ class MaintenanceController extends Controller
         // Get admin user from session
         $adminUser = session('admin_user');
 
-        // Handle foto uploads
-        $fotoPaths = [];
-        if ($request->hasFile('foto')) {
-            foreach ($request->file('foto') as $foto) {
-                $fotoPaths[] = $this->photoStorage->save($foto, $phoneList->id);
-            }
-        }
-
+        // Create check first to get ID for photo subfolder
         $check = DeviceCheck::create([
             'phone_list_id' => $phoneList->id,
             'checked_by_name' => $adminUser['name'] ?? 'Unknown',
@@ -77,8 +70,20 @@ class MaintenanceController extends Controller
             'imei_ok' => $validated['imei_ok'] ?? false,
             'mac_ok' => $validated['mac_ok'] ?? false,
             'keterangan' => $validated['keterangan'] ?? null,
-            'foto' => ! empty($fotoPaths) ? $fotoPaths : null,
+            'foto' => null,
         ]);
+
+        // Handle foto uploads with subpath check/{check_id}
+        $fotoPaths = [];
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $foto) {
+                $fotoPaths[] = $this->photoStorage->save($foto, $phoneList->id, 'check/'.$check->id);
+            }
+        }
+
+        if (! empty($fotoPaths)) {
+            $check->update(['foto' => $fotoPaths]);
+        }
 
         return response()->json([
             'success' => true,

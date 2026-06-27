@@ -7,9 +7,12 @@ use Illuminate\Http\UploadedFile;
 
 class LocalPhotoStorage implements PhotoStorageInterface
 {
-    public function save(UploadedFile $file, int|string $entityId): string
+    public function save(UploadedFile $file, int|string $entityId, string $subfolder = ''): string
     {
         $basePath = 'storage/device/'.$entityId;
+        if ($subfolder !== '') {
+            $basePath .= '/'.$subfolder;
+        }
         $directory = public_path($basePath);
 
         if (! is_dir($directory)) {
