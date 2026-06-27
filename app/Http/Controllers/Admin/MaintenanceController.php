@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\PhotoStorageInterface;
 use App\Http\Controllers\Controller;
 use App\Models\DeviceCheck;
 use App\Models\PhoneList;
@@ -12,6 +13,10 @@ use Inertia\Response;
 
 class MaintenanceController extends Controller
 {
+    public function __construct(
+        private readonly PhotoStorageInterface $photoStorage,
+    ) {}
+
     public function index(): Response
     {
         return Inertia::render('Admin/Maintenance', [
@@ -61,8 +66,7 @@ class MaintenanceController extends Controller
         $fotoPaths = [];
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $foto) {
-                $path = $foto->store("device/{$phoneList->id}/check", 'public');
-                $fotoPaths[] = $path;
+                $fotoPaths[] = $this->photoStorage->save($foto, $phoneList->id);
             }
         }
 
