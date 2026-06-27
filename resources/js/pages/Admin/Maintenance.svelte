@@ -570,6 +570,7 @@
                                 <div
                                     class="flex items-center gap-3 py-2.5 border-b border-border/30 last:border-b-0 cursor-pointer hover:bg-muted/30 rounded-lg px-2 -mx-2 transition-colors group"
                                     onclick={() => phone && router.visit(detailPhone({ id: phone.model_id }).url)}
+                                >
                                     <!-- Status dot -->
                                     <div class="size-2 rounded-full shrink-0 {check.imei_ok && check.mac_ok ? 'bg-emerald-500' : 'bg-amber-500'}" title={check.imei_ok && check.mac_ok ? 'Semua OK' : 'Perlu perhatian'}></div>
 
