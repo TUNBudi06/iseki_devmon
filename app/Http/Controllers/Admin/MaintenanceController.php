@@ -19,8 +19,10 @@ class MaintenanceController extends Controller
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->latest()
-                ->take(30)
-                ->get(),
+                ->take(200)
+                ->get()
+                ->unique('phone_list_id')
+                ->values(),
         ]);
     }
 
