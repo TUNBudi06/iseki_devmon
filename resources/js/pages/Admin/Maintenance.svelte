@@ -31,6 +31,25 @@
     let scanError = $state('');
     let fotoPreview = $state<string[]>([]);
 
+    let { recentChecks = [] } = $props<{
+        recentChecks?: {
+            id: number;
+            phone_list_id: number;
+            checked_by_name: string;
+            checked_by_username: string;
+            imei_ok: boolean;
+            mac_ok: boolean;
+            keterangan: string | null;
+            created_at: string;
+            phone_list: {
+                id: number;
+                brand_id: string;
+                model_id: string;
+                model_name: string;
+            } | null;
+        }[];
+    }>();
+
     const formSearchDevice = useHttp({
         model_id: '',
     });
@@ -522,5 +541,70 @@
                 </Card.Content>
             </Card.Root>
         </div>
+
+        {#if recentChecks.length > 0}
+            <!-- ══ RECENT MAINTENANCE THIS MONTH ══ -->
+            <div class="md:max-w-[98%] mx-auto mt-6">
+                <Card.Root>
+                    <Card.Header class="pb-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="size-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                                <svg class="size-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <Card.Title class="text-base">Maintenance Bulan Ini</Card.Title>
+                                <Card.Description class="text-xs">
+                                    {recentChecks.length} perangkat sudah dicek bulan {new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                                </Card.Description>
+                            </div>
+                        </div>
+                    </Card.Header>
+                    <Card.Content class="pt-0">
+                        <div class="flex flex-col">
+                            {#each recentChecks as check (check.id)}
+                                {@const phone = check.phone_list}
+                                <div class="flex items-center gap-3 py-2.5 border-b border-border/30 last:border-b-0">
+                                    <!-- Status dot -->
+                                    <div class="size-2 rounded-full shrink-0 {check.imei_ok && check.mac_ok ? 'bg-emerald-500' : 'bg-amber-500'}" title={check.imei_ok && check.mac_ok ? 'Semua OK' : 'Perlu perhatian'}></div>
+
+                                    <!-- Device info -->
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-medium text-sm truncate">
+                                            {phone?.model_name ?? '#' + check.phone_list_id}
+                                        </div>
+                                        <div class="flex items-center gap-2 text-xs text-muted-foreground">
+                                            {#if phone}
+                                                <span class="font-mono">{phone.model_id}</span>
+                                                <span>&middot;</span>
+                                                <span>{phone.brand_id}</span>
+                                            {/if}
+                                            <span>&middot;</span>
+                                            <span>{check.checked_by_name}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Badges -->
+                                    <div class="flex items-center gap-1 shrink-0">
+                                        {#if check.imei_ok}
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-mono">IMEI</span>
+                                        {/if}
+                                        {#if check.mac_ok}
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-mono">MAC</span>
+                                        {/if}
+                                    </div>
+
+                                    <!-- Date -->
+                                    <span class="text-xs text-muted-foreground shrink-0 w-20 text-right">
+                                        {new Date(check.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                                    </span>
+                                </div>
+                            {/each}
+                        </div>
+                    </Card.Content>
+                </Card.Root>
+            </div>
+        {/if}
     </div>
 </LayoutBG>

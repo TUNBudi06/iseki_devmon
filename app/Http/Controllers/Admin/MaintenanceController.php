@@ -14,7 +14,14 @@ class MaintenanceController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('Admin/Maintenance');
+        return Inertia::render('Admin/Maintenance', [
+            'recentChecks' => fn () => DeviceCheck::with('phoneList:id,brand_id,model_id,model_name')
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->latest()
+                ->take(30)
+                ->get(),
+        ]);
     }
 
     public function getDeviceByQr(Request $request): JsonResponse
