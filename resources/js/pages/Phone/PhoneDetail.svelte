@@ -510,7 +510,7 @@
 
                 <!-- Info 30% -->
                 <div
-                    class="w-[30%] flex flex-col justify-center gap-0 px-8 pt-20 pb-10 overflow-hidden"
+                    class="w-[30%] flex flex-col justify-start gap-0 px-8 pt-20 pb-10 overflow-y-auto scrollbar-thin"
                 >
                     <!-- ① Nama + Harga -->
                     <div class="space-y-2 pb-5">
@@ -1167,4 +1167,18 @@
 />
 
 <style>
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: hsl(var(--border) / 0.4) transparent;
+    }
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 5px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: hsl(var(--border) / 0.4);
+        border-radius: 8px;
+    }
 </style>
