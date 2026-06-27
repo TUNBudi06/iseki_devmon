@@ -510,7 +510,7 @@
 
                 <!-- Info 30% -->
                 <div
-                    class="w-[30%] flex flex-col justify-start gap-0 px-8 pt-20 pb-10 overflow-y-auto scrollbar-thin"
+                    class="w-[30%] flex flex-col justify-center gap-0 px-8 pt-20 pb-10 overflow-hidden"
                 >
                     <!-- ① Nama + Harga -->
                     <div class="space-y-2 pb-5">
@@ -710,72 +710,26 @@
                     {/if}
 
                     {#if phone.checks.length > 0}
-                        <!-- ④ Riwayat Pengecekan singkat -->
+                        <!-- ④ Riwayat Pengecekan reference -->
                         <div
-                            class="border-t border-border/60 pt-5 space-y-3 transition-all duration-700 delay-200"
+                            class="border-t border-border/60 pt-5 transition-all duration-700 delay-200"
                         >
-                            <div class="flex justify-between items-center">
+                            <button
+                                onclick={() => {
+                                    const el = document.getElementById('checks');
+                                    if (el) lenis?.scrollTo(el, { offset: -80, duration: 1.2 });
+                                }}
+                                class="w-full text-left group"
+                            >
                                 <div
                                     class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-bold flex items-center gap-1.5"
                                 >
                                     <ClipboardList class="size-4" /> Riwayat Pengecekan
                                 </div>
-                                <button
-                                    onclick={() => {
-                                        const el =
-                                            document.getElementById('checks');
-                                        if (el) {
-                                            lenis?.scrollTo(el, {
-                                                offset: -80,
-                                                duration: 1.2,
-                                            });
-                                        }
-                                    }}
-                                    class="text-[10px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
-                                >
-                                    Lihat Semua
-                                </button>
-                            </div>
-                            <button
-                                onclick={() => {
-                                    const el =
-                                        document.getElementById('checks');
-                                    if (el) {
-                                        lenis?.scrollTo(el, {
-                                            offset: -80,
-                                            duration: 1.2,
-                                        });
-                                    }
-                                }}
-                                class="w-full flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 hover:bg-card hover:border-primary/40 transition-all px-4 py-3 group"
-                            >
-                                <div
-                                    class="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors"
-                                >
-                                    <ClipboardList
-                                        class="size-4 text-primary"
-                                    />
-                                </div>
-                                <div class="flex-1 text-left">
-                                    <div
-                                        class="text-sm font-medium group-hover:text-primary transition-colors"
-                                    >
-                                        Lihat Riwayat Pengecekan
-                                    </div>
-                                    <div class="text-xs text-muted-foreground">
-                                        {phone.checks.length} catatan &middot; Klik
-                                        untuk detail
-                                    </div>
-                                </div>
-                                <svg
-                                    class="size-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path d="M5 12h14M12 5l7 7-7 7" />
-                                </svg>
+                                <p class="text-xs text-muted-foreground mt-1 group-hover:text-primary transition-colors">
+                                    {phone.checks.length} catatan &middot;
+                                    <span class="underline underline-offset-2">klik di sini</span>
+                                </p>
                             </button>
                         </div>
                     {/if}
@@ -1167,18 +1121,4 @@
 />
 
 <style>
-    .scrollbar-thin {
-        scrollbar-width: thin;
-        scrollbar-color: hsl(var(--border) / 0.4) transparent;
-    }
-    .scrollbar-thin::-webkit-scrollbar {
-        width: 5px;
-    }
-    .scrollbar-thin::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    .scrollbar-thin::-webkit-scrollbar-thumb {
-        background: hsl(var(--border) / 0.4);
-        border-radius: 8px;
-    }
 </style>
