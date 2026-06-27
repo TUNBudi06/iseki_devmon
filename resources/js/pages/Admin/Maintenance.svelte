@@ -444,30 +444,20 @@
                                         <FileDropZone.Trigger />
                                     </FileDropZone.Root>
                                     {#if fotoPreview.length > 0}
-                                        <div
-                                            class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-2"
-                                        >
+                                        <div class="flex flex-wrap gap-2 mt-2">
                                             {#each fotoPreview as preview, i}
-                                                <div
-                                                    class="relative group aspect-square"
-                                                >
+                                                <div class="relative group">
                                                     <img
                                                         src={preview}
-                                                        alt="Kondisi fisik {i +
-                                                            1}"
-                                                        class="size-full rounded-lg object-cover ring-1 ring-pink-300/30"
+                                                        alt="Foto {i + 1}"
+                                                        class="size-16 rounded-lg object-cover ring-1 ring-pink-300/30 hover:ring-pink-400/60 transition-all duration-200"
                                                     />
                                                     <button
                                                         type="button"
-                                                        onclick={(e) => {
-                                                            e.stopPropagation();
-                                                            removeFoto(i);
-                                                        }}
-                                                        class="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-red-500/80 flex items-center justify-center lg:opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        onclick={(e) => { e.stopPropagation(); removeFoto(i); }}
+                                                        class="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-red-500/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                                     >
-                                                        <X
-                                                            class="size-3 text-white"
-                                                        />
+                                                        <X class="size-3 text-white" />
                                                     </button>
                                                 </div>
                                             {/each}
